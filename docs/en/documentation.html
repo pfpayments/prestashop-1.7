@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+		<meta name="keywords" value="PostFinance Checkout, PrestaShop 1.7, PrestaShop Module, Payment, Payment Integration, Documentation"><meta name="description" value="The documentation for the PrestaShop 1.7 module that enables processing payments with PostFinance Checkout.">		<link rel="canonical" href="https://plugin-documentation.wallee.com/wallee-payment/prestashop-1.7/master/docs/en/documentation.html" />
+		<title>Documentation</title>
+		<link href="assets/base.css" rel="stylesheet" />
+	</head>
+	<body class="documentation">
+		<div class="layout-wrapper">
+							<div class="layout-title">
+					<h1>Documentation</h1>
+<h2>Documentation</h2>				</div>
+										<div class="layout-navigation">
+					<ul class="nav">
+	<li>
+		<a href="https://www.postfinance-checkout.ch/user/signup">
+			Sign Up
+		</a>
+	</li>
+	<li>
+		<a href="https://github.com/pfpayments/prestashop-1.7/releases/tag/1.0.7/">
+			Source
+		</a>
+	</li>
+</ul>				</div>
+										<div class="layout-content">
+												<div class="col-body">
+							<div class="col-body-wrapper">
+																	<div class="body-container">
+																						<div class="chapter" id="_prerequisites">
+	<div class="chapter-title">
+		<h1>
+			<span class="title-number">1</span>Prerequisites					</h1>
+	</div>
+	<div class="chapter-body">
+					<div class="paragraph">
+<p>If you don&#8217;t already have one, create a <a href="https://www.postfinance.ch/">PostFinance Checkout</a> account and set up a space by following the setup assistant.</p>
+</div><div class="paragraph">
+<p>Install the PrestaShop Mailhook module found <a href="https://github.com/wallee-payment/prestashop-mailhook/releases">here</a>.</p>
+</div>					</div>
+</div>	<div class="chapter" id="_installation">
+	<div class="chapter-title">
+		<h1>
+			<span class="title-number">2</span>Installation					</h1>
+	</div>
+	<div class="chapter-body">
+					<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Download the module from <a href="https://github.com/pfpayments/prestashop-1.7/releases/tag/1.0.7/">here</a>.</p>
+</li>
+<li>
+<p>In you Shop go to <strong>Modules &gt; Upload a module</strong>.</p>
+</li>
+<li>
+<p>Upload the file.</p>
+</li>
+<li>
+<p>Install the module in the shop.</p>
+</li>
+</ol>
+</div>					</div>
+</div>	<div class="chapter" id="_configuration">
+	<div class="chapter-title">
+		<h1>
+			<span class="title-number">3</span>Configuration					</h1>
+	</div>
+	<div class="chapter-body">
+					<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>The plugin&#8217;s configuration can be found in the <strong>Modules and Services</strong></p>
+</li>
+<li>
+<p>Click on <strong>Configure</strong> for the PostFinance Checkout payment module.</p>
+</li>
+<li>
+<p>Enter the credentials from before which means the PostFinance Checkout application user&#8217;s access information and the space id. If your store is configured for multishop you need to switch the shop context to configure the space id. The configuration will be done automatically. (save before switching)</p>
+</li>
+<li>
+<p>Save the values by clicking the <strong>Save</strong> button.</p>
+</li>
+<li>
+<p>Be aware that you configure the restrictions in <strong>Modules and Services &gt; Payment</strong>  otherwise it can not be used in the checkout.</p>
+</li>
+</ol>
+</div><div class="imageblock">
+<div class="content">
+<img src="resource/settings.png" alt="Settings"/>
+</div>
+</div>					</div>
+</div>	<div class="chapter" id="_payment_method_configuration">
+	<div class="chapter-title">
+		<h1>
+			<span class="title-number">4</span>Payment Method Configuration					</h1>
+	</div>
+	<div class="chapter-body">
+					<div class="paragraph">
+<p>The base configuration of the payment methods is done in PostFinance Checkout. After following the steps of the basic configuration, the PostFinance Checkout payment method configuration will be synchronized automatically into the PrestaShop store.</p>
+</div><div class="paragraph">
+<p>In Prestashop there are some styling choices available in the <strong>Modules and Services &gt; PostFinance Checkout Payment Methods</strong> section.</p>
+</div><div class="imageblock">
+<div class="content">
+<img src="resource/method.png" alt="Method Settings"/>
+</div>
+</div>					</div>
+</div>	<div class="chapter" id="_payment_fee">
+	<div class="chapter-title">
+		<h1>
+			<span class="title-number">5</span>Payment Fee					</h1>
+	</div>
+	<div class="chapter-body">
+					<div class="paragraph">
+<p>The module allows to configure a Payment Fee for the different PostFinance Checkout payment methods. This is done in multiple steps.</p>
+</div><div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Create a PrestaShop product with price 0.00 and give it a meaning full name. e.g. "Payment Fee"</p>
+</li>
+<li>
+<p>In the module configuration select this newly created item as the payment fee product.</p>
+</li>
+<li>
+<p>Configure the fee for each method in the <strong>Modules and Services &gt; PostFinance Checkout Payment Methods</strong> section.</p>
+</li>
+</ol>
+</div>					</div>
+</div>	<div class="chapter" id="_support">
+	<div class="chapter-title">
+		<h1>
+			<span class="title-number">6</span>Support					</h1>
+	</div>
+	<div class="chapter-body">
+					<div class="paragraph">
+<p>If you need help, feel free to contact our <a href="https://www.postfinance.ch/en/business/support/written-contact/contact-form.html">support</a>.</p>
+</div>					</div>
+</div>																			</div>
+															</div>
+						</div>
+						<div class="col-right">
+		<div class="col-right-wrapper">
+							<div class="table-of-contents">
+	<ul class="nav">
+					<li class="nav-level-1">
+	<a href="#_prerequisites">
+		<span class="item-number">1</span>
+		<span class="item-title">Prerequisites</span>
+			</a>
+    </li>					<li class="nav-level-1">
+	<a href="#_installation">
+		<span class="item-number">2</span>
+		<span class="item-title">Installation</span>
+			</a>
+    </li>					<li class="nav-level-1">
+	<a href="#_configuration">
+		<span class="item-number">3</span>
+		<span class="item-title">Configuration</span>
+			</a>
+    </li>					<li class="nav-level-1">
+	<a href="#_payment_method_configuration">
+		<span class="item-number">4</span>
+		<span class="item-title">Payment Method Configuration</span>
+			</a>
+    </li>					<li class="nav-level-1">
+	<a href="#_payment_fee">
+		<span class="item-number">5</span>
+		<span class="item-title">Payment Fee</span>
+			</a>
+    </li>					<li class="nav-level-1">
+	<a href="#_support">
+		<span class="item-number">6</span>
+		<span class="item-title">Support</span>
+			</a>
+    </li>			</ul>
+</div>					</div>
+	</div>
+				</div>
+					</div>
+
+		<script type="text/javascript" src="assets/jquery.js"></script>
+		<script type="text/javascript" src="assets/scrollspy.js"></script>
+		<script type="text/javascript" src="assets/sticky-kit.js"></script>
+		<script type="text/javascript" src="assets/base.js"></script>
+	</body>
+</html>

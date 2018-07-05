@@ -1,0 +1,24 @@
+language: generic
+
+before_deploy:
+  - if ! [ "$BEFORE_DEPLOY_RUN" ]; then
+      export BEFORE_DEPLOY_RUN=1;
+      mkdir build;
+      mkdir build/src;
+      rsync -r --exclude 'build' --exclude '.git' --exclude '.travis.yml' --exclude 'README.md' . build/src;
+      export MODULE_NAME=$(find build/src -maxdepth 1 -type f -name '*.php' -a -not -name '*autoloader.php' -printf "%f" | sed 's/\.[^.]*$//');
+      mkdir build/$MODULE_NAME;
+      rsync -r build/src/ build/$MODULE_NAME/;
+      cd build;
+      zip -r $TRAVIS_BUILD_DIR/$MODULE_NAME.zip $MODULE_NAME;
+      cd ..;
+    fi  
+ 
+deploy:
+  - provider: releases
+    api_key: $GITHUB_API_KEY
+    file: "$MODULE_NAME.zip"
+    skip_cleanup: true
+    on:
+       tags: true
+       repo: pfpayments/prestashop-1.7
