@@ -5,13 +5,13 @@
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 		<meta name="keywords" value="PostFinance Checkout, PrestaShop 1.7, PrestaShop Module, Payment, Payment Integration, Documentation"><meta name="description" value="The documentation for the PrestaShop 1.7 module that enables processing payments with PostFinance Checkout.">		<link rel="canonical" href="https://plugin-documentation.wallee.com/wallee-payment/prestashop-1.7/master/docs/en/documentation.html" />
-		<title>Documentation</title>
+		<title>PostFinance Checkout PrestaShop</title>
 		<link href="assets/base.css" rel="stylesheet" />
 	</head>
 	<body class="documentation">
 		<div class="layout-wrapper">
 							<div class="layout-title">
-					<h1>Documentation</h1>
+					<h1>PostFinance Checkout PrestaShop</h1>
 <h2>Documentation</h2>				</div>
 										<div class="layout-navigation">
 					<ul class="nav">
@@ -21,7 +21,7 @@
 		</a>
 	</li>
 	<li>
-		<a href="https://github.com/pfpayments/prestashop-1.7/releases/tag/1.0.7/">
+		<a href="https://github.com/pfpayments/prestashop-1.7/releases/tag/1.0.8/">
 			Source
 		</a>
 	</li>
@@ -37,7 +37,7 @@
 	</div>
 	<div class="chapter-body">
 					<div class="paragraph">
-<p>If you don&#8217;t already have one, create a <a href="https://www.postfinance.ch/">PostFinance Checkout</a> account and set up a space by following the setup assistant.</p>
+<p>If you don&#8217;t already have one, create a <a href="https://www.postfinance.ch/">PostFinance Checkout</a> account.</p>
 </div><div class="paragraph">
 <p>Install the PrestaShop Mailhook module found <a href="https://github.com/wallee-payment/prestashop-mailhook/releases">here</a>.</p>
 </div>					</div>
@@ -50,16 +50,23 @@
 					<div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>Download the module from <a href="https://github.com/pfpayments/prestashop-1.7/releases/tag/1.0.7/">here</a>.</p>
+<p><a href="https://github.com/pfpayments/prestashop-1.7/releases/tag/1.0.8/">Download</a> the extension.</p>
 </li>
 <li>
-<p>In you Shop go to <strong>Modules &gt; Upload a module</strong>.</p>
+<p>Extract the files and upload them to your store&#8217;s root directory using FTP/SSH.</p>
 </li>
 <li>
-<p>Upload the file.</p>
+<p>Login to the backend of your PrestsShop store.</p>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Navigate to **Modules &gt; Modules and Services.</p>
 </li>
 <li>
 <p>Install the module in the shop.</p>
+</li>
+</ol>
+</div>
 </li>
 </ol>
 </div>					</div>
@@ -72,25 +79,27 @@
 					<div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>The plugin&#8217;s configuration can be found in the <strong>Modules and Services</strong></p>
+<p>Navigate to <strong>Modules &gt; Modules and Services &gt; Installed modules</strong> in your PrestaShop backend</p>
 </li>
 <li>
-<p>Click on <strong>Configure</strong> for the PostFinance Checkout payment module.</p>
-</li>
-<li>
-<p>Enter the credentials from before which means the PostFinance Checkout application user&#8217;s access information and the space id. If your store is configured for multishop you need to switch the shop context to configure the space id. The configuration will be done automatically. (save before switching)</p>
-</li>
-<li>
-<p>Save the values by clicking the <strong>Save</strong> button.</p>
-</li>
-<li>
-<p>Be aware that you configure the restrictions in <strong>Modules and Services &gt; Payment</strong>  otherwise it can not be used in the checkout.</p>
-</li>
-</ol>
-</div><div class="imageblock">
+<p>Search for the PostFinance Checkout module, click on <strong>Configure</strong> and enter the PostFinance Checkout User ID, Space ID and the Application Key that you can create in the <a href="https://www.postfinance-checkout.ch/space/select?target=/space/assistant" target="_blank">setup assistant</a>. Alternatively, you can manually create an <a href="https://www.postfinance-checkout.ch/en-us/doc/permission-concept#_create_application_users" target="_blank">application user</a>.</p>
+<div class="imageblock">
 <div class="content">
 <img src="resource/settings.png" alt="Settings"/>
 </div>
+</div>
+</li>
+</ol>
+</div><div class="paragraph">
+<p>If your store is configured for multishop you need to switch the shop context to configure the space id. The configuration will be done automatically. (save before switching)</p>
+</div><div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>After saving the configuration, the payment methods are created in the PrestaShop store and the necessary webhooks are set up.</p>
+</li>
+</ol>
+</div><div class="paragraph">
+<p>The setup is now finished. You should see the payment methods in your checkout. To view the payment method configuration in the backend of PrestaShop go to Payment &gt; PostFinance Checkout payment methods.</p>
 </div>					</div>
 </div>	<div class="chapter" id="_payment_method_configuration">
 	<div class="chapter-title">
@@ -98,19 +107,204 @@
 			<span class="title-number">4</span>Payment Method Configuration					</h1>
 	</div>
 	<div class="chapter-body">
+							<div class="section" id="_setup">
+	<div class="section-title">
+		<h2>
+			<span class="title-number">4.1</span>Setup					</h2>
+	</div>
+	<div class="section-body">
 					<div class="paragraph">
-<p>The base configuration of the payment methods is done in PostFinance Checkout. After following the steps of the basic configuration, the PostFinance Checkout payment method configuration will be synchronized automatically into the PrestaShop store.</p>
-</div><div class="paragraph">
-<p>In Prestashop there are some styling choices available in the <strong>Modules and Services &gt; PostFinance Checkout Payment Methods</strong> section.</p>
+<p>The PostFinance Checkout payment method configurations are synchronized automatically into the PrestaShop store. There are just a few payment method settings in the PrestaShop store in Modules and Services &gt; PostFinance Checkout payment methods.</p>
 </div><div class="imageblock">
 <div class="content">
 <img src="resource/method.png" alt="Method Settings"/>
 </div>
+</div><div class="paragraph">
+<p>Additional payment methods are directly added in PostFinance Checkout. This can be done in the <a href="https://www.postfinance-checkout.ch/space/select?target=/space/assistant/payment" target="_blank">setup assistant</a>. Changes are synchronized automatically.</p>
 </div>					</div>
+</div>					<div class="section" id="_customization">
+	<div class="section-title">
+		<h2>
+			<span class="title-number">4.2</span>Customization					</h2>
+	</div>
+	<div class="section-body">
+					<div class="paragraph">
+<p>If you want to change the payment method description, title, logo, etc you need to do this in the <a href="https://www.postfinance-checkout.ch/space/select?target=/payment/method-configuration/list" target="_blank">payment method configuration</a>. Changes will be synchronized automatically.</p>
+</div>					</div>
+</div>			</div>
+</div>	<div class="chapter" id="_state_graph">
+	<div class="chapter-title">
+		<h1>
+			<span class="title-number">5</span>State Graph					</h1>
+	</div>
+	<div class="chapter-body">
+					<div class="paragraph">
+<p>The Payment Process of PostFinance Checkout is <strong>completely standardized for every payment method</strong> you can process. This gives you the ability to simply add
+a payment method or processor without changes inside of your PrestaShop configuration. An overview about the states and the payment processes of PostFinance Checkout
+can be found in the <a href="https://www.postfinance-checkout.ch/en-us/doc/payment/transaction-process" target="_blank">Payment Documentation</a>.</p>
+</div><div class="paragraph">
+<p>In the following section we provide you an overview about how the PostFinance Checkout states are mapped into the PrestaShop State graph for orders and invoices.</p>
+</div>							<div class="section" id="_state_mapping_of_prestashop_orders">
+	<div class="section-title">
+		<h2>
+			<span class="title-number">5.1</span>State Mapping Of PrestaShop Orders					</h2>
+	</div>
+	<div class="section-body">
+					<div class="paragraph">
+<p>Below you find a diagram that shows the state machine of PrestaShop for orders including additional information for the state transitions.</p>
+</div><div class="imageblock">
+<div class="content">
+<img src="resource/magento_state_graph_order.svg" alt="magento state graph order"/>
+</div>
+</div>					</div>
+</div>					<div class="section" id="_state_mapping_of_prestashop_invoices">
+	<div class="section-title">
+		<h2>
+			<span class="title-number">5.2</span>State Mapping of PrestaShop Invoices					</h2>
+	</div>
+	<div class="section-body">
+					<div class="paragraph">
+<p>Below you find a diagram that shows the state machine of PrestaShop for Invoices including additional information for the state transitions.</p>
+</div><div class="imageblock">
+<div class="content">
+<img src="resource/magento_stage_graph_invoice.svg" alt="magento stage graph invoice"/>
+</div>
+</div>					</div>
+</div>			</div>
+</div>	<div class="chapter" id="_transaction_management">
+	<div class="chapter-title">
+		<h1>
+			<span class="title-number">6</span>Transaction Management					</h1>
+	</div>
+	<div class="chapter-body">
+					<div class="paragraph">
+<p>You can capture, cancel and refund transactions directly from within the PrestaShop backend. Please note
+if you refund, void or capture transactions inside PostFinance Checkout the events will not be synchronized into
+PrestaShop.</p>
+</div>							<div class="section" id="_complete_capture_an_order">
+	<div class="section-title">
+		<h2>
+			<span class="title-number">6.1</span>Complete (capture) an order					</h2>
+	</div>
+	<div class="section-body">
+					<div class="paragraph">
+<p>You have the possibility for your transactions to have the invoice created and the payment only authorized after the order is placed. Inside the <a href="https://www.postfinance-checkout.ch/space/select?target=/payment/connector-configuration/list" target="_blank">connector configuration</a> you have the option, if the payment method supports it, to define whether the payment should be completed immediately or deferred.</p>
+</div><div class="paragraph">
+<p>In order to complete a transaction in PrestaShop, open the order and click on the <code>completion</code> button.</p>
+</div><div class="paragraph">
+<p>This will finalize the order and it can no longer be changed.</p>
+</div><div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+When the completion is pending in PostFinance Checkout the invoice will stay in the authorized state.
+</td>
+</tr>
+</table>
+</div><div class="imageblock">
+<div class="content">
+<img src="resource/prestashop-1.7-completion.png" alt="prestashop 1.7 completion"/>
+</div>
+</div>					</div>
+</div>					<div class="section" id="_void_a_transaction">
+	<div class="section-title">
+		<h2>
+			<span class="title-number">6.2</span>Void a Transaction					</h2>
+	</div>
+	<div class="section-body">
+					<div class="paragraph">
+<p>In order to void a transaction, open the order and click on the <code>void</code> button. This will cancel the invoice and void the transaction.</p>
+</div><div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+You can only void transactions that are not yet completed.
+</td>
+</tr>
+</table>
+</div><div class="imageblock">
+<div class="content">
+<img src="resource/prestashop-1.7-void.png" alt="prestashop 1.7 void"/>
+</div>
+</div>					</div>
+</div>					<div class="section" id="_refund_of_a_transaction">
+	<div class="section-title">
+		<h2>
+			<span class="title-number">6.3</span>Refund of a Transaction					</h2>
+	</div>
+	<div class="section-body">
+					<div class="paragraph">
+<p>You have the possibility to refund already completed transactions. In order to do so, open the captured order. By clicking on <code>Partial refund</code> the window for refunds will show. In case the payment method does not support refund, you will not see the possibility to issue online refunds.</p>
+</div><div class="imageblock">
+<div class="content">
+<img src="resource/prestashop-1.7-refund1.png" alt="prestashop 1.7 refund1"/>
+</div>
+</div><div class="paragraph">
+<p>You can make refunds based on product quantity and product amount. In order to do so, enter
+the number of products or amount you wish to refund to your customer.</p>
+</div><div class="imageblock">
+<div class="content">
+<img src="resource/prestashop-1.7-refund2.png" alt="prestashop 1.7 refund2"/>
+</div>
+</div><div class="paragraph">
+<p>You can carry out as many individual refunds as you wish until you have reached the quantity or amount of the original order.</p>
+</div><div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+It can take some time until you see the refund in PrestaShop. Refunds will only be visible once they have been processed successfully.
+</td>
+</tr>
+</table>
+</div>					</div>
+</div>					<div class="section" id="_pending_orders">
+	<div class="section-title">
+		<h2>
+			<span class="title-number">6.4</span>Pending Orders					</h2>
+	</div>
+	<div class="section-body">
+					<div class="paragraph">
+<p>As long as the delivery should not be done the state of the order will be in <code>Manual review</code>. This happens when the transaction in PostFinance Checkout has not reached the fulfill state.</p>
+</div><div class="paragraph">
+<p>There are essentially two reasons why this can happen:</p>
+</div><div class="ulist">
+<ul>
+<li>
+<p>The transaction is not completed. In this case you have to complete the transaction as written above.</p>
+</li>
+<li>
+<p>As long as we are not able to tell you if you should fulfill the order. The delivery decision is done automatically. If this does not happen
+within the defined time frame, PostFinance Checkout will generate a manual task which you should observe and follow the instructions.
+When there is a manual task we will also display it in the PrestaShop Backend.</p>
+</li>
+</ul>
+</div><div class="paragraph">
+<p>You can find more information about manual tasks in our <a href="https://www.postfinance-checkout.ch/en-us/doc/manual-tasks" target="_blank">Manual Task Documentation</a>.</p>
+</div>					</div>
+</div>					<div class="section" id="_limitations_of_the_synchronization_between_whitelabelname_and_prestashop">
+	<div class="section-title">
+		<h2>
+			<span class="title-number">6.5</span>Limitations of the Synchronization between PostFinance Checkout and PrestaShop					</h2>
+	</div>
+	<div class="section-body">
+					<div class="paragraph">
+<p>Please note that captures, voids and refunds done in PostFinance Checkout are not synchronized. We therefore recommend that you
+perform the captures, voids and refunds always inside the PrestaShop backend and not inside PostFinance Checkout.</p>
+</div>					</div>
+</div>			</div>
 </div>	<div class="chapter" id="_payment_fee">
 	<div class="chapter-title">
 		<h1>
-			<span class="title-number">5</span>Payment Fee					</h1>
+			<span class="title-number">7</span>Payment Fee					</h1>
 	</div>
 	<div class="chapter-body">
 					<div class="paragraph">
@@ -128,10 +322,29 @@
 </li>
 </ol>
 </div>					</div>
+</div>	<div class="chapter" id="_faq">
+	<div class="chapter-title">
+		<h1>
+			<span class="title-number">8</span>FAQ					</h1>
+	</div>
+	<div class="chapter-body">
+							<div class="section" id="_how_can_i_make_the_payment_methods_appear_in_the_checkout">
+	<div class="section-title">
+		<h2>
+			<span class="title-number">8.1</span>How can I make the payment methods appear in the checkout?					</h2>
+	</div>
+	<div class="section-body">
+					<div class="paragraph">
+<p>Make sure that you followed the <a href="#_configuration">Configuration</a> section by stating your PostFinance Checkout space ID and application user&#8217;s access information in the PrestaShop backend. By saving the configuration form the synchronization of the payment methods and the set up of the webhooks are initiated.</p>
+</div><div class="paragraph">
+<p>If this does not solve the problem, it could be that you use a special fee or coupon module that we do not support. Try to disable this plugin and see if it helps.
+The payment methods are only displayed if the plugin&#8217;s total calculation matches the actual order total.</p>
+</div>					</div>
+</div>			</div>
 </div>	<div class="chapter" id="_support">
 	<div class="chapter-title">
 		<h1>
-			<span class="title-number">6</span>Support					</h1>
+			<span class="title-number">9</span>Support					</h1>
 	</div>
 	<div class="chapter-body">
 					<div class="paragraph">
@@ -164,14 +377,87 @@
 		<span class="item-number">4</span>
 		<span class="item-title">Payment Method Configuration</span>
 			</a>
+        	<ul  class="nav">
+    		    			<li class="nav-level-2">
+	<a href="#_setup">
+		<span class="item-number">4.1</span>
+		<span class="item-title">Setup</span>
+			</a>
+    </li>    		    			<li class="nav-level-2">
+	<a href="#_customization">
+		<span class="item-number">4.2</span>
+		<span class="item-title">Customization</span>
+			</a>
+    </li>    		    	</ul>
+    </li>					<li class="nav-level-1">
+	<a href="#_state_graph">
+		<span class="item-number">5</span>
+		<span class="item-title">State Graph</span>
+			</a>
+        	<ul  class="nav">
+    		    			<li class="nav-level-2">
+	<a href="#_state_mapping_of_prestashop_orders">
+		<span class="item-number">5.1</span>
+		<span class="item-title">State Mapping Of PrestaShop Orders</span>
+			</a>
+    </li>    		    			<li class="nav-level-2">
+	<a href="#_state_mapping_of_prestashop_invoices">
+		<span class="item-number">5.2</span>
+		<span class="item-title">State Mapping of PrestaShop Invoices</span>
+			</a>
+    </li>    		    	</ul>
+    </li>					<li class="nav-level-1">
+	<a href="#_transaction_management">
+		<span class="item-number">6</span>
+		<span class="item-title">Transaction Management</span>
+			</a>
+        	<ul  class="nav">
+    		    			<li class="nav-level-2">
+	<a href="#_complete_capture_an_order">
+		<span class="item-number">6.1</span>
+		<span class="item-title">Complete (capture) an order</span>
+			</a>
+    </li>    		    			<li class="nav-level-2">
+	<a href="#_void_a_transaction">
+		<span class="item-number">6.2</span>
+		<span class="item-title">Void a Transaction</span>
+			</a>
+    </li>    		    			<li class="nav-level-2">
+	<a href="#_refund_of_a_transaction">
+		<span class="item-number">6.3</span>
+		<span class="item-title">Refund of a Transaction</span>
+			</a>
+    </li>    		    			<li class="nav-level-2">
+	<a href="#_pending_orders">
+		<span class="item-number">6.4</span>
+		<span class="item-title">Pending Orders</span>
+			</a>
+    </li>    		    			<li class="nav-level-2">
+	<a href="#_limitations_of_the_synchronization_between_whitelabelname_and_prestashop">
+		<span class="item-number">6.5</span>
+		<span class="item-title">Limitations of the Synchronization between PostFinance Checkout and PrestaShop</span>
+			</a>
+    </li>    		    	</ul>
     </li>					<li class="nav-level-1">
 	<a href="#_payment_fee">
-		<span class="item-number">5</span>
+		<span class="item-number">7</span>
 		<span class="item-title">Payment Fee</span>
 			</a>
     </li>					<li class="nav-level-1">
+	<a href="#_faq">
+		<span class="item-number">8</span>
+		<span class="item-title">FAQ</span>
+			</a>
+        	<ul  class="nav">
+    		    			<li class="nav-level-2">
+	<a href="#_how_can_i_make_the_payment_methods_appear_in_the_checkout">
+		<span class="item-number">8.1</span>
+		<span class="item-title">How can I make the payment methods appear in the checkout?</span>
+			</a>
+    </li>    		    	</ul>
+    </li>					<li class="nav-level-1">
 	<a href="#_support">
-		<span class="item-number">6</span>
+		<span class="item-number">9</span>
 		<span class="item-title">Support</span>
 			</a>
     </li>			</ul>

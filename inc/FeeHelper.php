@@ -16,8 +16,8 @@ class PostFinanceCheckout_FeeHelper
 {
     public static function removeFeeProductFromCart(Cart $cart){
         $feeProductId = Configuration::get(PostFinanceCheckout::CK_FEE_ITEM);
-        
-        if ($feeProductId != null) {
+        $feeProduct = new Product($feeProductId, false, Configuration::get('PS_LANG_DEFAULT'), $cart->id_shop);
+        if (Validate::isLoadedObject($feeProduct)) {
             $defaultAttributeId = Product::getDefaultAttribute($feeProductId);
             
             SpecificPrice::deleteByIdCart($cart->id, $feeProductId, $defaultAttributeId);
@@ -29,8 +29,9 @@ class PostFinanceCheckout_FeeHelper
     public static function addFeeProductToCart(PostFinanceCheckout_Model_MethodConfiguration $methodConfiguration, Cart $cart){
         
         $feeProductId = Configuration::get(PostFinanceCheckout::CK_FEE_ITEM);
+        $feeProduct = new Product($feeProductId, false, Configuration::get('PS_LANG_DEFAULT'), $cart->id_shop);
         
-        if ($feeProductId != null) {
+        if (Validate::isLoadedObject($feeProduct)) {
             $defaultAttributeId = Product::getDefaultAttribute($feeProductId);
             
             self::removeFeeProductFromCart($cart);
@@ -64,7 +65,8 @@ class PostFinanceCheckout_FeeHelper
         PostFinanceCheckout_Model_MethodConfiguration $methodConfiguration)
     {
         $feeProductId = Configuration::get(PostFinanceCheckout::CK_FEE_ITEM);
-        if (empty($feeProductId)) {
+        $feeProduct = new Product($feeProductId, false, Configuration::get('PS_LANG_DEFAULT'), $cart->id_shop);
+        if (!Validate::isLoadedObject($feeProduct)) {
             return array(
                 'fee_total' => 0,
                 'fee_total_wt' => 0

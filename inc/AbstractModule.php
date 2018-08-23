@@ -482,80 +482,75 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
 
     protected function displayForm()
     {
-        $userConfig = array(
-            array(
+        $userIdConfig = array(
                 'type' => 'text',
                 'label' => $this->l('User Id'),
                 'name' => self::CK_USER_ID,
                 'required' => true,
                 'col' => 3,
-                'lang' => false
-            ),
-            array(
+                'lang' => false          
+        );
+        $userPwConfig = array(
                 'type' => 'postfinancecheckout_password',
-                'label' => $this->l('Application Key'),
+                'label' => $this->l('Authentication Key'),
                 'name' => self::CK_APP_KEY,
                 'required' => true,
                 'col' => 3,
-                'lang' => false
-            )
+                'lang' => false            
         );
         
-        $userInfo = array(
-            array(
+        $userIdInfo =  array(
                 'type' => 'html',
                 'name' => 'IGNORE',
                 'col' => 3,
                 'html_content' => '<b>' . $this->l('The User Id needs to be configured globally.') .
                      '</b>'
-            ),
-            array(
+        );
+            
+        $userPwInfo = array(
                 'type' => 'html',
                 'name' => 'IGNORE',
                 'col' => 3,
                 'html_content' => '<b>' .
-                 $this->l('The Application Key needs to be configured globally.') . '</b>'
-            )
+                 $this->l('The Authentication Key needs to be configured globally.') . '</b>'
         );
         
-        $spaceConfig = array(
-            array(
+        
+        $spaceIdConfig = array(
                 'type' => 'text',
                 'label' => $this->l('Space Id'),
                 'name' => self::CK_SPACE_ID,
                 'required' => true,
                 'col' => 3,
                 'lang' => false
-            ),
-            array(
+        );
+        
+        
+        $spaceViewIdConfig = array(
                 'type' => 'text',
-                'label' => $this->l('SpaceView Id'),
+                'label' => $this->l('Space View Id'),
                 'name' => self::CK_SPACE_VIEW_ID,
                 'col' => 3,
                 'lang' => false
-            )
-        
         );
         
-        $spaceInfo = array(
-            array(
+        $spaceIdInfo = array(
                 'type' => 'html',
                 'name' => 'IGNORE',
                 'col' => 3,
                 'html_content' => '<b>' . $this->l('The Space Id needs to be configured per shop.') .
                      '</b>'
-            ),
-            array(
+        );
+        
+        $spaceViewIdInfo = array(
                 'type' => 'html',
                 'name' => 'IGNORE',
                 'col' => 3,
                 'html_content' => '<b>' .
                  $this->l('The Space View Id needs to be configured per shop.') . '</b>'
-            
-            )
         );
         
-        $generalInputs = array_merge($userConfig, $spaceConfig);
+        $generalInputs = array($spaceIdConfig, $userIdConfig, $userPwConfig, $spaceViewIdConfig);
         $buttons = array(
             array(
                 'title' => $this->l('Save'),
@@ -568,10 +563,10 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
         
         if ($this->context->shop->isFeatureActive()) {
             if ($this->context->shop->getContext() == Shop::CONTEXT_ALL) {
-                $generalInputs = array_merge($userConfig, $spaceInfo);
+                $generalInputs = array($spaceIdInfo, $userIdConfig, $userPwConfig, $spaceViewIdInfo);
             }
             elseif ($this->context->shop->getContext() == Shop::CONTEXT_SHOP) {
-                $generalInputs = array_merge($userInfo, $spaceConfig);
+                $generalInputs = array($spaceIdConfig, $userIdInfo, $userPwInfo, $spaceViewIdConfig);
                 array_unshift($buttons,
                     array(
                         'title' => $this->l('Save All'),
@@ -582,7 +577,7 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
                     ));
             }
             else {
-                $generalInputs = array_merge($userInfo, $spaceInfo);
+                $generalInputs = array_merge($spaceIdInfo, $userIdInfo, $userPwInfo, $spaceViewIdInfo);
                 $buttons = array();
             }
         }
