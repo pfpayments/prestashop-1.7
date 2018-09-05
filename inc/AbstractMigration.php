@@ -40,17 +40,17 @@ abstract class PostFinanceCheckout_AbstractMigration
         }
         foreach (static::getMigrations() as $version => $functionName) {
             if (version_compare($currentVersion, $version, '<')) {
-                Wallee_Helper::startDBTransaction();
+                PostFinanceCheckout_Helper::startDBTransaction();
                 try{
                     call_user_func(array(
                         get_called_class(),
                         $functionName
                     ));
                     Configuration::updateGlobalValue(self::CK_DB_VERSION, $version);
-                    Wallee_Helper::commitDBTransaction();
+                    PostFinanceCheckout_Helper::commitDBTransaction();
                 }
                 catch(Exception $e){
-                    Wallee_Helper::rollbackDBTransaction();
+                    PostFinanceCheckout_Helper::rollbackDBTransaction();
                     throw $e;
                 }
                 $currentVersion = $version;

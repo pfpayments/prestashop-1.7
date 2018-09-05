@@ -71,7 +71,6 @@ $_MODULE['<{postfinancecheckout}prestashop>abstractmodule_c503e11cbfc5a060584731
 $_MODULE['<{postfinancecheckout}prestashop>abstractmodule_92b9914705fe9e0773abc6d1dfbb5731'] = 'Die Benutzer ID muss global konfiguriert werden.';
 $_MODULE['<{postfinancecheckout}prestashop>abstractmodule_13277e91101a921fc21dcd6551411c03'] = 'Der Authentication Key muss global konfiguriert werden.';
 $_MODULE['<{postfinancecheckout}prestashop>abstractmodule_cb5bcc209d3e29cbc4a844a02e42002c'] = 'Space ID';
-$_MODULE['<{postfinancecheckout}prestashop>abstractmodule_1775eac569f3b5d4e199e2277ae3c30f'] = 'Space View ID';
 $_MODULE['<{postfinancecheckout}prestashop>abstractmodule_36ad6b64a5b0c0ddb13ae00e53099323'] = 'Die Space ID muss pro Shop konfiguriert sein.';
 $_MODULE['<{postfinancecheckout}prestashop>abstractmodule_8e63a761d52552f09e8ff1f8a4680c0b'] = 'Sie Space View ID muss pro Shop konfiguriert werden.';
 $_MODULE['<{postfinancecheckout}prestashop>abstractmodule_c9cc8cce247e49bae79f15173ce97354'] = 'Speichern';
@@ -93,6 +92,8 @@ $_MODULE['<{postfinancecheckout}prestashop>abstractmodule_e718587592e21780a8654f
 $_MODULE['<{postfinancecheckout}prestashop>abstractmodule_8e17feef2ad87bf2b01bf37bfc13391d'] = 'Lieferschein Download';
 $_MODULE['<{postfinancecheckout}prestashop>abstractmodule_2a8fce24dc089ed8b6db1fc8aa13c9fe'] = 'Den Kunden den Download des %s Lieferscheins gewähren';
 $_MODULE['<{postfinancecheckout}prestashop>abstractmodule_d5336ac96357700b21d24e951edfc4ec'] = 'Dokumenteinstellungen';
+$_MODULE['<{postfinancecheckout}prestashop>abstractmodule_1775eac569f3b5d4e199e2277ae3c30f'] = 'Space View ID';
+$_MODULE['<{postfinancecheckout}prestashop>abstractmodule_a7207f492b891f72241abe0f34ea05c8'] = 'Space View ID Settings';
 $_MODULE['<{postfinancecheckout}prestashop>abstractmodule_c094c5aafadf881fcff04062c7a99605'] = 'Fehlgeschlagener Status';
 $_MODULE['<{postfinancecheckout}prestashop>abstractmodule_6f3118f0c57baab9fd0da2b3e6a2559c'] = 'Status der Bestellung falls die Transaktion im fehlgschlagenen Status ist.';
 $_MODULE['<{postfinancecheckout}prestashop>abstractmodule_56472f4aac3e6d691078856fbd5de587'] = 'Autorisierter Status';

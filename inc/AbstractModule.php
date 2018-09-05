@@ -432,6 +432,24 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
         return $output;
     }
     
+    protected function handleSaveSpaceViewId()
+    {
+        $output = "";
+        if (Tools::isSubmit('submit' . $this->name . '_space_view_id')) {            
+            if (!$this->context->shop->isFeatureActive() || $this->context->shop->getContext() == Shop::CONTEXT_SHOP) {
+                    Configuration::updateValue(self::CK_SPACE_VIEW_ID,
+                        Tools::getValue(self::CK_SPACE_VIEW_ID));
+                    $output .= $this->displayConfirmation($this->l('Settings updated'));
+            }
+            else {
+                $refresh = false;
+                $output .= $this->displayError(
+                    $this->l('You can not store the configuration for all Shops or a Shop Group.'));
+            }
+        }
+        return $output;
+    }
+    
     protected function handleSaveOrderStatus()
     {
         $output = "";
@@ -453,6 +471,8 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
         return $output;
     }
 
+        
+    
     protected function getFormHelper()
     {
         $helper = new HelperForm();
@@ -515,7 +535,6 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
                  $this->l('The Authentication Key needs to be configured globally.') . '</b>'
         );
         
-        
         $spaceIdConfig = array(
                 'type' => 'text',
                 'label' => $this->l('Space Id'),
@@ -524,16 +543,7 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
                 'col' => 3,
                 'lang' => false
         );
-        
-        
-        $spaceViewIdConfig = array(
-                'type' => 'text',
-                'label' => $this->l('Space View Id'),
-                'name' => self::CK_SPACE_VIEW_ID,
-                'col' => 3,
-                'lang' => false
-        );
-        
+       
         $spaceIdInfo = array(
                 'type' => 'html',
                 'name' => 'IGNORE',
@@ -542,15 +552,7 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
                      '</b>'
         );
         
-        $spaceViewIdInfo = array(
-                'type' => 'html',
-                'name' => 'IGNORE',
-                'col' => 3,
-                'html_content' => '<b>' .
-                 $this->l('The Space View Id needs to be configured per shop.') . '</b>'
-        );
-        
-        $generalInputs = array($spaceIdConfig, $userIdConfig, $userPwConfig, $spaceViewIdConfig);
+        $generalInputs = array($spaceIdConfig, $userIdConfig, $userPwConfig);
         $buttons = array(
             array(
                 'title' => $this->l('Save'),
@@ -563,10 +565,10 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
         
         if ($this->context->shop->isFeatureActive()) {
             if ($this->context->shop->getContext() == Shop::CONTEXT_ALL) {
-                $generalInputs = array($spaceIdInfo, $userIdConfig, $userPwConfig, $spaceViewIdInfo);
+                $generalInputs = array($spaceIdInfo, $userIdConfig, $userPwConfig);
             }
             elseif ($this->context->shop->getContext() == Shop::CONTEXT_SHOP) {
-                $generalInputs = array($spaceIdConfig, $userIdInfo, $userPwInfo, $spaceViewIdConfig);
+                $generalInputs = array($spaceIdConfig, $userIdInfo, $userPwInfo);
                 array_unshift($buttons,
                     array(
                         'title' => $this->l('Save All'),
@@ -577,7 +579,7 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
                     ));
             }
             else {
-                $generalInputs = array_merge($spaceIdInfo, $userIdInfo, $userPwInfo, $spaceViewIdInfo);
+                $generalInputs = array_merge($spaceIdInfo, $userIdInfo, $userPwInfo);
                 $buttons = array();
             }
         }
@@ -833,6 +835,53 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
         if (!$this->context->shop->isFeatureActive() || $this->context->shop->getContext() == Shop::CONTEXT_SHOP) {
                 $values[self::CK_INVOICE] = (bool) Configuration::get(self::CK_INVOICE);
                 $values[self::CK_PACKING_SLIP] = (bool) Configuration::get(self::CK_PACKING_SLIP);
+        }
+        
+        return $values;
+    }
+    
+    protected function getSpaceViewIdForm()
+    {
+            
+            
+        $spaceViewIdConfig =  array(
+            array(
+            'type' => 'text',
+            'label' => $this->l('Space View Id'),
+            'name' => self::CK_SPACE_VIEW_ID,
+            'col' => 3,
+            'lang' => false
+        ));
+       
+        return array(
+            'legend' => array(
+                'title' => $this->l('Space View Id Settings')
+            ),
+            'input' => $spaceViewIdConfig,
+            'buttons' => array(
+                array(
+                    'title' => $this->l('Save All'),
+                    'class' => 'pull-right',
+                    'type' => 'input',
+                    'icon' => 'process-icon-save',
+                    'name' => 'submit' . $this->name . '_all'
+                ),
+                array(
+                    'title' => $this->l('Save'),
+                    'class' => 'pull-right',
+                    'type' => 'input',
+                    'icon' => 'process-icon-save',
+                    'name' => 'submit' . $this->name . '_space_view_id'
+                )
+            )
+        );
+    }
+    
+    protected function getSpaceViewIdConfigValues()
+    {
+        $values = array();
+        if (!$this->context->shop->isFeatureActive() || $this->context->shop->getContext() == Shop::CONTEXT_SHOP) {
+            $values[self::CK_SPACE_VIEW_ID] = Configuration::get(self::CK_SPACE_VIEW_ID);
         }
         
         return $values;
@@ -1094,8 +1143,7 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
      */
     public static function stopRecordingMailMessages()
     {
-        self::$recordMailMessages = false;
-        
+        self::$recordMailMessages = false;        
         return self::$recordedMailMessages;
     }
 
@@ -1147,6 +1195,15 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
                 foreach ($specificPriceCollection->getResults() as $specificPrice) {
                     $specificPrice->id_cart = $cart->id;
                     $specificPrice->save();
+                }
+                
+                // Copy messages to new cart
+                $messageCollection = new PrestaShopCollection('Message');
+                $messageCollection->where('id_cart', '=', (int) $id_cart);
+                foreach($messageCollection->getResults() as $message){
+                    $duplicateMessage = $message->duplicateObject();
+                    $duplicateMessage->id_cart = $cart->id;
+                    $duplicateMessage->save();
                 }
                 
                 $methodConfiguration = null;

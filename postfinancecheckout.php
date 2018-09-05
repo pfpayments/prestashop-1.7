@@ -12,7 +12,7 @@ if (! defined('_PS_VERSION_')) {
  * @license http://www.apache.org/licenses/LICENSE-2.0 Apache Software License (ASL 2.0)
  */
 
-define('POSTFINANCECHECKOUT_VERSION', '1.0.8');
+define('POSTFINANCECHECKOUT_VERSION', '1.0.9');
 
 require_once (__DIR__ . DIRECTORY_SEPARATOR . 'postfinancecheckout_autoloader.php');
 require_once (__DIR__ . DIRECTORY_SEPARATOR . 'postfinancecheckout-sdk' . DIRECTORY_SEPARATOR .
@@ -61,6 +61,7 @@ class PostFinanceCheckout extends PostFinanceCheckout_AbstractModule
         $output .= $this->handleSaveEmail();
         $output .= $this->handleSaveFeeItem();
         $output .= $this->handleSaveDownload();
+        $output .= $this->handleSaveSpaceViewId();
         $output .= $this->handleSaveOrderStatus();
         $output .= $this->displayHelpButtons();
         return $output . $this->displayForm();
@@ -85,6 +86,7 @@ class PostFinanceCheckout extends PostFinanceCheckout_AbstractModule
             $this->getEmailForm(),
             $this->getFeeForm(),
             $this->getDocumentForm(),
+            $this->getSpaceViewIdForm(),
             $this->getOrderStatusForm()
         );
     }
@@ -92,7 +94,8 @@ class PostFinanceCheckout extends PostFinanceCheckout_AbstractModule
     protected function getConfigurationValues()
     {
         return array_merge($this->getApplicationConfigValues(), $this->getEmailConfigValues(),
-            $this->getFeeItemConfigValues(), $this->getDownloadConfigValues(),
+            $this->getFeeItemConfigValues(), $this->getDownloadConfigValues(), 
+            $this->getSpaceViewIdConfigValues(),
             $this->getOrderStatusConfigValues());
     }
 
