@@ -34,7 +34,7 @@ class PostFinanceCheckout_Service_TransactionVoid extends PostFinanceCheckout_Se
             $transactionInfo = PostFinanceCheckout_Helper::getTransactionInfoForOrder($order);
             if ($transactionInfo === null) {
                 throw new Exception(
-                    PostFinanceCheckout_Helper::getModuleInstance()->l('Could not load corresponding transaction.'));
+                    PostFinanceCheckout_Helper::getModuleInstance()->l('Could not load corresponding transaction.','transactionvoid'));
             }
            
             PostFinanceCheckout_Helper::lockByTransactionId($transactionInfo->getSpaceId(), $transactionInfo->getTransactionId());
@@ -44,15 +44,15 @@ class PostFinanceCheckout_Service_TransactionVoid extends PostFinanceCheckout_Se
             $transactionId = $transactionInfo->getTransactionId();
             
             if ($transactionInfo->getState() != \PostFinanceCheckout\Sdk\Model\TransactionState::AUTHORIZED) {
-                throw new Exception(PostFinanceCheckout_Helper::getModuleInstance()->l('The transaction is not in a state to be voided.'));
+                throw new Exception(PostFinanceCheckout_Helper::getModuleInstance()->l('The transaction is not in a state to be voided.','transactionvoid'));
             }            
             if (PostFinanceCheckout_Model_VoidJob::isVoidRunningForTransaction($spaceId, $transactionId)) {
                 throw new Exception(
-                    PostFinanceCheckout_Helper::getModuleInstance()->l('Please wait until the existing void is processed.'));
+                    PostFinanceCheckout_Helper::getModuleInstance()->l('Please wait until the existing void is processed.','transactionvoid'));
             }
             if (PostFinanceCheckout_Model_CompletionJob::isCompletionRunningForTransaction(
                 $spaceId, $transactionId)){
-                    throw new Exception( PostFinanceCheckout_Helper::getModuleInstance()->l('There is a completion in process. The order can not be voided.'));
+                    throw new Exception( PostFinanceCheckout_Helper::getModuleInstance()->l('There is a completion in process. The order can not be voided.','transactionvoid'));
             }
             
             $voidJob = new PostFinanceCheckout_Model_VoidJob();
@@ -95,7 +95,7 @@ class PostFinanceCheckout_Service_TransactionVoid extends PostFinanceCheckout_Se
             $voidJob->setFailureReason(
                 array(
                     'en-US' => sprintf(
-                        PostFinanceCheckout_Helper::getModuleInstance()->l('Could not send the void to %s. Error: %s'), 'PostFinance Checkout',
+                        PostFinanceCheckout_Helper::getModuleInstance()->l('Could not send the void to %s. Error: %s','transactionvoid'), 'PostFinance Checkout',
                         PostFinanceCheckout_Helper::cleanExceptionMessage($e->getMessage()))
                 ));
             $voidJob->setState(PostFinanceCheckout_Model_VoidJob::STATE_FAILURE);
@@ -130,7 +130,7 @@ class PostFinanceCheckout_Service_TransactionVoid extends PostFinanceCheckout_Se
             }
             catch (Exception $e) {
                 $message = sprintf(
-                    PostFinanceCheckout_Helper::getModuleInstance()->l('Error updating void job with id %d: %s'), $id,
+                    PostFinanceCheckout_Helper::getModuleInstance()->l('Error updating void job with id %d: %s','transactionvoid'), $id,
                     $e->getMessage());
                 PrestaShopLogger::addLog($message, 3, null, 'PostFinanceCheckout_Model_VoidJob');
                 

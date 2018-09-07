@@ -33,7 +33,7 @@ class PostFinanceCheckout_Service_TransactionCompletion extends PostFinanceCheck
             $transactionInfo = PostFinanceCheckout_Helper::getTransactionInfoForOrder($order);
             if ($transactionInfo === null) {
                 throw new Exception(
-                    PostFinanceCheckout_Helper::getModuleInstance()->l('Could not load corresponding transaction.'));
+                    PostFinanceCheckout_Helper::getModuleInstance()->l('Could not load corresponding transaction.','transactioncompletion'));
             }
            
             PostFinanceCheckout_Helper::lockByTransactionId($transactionInfo->getSpaceId(), $transactionInfo->getTransactionId());
@@ -43,17 +43,17 @@ class PostFinanceCheckout_Service_TransactionCompletion extends PostFinanceCheck
             $transactionId = $transactionInfo->getTransactionId();
             
             if ($transactionInfo->getState() != \PostFinanceCheckout\Sdk\Model\TransactionState::AUTHORIZED) {
-                throw new Exception(PostFinanceCheckout_Helper::getModuleInstance()->l('The transaction is not in a state to be completed.'));
+                throw new Exception(PostFinanceCheckout_Helper::getModuleInstance()->l('The transaction is not in a state to be completed.','transactioncompletion'));
             }
             
             if (PostFinanceCheckout_Model_CompletionJob::isCompletionRunningForTransaction(
                 $spaceId, $transactionId)){
-                    throw new Exception( PostFinanceCheckout_Helper::getModuleInstance()->l('Please wait until the existing completion is processed.'));
+                    throw new Exception( PostFinanceCheckout_Helper::getModuleInstance()->l('Please wait until the existing completion is processed.','transactioncompletion'));
             }
             
             if (PostFinanceCheckout_Model_VoidJob::isVoidRunningForTransaction($spaceId, $transactionId)) {
                 throw new Exception(
-                    PostFinanceCheckout_Helper::getModuleInstance()->l('There is a void in process. The order can not be completed.'));
+                    PostFinanceCheckout_Helper::getModuleInstance()->l('There is a void in process. The order can not be completed.','transactioncompletion'));
             }
 
             $completionJob = new PostFinanceCheckout_Model_CompletionJob();
@@ -108,7 +108,7 @@ class PostFinanceCheckout_Service_TransactionCompletion extends PostFinanceCheck
             $completionJob->setFailureReason(
                 array(
                     'en-US' => sprintf(
-                        PostFinanceCheckout_Helper::getModuleInstance()->l('Could not update the line items. Error: %s'),
+                        PostFinanceCheckout_Helper::getModuleInstance()->l('Could not update the line items. Error: %s','transactioncompletion'),
                         PostFinanceCheckout_Helper::cleanExceptionMessage($e->getMessage()))
                 ));
             
@@ -143,7 +143,7 @@ class PostFinanceCheckout_Service_TransactionCompletion extends PostFinanceCheck
             $completionJob->setFailureReason(
                 array(
                     'en-US' => sprintf(
-                        PostFinanceCheckout_Helper::getModuleInstance()->l('Could not send the completion to %s. Error: %s'), 'PostFinance Checkout',
+                        PostFinanceCheckout_Helper::getModuleInstance()->l('Could not send the completion to %s. Error: %s','transactioncompletion'), 'PostFinance Checkout',
                         PostFinanceCheckout_Helper::cleanExceptionMessage($e->getMessage()))
                 ));
             $completionJob->setState(PostFinanceCheckout_Model_CompletionJob::STATE_FAILURE);
@@ -177,7 +177,7 @@ class PostFinanceCheckout_Service_TransactionCompletion extends PostFinanceCheck
             }
             catch (Exception $e) {
                 $message = sprintf(
-                    PostFinanceCheckout_Helper::getModuleInstance()->l('Error updating completion job with id %d: %s'), $id,
+                    PostFinanceCheckout_Helper::getModuleInstance()->l('Error updating completion job with id %d: %s','transactioncompletion'), $id,
                     $e->getMessage());
                 PrestaShopLogger::addLog($message, 3, null, 'PostFinanceCheckout_Model_CompletionJob');
                 

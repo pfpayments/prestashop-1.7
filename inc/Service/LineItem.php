@@ -101,7 +101,7 @@ class PostFinanceCheckout_Service_LineItem extends PostFinanceCheckout_Service_A
             $item->setQuantity(1);
             $item->setShippingRequired(false);
             $item->setSku('shipping');
-            $name = PostFinanceCheckout_Helper::getModuleInstance()->l('Shipping');
+            $name = PostFinanceCheckout_Helper::getModuleInstance()->l('Shipping','lineitem');
             $taxCalculatorFound = false;
             if (isset($summary['carrier']) && $summary['carrier'] instanceof Carrier) {
                 $name = $summary['carrier']->name;
@@ -121,7 +121,7 @@ class PostFinanceCheckout_Service_LineItem extends PostFinanceCheckout_Service_A
             $item->setName($name);
             if (! $taxCalculatorFound) {
                 $taxRate = 0;
-                $taxName = PostFinanceCheckout_Helper::getModuleInstance()->l('Tax');
+                $taxName = PostFinanceCheckout_Helper::getModuleInstance()->l('Tax','lineitem');
                 if ($shippingCostExcl > 0) {
                     $taxRate = ($shippingCosts - $shippingCostExcl) / $shippingCostExcl * 100;
                 }
@@ -145,14 +145,14 @@ class PostFinanceCheckout_Service_LineItem extends PostFinanceCheckout_Service_A
         if ($wrappingCosts > 0) {
             $item = new \PostFinanceCheckout\Sdk\Model\LineItemCreate();
             $item->setAmountIncludingTax($this->roundAmount($wrappingCosts, $currencyCode));
-            $item->setName(PostFinanceCheckout_Helper::getModuleInstance()->l('Wrapping Fee'));
+            $item->setName(PostFinanceCheckout_Helper::getModuleInstance()->l('Wrapping Fee','lineitem'));
             $item->setQuantity(1);
             $item->setShippingRequired(false);
             $item->setSku('wrapping');
             if (Configuration::get('PS_ATCP_SHIPWRAP')) {
                 if ($wrappingCostExcl > 0) {
                     $taxRate = 0;
-                    $taxName = PostFinanceCheckout_Helper::getModuleInstance()->l('Tax');
+                    $taxName = PostFinanceCheckout_Helper::getModuleInstance()->l('Tax','lineitem');
                     $taxRate = ($wrappingCosts - $wrappingCostExcl) / $wrappingCostExcl * 100;
                 }
                 if ($taxRate > 0) {
@@ -304,8 +304,7 @@ class PostFinanceCheckout_Service_LineItem extends PostFinanceCheckout_Service_A
                 $uniqueId = 'order-' . $order->id . '-shipping';
                 
                 $item = new \PostFinanceCheckout\Sdk\Model\LineItemCreate();
-                $name = PostFinanceCheckout_Helper::getModuleInstance()->l('Shipping');
-                
+                $name = PostFinanceCheckout_Helper::getModuleInstance()->l('Shipping','lineitem');
                 $item->setName($name);
                 $item->setQuantity(1);
                 $item->setShippingRequired(false);
@@ -314,6 +313,7 @@ class PostFinanceCheckout_Service_LineItem extends PostFinanceCheckout_Service_A
                 
                 $carrier = new Carrier($order->id_carrier);
                 if ($carrier->id && $taxAddress->id) {
+                    $item->setName($carrier->name);
                     $shippingTaxCalculator = $carrier->getTaxCalculator($taxAddress);
                     $psTaxes = $shippingTaxCalculator->getTaxesAmount($itemCostsE);
                     $taxes = array();
@@ -328,7 +328,7 @@ class PostFinanceCheckout_Service_LineItem extends PostFinanceCheckout_Service_A
                 }
                 else {
                     $taxRate = 0;
-                    $taxName = PostFinanceCheckout_Helper::getModuleInstance()->l('Tax');
+                    $taxName = PostFinanceCheckout_Helper::getModuleInstance()->l('Tax','lineitem');
                     if ($shippingCostExcl > 0) {
                         $taxRate = ($shippingCosts - $shippingCostExcl) / $shippingCostExcl * 100;
                     }
@@ -358,7 +358,7 @@ class PostFinanceCheckout_Service_LineItem extends PostFinanceCheckout_Service_A
                 
                 $item = new \PostFinanceCheckout\Sdk\Model\LineItemCreate();
                 $item->setAmountIncludingTax($this->roundAmount($wrappingCosts, $currencyCode));
-                $item->setName(PostFinanceCheckout_Helper::getModuleInstance()->l('Wrapping Fee'));
+                $item->setName(PostFinanceCheckout_Helper::getModuleInstance()->l('Wrapping Fee','lineitem'));
                 $item->setQuantity(1);
                 $item->setSku('wrapping');
                 $wrappingTaxCalculator = null;
@@ -399,7 +399,7 @@ class PostFinanceCheckout_Service_LineItem extends PostFinanceCheckout_Service_A
             $discountOnly =$this->isFreeShippingDiscountOnly($order);
             if($discountOnly && $shippingItem != null){
                 $itemFreeShipping = new \PostFinanceCheckout\Sdk\Model\LineItemCreate();
-                $name = PostFinanceCheckout_Helper::getModuleInstance()->l('Shipping Discount');
+                $name = PostFinanceCheckout_Helper::getModuleInstance()->l('Shipping Discount','lineitem');
                 
                 $itemFreeShipping->setName($discountOnly['name']);
                 $itemFreeShipping->setQuantity(1);

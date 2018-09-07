@@ -20,7 +20,7 @@ class PostFinanceCheckoutOrderModuleFrontController extends ModuleFrontControlle
 		$methodId = Tools::getValue('methodId', null);
 		$cartHash = Tools::getValue('cartHash', null);
 		if ($methodId == null || $cartHash == null) {
-		    $this->context->cookie->pfc_error = $this->module->l('There was a technical issue, please try again.');
+		    $this->context->cookie->pfc_error = $this->module->l('There was a technical issue, please try again.','order');
 		    echo json_encode(array('result' => 'failure', 'redirect' => $this->context->link->getPageLink('order', true, NULL)));
 		    die();
 		}
@@ -34,7 +34,7 @@ class PostFinanceCheckoutOrderModuleFrontController extends ModuleFrontControlle
 		$spaceId = Configuration::get(PostFinanceCheckout::CK_SPACE_ID, null, null, $cart->id_shop);
 		$methodConfiguration = new PostFinanceCheckout_Model_MethodConfiguration($methodId);
 		if (! $methodConfiguration->isActive() || $methodConfiguration->getSpaceId() != $spaceId) {
-		    $this->context->cookie->pfc_error = $this->module->l('This payment method is no longer available, please try another one.');
+		    $this->context->cookie->pfc_error = $this->module->l('This payment method is no longer available, please try another one.','order');
 		    echo json_encode(array('result' => 'failure', 'redirect' => $this->context->link->getPageLink('order', true, NULL)));
 		    die();
 		}
@@ -42,7 +42,7 @@ class PostFinanceCheckoutOrderModuleFrontController extends ModuleFrontControlle
 		PostFinanceCheckout_FeeHelper::removeFeeProductFromCart($cart);
 		PostFinanceCheckout_FeeHelper::addFeeProductToCart($methodConfiguration, $cart);
 		if($cartHash != PostFinanceCheckout_Helper::calculateCartHash($cart)){
-		    $this->context->cookie->pfc_error = $this->module->l('The cart was changed, please try again.');
+		    $this->context->cookie->pfc_error = $this->module->l('The cart was changed, please try again.','order');
 		    echo json_encode(array('result' => 'failure', 'reload' => 'true'));
 		    die();
 		}		
@@ -51,8 +51,15 @@ class PostFinanceCheckoutOrderModuleFrontController extends ModuleFrontControlle
 		    $customer = new Customer(intval($cart->id_customer));
 		    $this->module->validateOrder($cart->id, $orderState->id, $cart->getOrderTotal(true, Cart::BOTH, null, null, false),
 		        'postfinancecheckout_'.$methodId, null, array(), null, false, $customer->secure_key);
-		      echo json_encode(array('result' => 'success'));
-		      die();
+		    $noIframeParamater = Tools::getValue('postfinancecheckout-iframe-possible-'.$methodId, null);
+		    $noIframe = $noIframeParamater == 'false';
+		    if($noIframe){
+		        $url = PostFinanceCheckout_Service_Transaction::instance()->getPaymentPageUrl($GLOBALS['postfinancecheckoutTransactionIds']['spaceId'], $GLOBALS['postfinancecheckoutTransactionIds']['transactionId']);
+		        echo json_encode(array('result' => 'redirect', 'redirect' => $url));
+		        die();
+		    }
+	        echo json_encode(array('result' => 'success'));
+	        die();
 		}
 		catch(Exception $e){
 		    $this->context->cookie->pfc_error = PostFinanceCheckout_Helper::cleanExceptionMessage($e->getMessage());
@@ -71,7 +78,7 @@ class PostFinanceCheckoutOrderModuleFrontController extends ModuleFrontControlle
 	 */
 	protected function checkAvailablility(Cart $cart){
 	    if ($cart->id_address_delivery == 0 || $cart->id_address_invoice == 0 || !$this->module->active || !Validate::isLoadedObject(new Customer($cart->id_customer))){
-	        $this->context->cookie->pfc_error = $this->module->l('Your session expired, please try again.');
+	        $this->context->cookie->pfc_error = $this->module->l('Your session expired, please try again.','order');
 	        return $this->context->link->getPageLink('order', true, NULL, "step=1");
 	    }
 	    // Check that this payment option is still available in case the customer changed his address just before the end of the checkout process
@@ -84,12 +91,12 @@ class PostFinanceCheckoutOrderModuleFrontController extends ModuleFrontControlle
 	        }
 	    }
 	    if (!$authorized){
-	        $this->context->cookie->pfc_error = $this->module->l('This payment method is no longer available, please try another one.');
+	        $this->context->cookie->pfc_error = $this->module->l('This payment method is no longer available, please try another one.','order');
 	        return $this->context->link->getPageLink('order', true, NULL);
 	    }
 	    
 	    if(!$this->module instanceof PostFinanceCheckout){
-	        $this->context->cookie->pfc_error = $this->module->l('There was a techincal issue, please try again.');
+	        $this->context->cookie->pfc_error = $this->module->l('There was a techincal issue, please try again.','order');
 	        return $this->context->link->getPageLink('order', true, NULL);
 	    }
 	    return null;

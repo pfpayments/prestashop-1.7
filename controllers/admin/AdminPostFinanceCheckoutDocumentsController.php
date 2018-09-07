@@ -30,7 +30,7 @@ class AdminPostFinanceCheckoutDocumentsController extends ModuleAdminController
         if ($access['view'] === '1' && ($action = Tools::getValue('action'))) {
             $this->action = $action;
         } else {
-            die(Tools::displayError($this->module->l('You do not have permission to view this.')));
+            die(Tools::displayError($this->module->l('You do not have permission to view this.','adminpostfinancecheckoutdocumentscontroller')));
         }
     }
 
@@ -41,10 +41,10 @@ class AdminPostFinanceCheckoutDocumentsController extends ModuleAdminController
                 $order = new Order(Tools::getValue('id_order'));
                 PostFinanceCheckout_DownloadHelper::downloadInvoice($order);
             } catch (Exception $e) {
-                die(Tools::displayError($this->module->l('Could not fetch the document.')));
+                die(Tools::displayError($this->module->l('Could not fetch the document.', 'adminpostfinancecheckoutdocumentscontroller')));
             }
         } else {
-            die(Tools::displayError($this->module->l('The order Id is missing.')));
+            die(Tools::displayError($this->module->l('The order Id is missing.','adminpostfinancecheckoutdocumentscontroller')));
         }
     }
 
@@ -55,10 +55,10 @@ class AdminPostFinanceCheckoutDocumentsController extends ModuleAdminController
                 $order = new Order(Tools::getValue('id_order'));
                 PostFinanceCheckout_DownloadHelper::downloadPackingSlip($order);
             } catch (Exception $e) {
-                die(Tools::displayError($this->module->l('Could not fetch the document.')));
+                die(Tools::displayError($this->module->l('Could not fetch the document.','adminpostfinancecheckoutdocumentscontroller')));
             }
         } else {
-            die(Tools::displayError($this->module->l('The order Id is missing.')));
+            die(Tools::displayError($this->module->l('The order Id is missing.','adminpostfinancecheckoutdocumentscontroller')));
         }
     }
 }

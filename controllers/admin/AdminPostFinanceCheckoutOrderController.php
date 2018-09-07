@@ -33,7 +33,7 @@ class AdminPostFinanceCheckoutOrderController extends ModuleAdminController
             echo Tools::jsonEncode(
                 array(
                     'success' => 'false',
-                    'message' => $this->module->l('You do not have permission to edit the order.')
+                    'message' => $this->module->l('You do not have permission to edit the order.','adminpostfinancecheckoutordercontroller')
                 ));
             die();
         }
@@ -64,7 +64,7 @@ class AdminPostFinanceCheckoutOrderController extends ModuleAdminController
             echo Tools::jsonEncode(
                 array(
                     'success' => 'false',
-                    'message' => $this->module->l('Incomplete Request.')
+                    'message' => $this->module->l('Incomplete Request.','adminpostfinancecheckoutordercontroller')
                 ));
             die();
         }
@@ -79,7 +79,7 @@ class AdminPostFinanceCheckoutOrderController extends ModuleAdminController
                 echo Tools::jsonEncode(
                     array(
                         'success' => 'true',
-                        'message' => $this->module->l('The order is updated automatically once the void is processed.')
+                        'message' => $this->module->l('The order is updated automatically once the void is processed.','adminpostfinancecheckoutordercontroller')
                     ));
                 die();
             }
@@ -96,7 +96,7 @@ class AdminPostFinanceCheckoutOrderController extends ModuleAdminController
             echo Tools::jsonEncode(
                 array(
                     'success' => 'false',
-                    'message' => $this->module->l('Incomplete Request.')
+                    'message' => $this->module->l('Incomplete Request.','adminpostfinancecheckoutordercontroller')
                 ));
             die();
         }
@@ -111,7 +111,7 @@ class AdminPostFinanceCheckoutOrderController extends ModuleAdminController
                 echo Tools::jsonEncode(
                     array(
                         'success' => 'true',
-                        'message' => $this->module->l('The order is updated automatically once the completion is processed.')
+                        'message' => $this->module->l('The order is updated automatically once the completion is processed.','adminpostfinancecheckoutordercontroller')
                     ));
                 die();
             }
@@ -128,7 +128,7 @@ class AdminPostFinanceCheckoutOrderController extends ModuleAdminController
             echo Tools::jsonEncode(
                 array(
                     'success' => 'false',
-                    'message' => $this->module->l('Incomplete Request.')
+                    'message' => $this->module->l('Incomplete Request.','adminpostfinancecheckoutordercontroller')
                 ));
             die();
         }

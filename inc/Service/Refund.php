@@ -60,7 +60,7 @@ class PostFinanceCheckout_Service_Refund extends PostFinanceCheckout_Service_Abs
             $transactionInfo = PostFinanceCheckout_Helper::getTransactionInfoForOrder($order);
             if ($transactionInfo === null) {
                 throw new Exception(
-                    PostFinanceCheckout_Helper::getModuleInstance()->l('Could not load corresponding transaction'));
+                    PostFinanceCheckout_Helper::getModuleInstance()->l('Could not load corresponding transaction','refund'));
             }
             
             PostFinanceCheckout_Helper::lockByTransactionId($transactionInfo->getSpaceId(),
@@ -73,12 +73,12 @@ class PostFinanceCheckout_Service_Refund extends PostFinanceCheckout_Service_Abs
             
             if (! in_array($transactionInfo->getState(), self::$refundableStates)) {
                 throw new Exception(
-                    PostFinanceCheckout_Helper::getModuleInstance()->l('The transaction is not in a state to be refunded.'));
+                    PostFinanceCheckout_Helper::getModuleInstance()->l('The transaction is not in a state to be refunded.','refund'));
             }
             
             if (PostFinanceCheckout_Model_RefundJob::isRefundRunningForTransaction($spaceId, $transactionId)) {
                 throw new Exception(
-                    PostFinanceCheckout_Helper::getModuleInstance()->l('Please wait until the existing refund is processed.'));
+                    PostFinanceCheckout_Helper::getModuleInstance()->l('Please wait until the existing refund is processed.','refund'));
             }
             $strategy = PostFinanceCheckout_Backend_StrategyProvider::getStrategy();
             
@@ -129,7 +129,7 @@ class PostFinanceCheckout_Service_Refund extends PostFinanceCheckout_Service_Abs
             $refundJob->setFailureReason(
                 array(
                     'en-US' => sprintf(
-                        PostFinanceCheckout_Helper::getModuleInstance()->l('Could not send the refund to %s. Error: %s'), 'PostFinance Checkout',
+                        PostFinanceCheckout_Helper::getModuleInstance()->l('Could not send the refund to %s. Error: %s','refund'), 'PostFinance Checkout',
                         PostFinanceCheckout_Helper::cleanExceptionMessage($e->getMessage()))
                 ));
             $refundJob->setState(PostFinanceCheckout_Model_RefundJob::STATE_FAILURE);
@@ -212,7 +212,7 @@ class PostFinanceCheckout_Service_Refund extends PostFinanceCheckout_Service_Abs
             }
             catch (Exception $e) {
                 $message = sprintf(
-                    PostFinanceCheckout_Helper::getModuleInstance()->l('Error updating refund job with id %d: %s'), $id,
+                    PostFinanceCheckout_Helper::getModuleInstance()->l('Error updating refund job with id %d: %s','refund'), $id,
                     $e->getMessage());
                 PrestaShopLogger::addLog($message, 3, null, 'PostFinanceCheckout_Model_RefundJob');
             }
@@ -227,7 +227,7 @@ class PostFinanceCheckout_Service_Refund extends PostFinanceCheckout_Service_Abs
             }
             catch (Exception $e) {
                 $message = sprintf(
-                    PostFinanceCheckout_Helper::getModuleInstance()->l('Error applying refund job with id %d: %s'), $id,
+                    PostFinanceCheckout_Helper::getModuleInstance()->l('Error applying refund job with id %d: %s','refund'), $id,
                     $e->getMessage());
                 PrestaShopLogger::addLog($message, 3, null, 'PostFinanceCheckout_Model_RefundJob');
             }

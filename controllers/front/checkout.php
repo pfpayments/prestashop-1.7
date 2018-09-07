@@ -24,9 +24,9 @@ class PostFinanceCheckoutCheckoutModuleFrontController extends ModuleFrontContro
     		
     		if($methodId !== null){
         		$methodConfiguration = new PostFinanceCheckout_Model_MethodConfiguration($methodId);
-        		PostFinanceCheckout_FeeHelper::addFeeProductToCart($methodConfiguration, $cart);			
+        		PostFinanceCheckout_FeeHelper::addFeeProductToCart($methodConfiguration, $cart);
+        		PostFinanceCheckout_Service_Transaction::instance()->getTransactionFromCart($cart);
     		}
-    		PostFinanceCheckout_Service_Transaction::instance()->getTransactionFromCart($cart);
     		$cartHash = PostFinanceCheckout_Helper::calculateCartHash($cart);
     		$presentedCart = $this->cart_presenter->present(
     		    $cart
@@ -63,7 +63,7 @@ class PostFinanceCheckoutCheckoutModuleFrontController extends ModuleFrontContro
     		$this->ajaxDie(Tools::jsonEncode($reponse));
 		}
 		catch(Exception $e){
-		    $this->context->cookie->pfc_error = $this->module->l('There was an issue during the checkout, please try again.');
+		    $this->context->cookie->pfc_error = $this->module->l('There was an issue during the checkout, please try again.', 'checkout');
 		    $this->ajaxDie(Tools::jsonEncode(array('result' => 'failure')));
 		}
 	}

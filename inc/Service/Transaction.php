@@ -112,6 +112,17 @@ class PostFinanceCheckout_Service_Transaction extends PostFinanceCheckout_Servic
             $transaction->getId());
     }
 
+    
+    /**
+     * Returns the URL to PostFinance Checkout's payment page.
+     *
+     * @param Cart $cart
+     * @return string
+     */
+    public function getPaymentPageUrl($spaceId, $transactionId)
+    {
+        return $this->getTransactionService()->buildPaymentPageUrl($spaceId,$transactionId);
+    }
     /**
      * Returns the transaction with the given id.
      *
@@ -322,7 +333,7 @@ class PostFinanceCheckout_Service_Transaction extends PostFinanceCheckout_Servic
         $ids = PostFinanceCheckout_Helper::getCartMeta($cart, 'mappingIds');
         $transaction = $this->getTransaction($ids['spaceId'], $ids['transactionId']);
         if($transaction->getState() != \PostFinanceCheckout\Sdk\Model\TransactionState::PENDING){
-            throw new Exception(PostFinanceCheckout_Helper::getModuleInstance()->l('The transaction timed out, please try again.'));
+            throw new Exception(PostFinanceCheckout_Helper::getModuleInstance()->l('The transaction timed out, please try again.','transaction'));
         }
     }
 
@@ -346,7 +357,7 @@ class PostFinanceCheckout_Service_Transaction extends PostFinanceCheckout_Servic
                     $ids['transactionId']);
                 
                 if ($transaction->getState() != \PostFinanceCheckout\Sdk\Model\TransactionState::PENDING) {
-                    throw new Exception(PostFinanceCheckout_Helper::getModuleInstance()->l('The checkout expired, please try again.'));
+                    throw new Exception(PostFinanceCheckout_Helper::getModuleInstance()->l('The checkout expired, please try again.','transaction'));
                 }
                 $pendingTransaction = new \PostFinanceCheckout\Sdk\Model\TransactionPending();
                 $pendingTransaction->setId($transaction->getId());

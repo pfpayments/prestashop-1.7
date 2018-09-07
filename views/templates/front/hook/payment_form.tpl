@@ -8,6 +8,7 @@
  *}
 <form action="{$orderUrl|escape:'html'}" class="postfinancecheckout-payment-form" data-method-id="{$methodId}">
 	<div id="postfinancecheckout-{$methodId}">
+		<input type="hidden" id="postfinancecheckout-iframe-possible-{$methodId}" name="postfinancecheckout-iframe-possible-{$methodId}" value="false" />
 		<div id="postfinancecheckout-loader-{$methodId}" class="postfinancecheckout-loader"></div>
 	</div>
 </form>

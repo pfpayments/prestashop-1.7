@@ -153,10 +153,10 @@ $_MODULE['<{postfinancecheckout}prestashop>defaultstrategy_d9588967b547cb91b1876
 $_MODULE['<{postfinancecheckout}prestashop>defaultstrategy_80e0b4ed3a3af0721427cf683ee5ab42'] = 'Die Line Items können nicht mehr verändert werden.';
 $_MODULE['<{postfinancecheckout}prestashop>defaultstrategy_0da1c0afe7d3d89a53a5d00998bb4295'] = 'Sie können diese Einkaufskorb Preisregel nicht bearbeiten.';
 $_MODULE['<{postfinancecheckout}prestashop>defaultstrategy_8beb04a673a7d9fd7ee8e491a4522022'] = 'Sie können dieser Bestellung keinen Rabatt hinzufügen.';
-$_MODULE['<{postfinancecheckout}prestashop>lineitem_ea9cf7e47ff33b2be14e6dd07cbcefc6'] = 'Versand';
-$_MODULE['<{postfinancecheckout}prestashop>lineitem_4b78ac8eb158840e9638a3aeb26c4a9d'] = 'Steuer';
-$_MODULE['<{postfinancecheckout}prestashop>lineitem_ff65aee349dbc76dd62e6dc68563d34f'] = 'Verpackungsgebühr';
-$_MODULE['<{postfinancecheckout}prestashop>lineitem_2905d5875dabb8223cd181ba9f2e6888'] = 'Versand Rabatt';
+$_MODULE['<{postfinancecheckout}prestashop>postfinancecheckout_ea9cf7e47ff33b2be14e6dd07cbcefc6'] = 'Versand';
+$_MODULE['<{postfinancecheckout}prestashop>postfinancecheckout_4b78ac8eb158840e9638a3aeb26c4a9d'] = 'Steuer';
+$_MODULE['<{postfinancecheckout}prestashop>postfinancecheckout_ff65aee349dbc76dd62e6dc68563d34f'] = 'Verpackungsgebühr';
+$_MODULE['<{postfinancecheckout}prestashop>postfinancecheckout_2905d5875dabb8223cd181ba9f2e6888'] = 'Versand Rabatt';
 $_MODULE['<{postfinancecheckout}prestashop>refund_35710a8f0b27e6d588d70ae5eb080992'] = 'Die zugehörige Transaktion konnte nicht geladen werden.';
 $_MODULE['<{postfinancecheckout}prestashop>refund_da0e5f3a7a81b3b0e163b25317cd8a0e'] = 'Die Transaktion befindet sich nicht in einem Status, in welchem keine Rückerstattungen erstellt werden können.';
 $_MODULE['<{postfinancecheckout}prestashop>refund_d968ad7254156ca9efaf97e078f4947c'] = 'Bitte warten Sie, bis die bestehende Rückerstattung bearbeitet wurde.';

@@ -87,9 +87,9 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
         
         $this->displayName = 'PostFinance Checkout';
         $this->description = sprintf(
-            $this->l('This PrestaShop module enables to process payments with %s.'), 'PostFinance Checkout');
+            $this->l('This PrestaShop module enables to process payments with %s.','abstractmodule'), 'PostFinance Checkout');
         $this->confirmUninstall = sprintf(
-            $this->l('Are you sure you want to uninstall the %s module?'), 'PostFinance Checkout');
+            $this->l('Are you sure you want to uninstall the %s module?','abstractmodule'), 'PostFinance Checkout');
         
         // Remove Fee Item
         if (isset($this->context->cart) && Validate::isLoadedObject($this->context->cart)) {
@@ -220,7 +220,7 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
         $tab->class_name = $className;
         $tab->active = 1;
         foreach (Language::getLanguages(false) as $language) {
-            $tab->name[(int) $language['id_lang']] = $this->l($name);
+            $tab->name[(int) $language['id_lang']] = $this->l($name,'abstractmodule');
         }
         return $tab->save();
     }
@@ -257,11 +257,11 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
     {
         $output = "";
         if (! Module::isInstalled('mailhook') || ! Module::isEnabled('mailhook')) {
-            $error = "<b>" . $this->l('The module "Mail Hook" is not active.') . "</b>";
+            $error = "<b>" . $this->l('The module "Mail Hook" is not active.','abstractmodule') . "</b>";
             $error .= "<br/>";
-            $error .= $this->l('This module is recommend for handling the shop emails. Otherwise the mail sending behavior may be inappropriate.');
+            $error .= $this->l('This module is recommend for handling the shop emails. Otherwise the mail sending behavior may be inappropriate.','abstractmodule');
             $error .= "<br/>";
-            $error .= sprintf($this->l('You can download the module %shere%s.'),
+            $error .= sprintf($this->l('You can download the module %shere%s.','abstractmodule'),
                 '<a href="https://github.com/wallee-payment/prestashop-mailhook/releases" target="_blank">',
                 '</a>');
             $output .= $this->displayError($error);
@@ -280,18 +280,18 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
                         Tools::getValue(self::CK_USER_ID));
                     Configuration::updateGlobalValue(self::CK_APP_KEY,
                         Tools::getValue(self::CK_APP_KEY));
-                    $output .= $this->displayConfirmation($this->l('Settings updated'));
+                    $output .= $this->displayConfirmation($this->l('Settings updated','abstractmodule'));
                 }
                 elseif ($this->context->shop->getContext() == Shop::CONTEXT_SHOP) {
                     foreach ($this->getConfigurationKeys() as $key) {
                         Configuration::updateValue($key, Tools::getValue($key));
                     }
-                    $output .= $this->displayConfirmation($this->l('Settings updated'));
+                    $output .= $this->displayConfirmation($this->l('Settings updated','abstractmodule'));
                 }
                 else {
                     $refresh = false;
                     $output .= $this->displayError(
-                        $this->l('You can not store the configuration for Shop Group.'));
+                        $this->l('You can not store the configuration for Shop Group.','abstractmodule'));
                 }
             }
             else {
@@ -302,7 +302,7 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
                 foreach ($this->getConfigurationKeys() as $key) {
                     Configuration::updateValue($key, Tools::getValue($key));
                 }
-                $output .= $this->displayConfirmation($this->l('Settings updated'));
+                $output .= $this->displayConfirmation($this->l('Settings updated','abstractmodule'));
             }
             if ($refresh) {
                 $error = Hook::exec('postFinanceCheckoutSettingsChanged');
@@ -344,19 +344,19 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
                         Tools::getValue(self::CK_USER_ID));
                     Configuration::updateGlobalValue(self::CK_APP_KEY,
                         Tools::getValue(self::CK_APP_KEY));
-                    $output .= $this->displayConfirmation($this->l('Settings updated'));
+                    $output .= $this->displayConfirmation($this->l('Settings updated','abstractmodule'));
                 }
                 elseif ($this->context->shop->getContext() == Shop::CONTEXT_SHOP) {
                     Configuration::updateValue(self::CK_SPACE_ID,
                         Tools::getValue(self::CK_SPACE_ID));
                     Configuration::updateValue(self::CK_SPACE_VIEW_ID,
                         Tools::getValue(self::CK_SPACE_VIEW_ID));
-                    $output .= $this->displayConfirmation($this->l('Settings updated'));
+                    $output .= $this->displayConfirmation($this->l('Settings updated','abstractmodule'));
                 }
                 else {
                     $refresh = false;
                     $output .= $this->displayError(
-                        $this->l('You can not store the configuration for Shop Group.'));
+                        $this->l('You can not store the configuration for Shop Group.','abstractmodule'));
                 }
             }
             else {
@@ -367,7 +367,7 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
                 Configuration::updateValue(self::CK_SPACE_ID, Tools::getValue(self::CK_SPACE_ID));
                 Configuration::updateValue(self::CK_SPACE_VIEW_ID,
                     Tools::getValue(self::CK_SPACE_VIEW_ID));
-                $output .= $this->displayConfirmation($this->l('Settings updated'));
+                $output .= $this->displayConfirmation($this->l('Settings updated','abstractmodule'));
             }
             if ($refresh) {
                 $error = Hook::exec('postFinanceCheckoutSettingsChanged');
@@ -385,11 +385,11 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
         if (Tools::isSubmit('submit' . $this->name . '_email')) {
             if (!$this->context->shop->isFeatureActive() || $this->context->shop->getContext() == Shop::CONTEXT_SHOP) {
                 Configuration::updateValue(self::CK_MAIL, Tools::getValue(self::CK_MAIL));
-                $output .= $this->displayConfirmation($this->l('Settings updated'));
+                $output .= $this->displayConfirmation($this->l('Settings updated','abstractmodule'));
             }
             else {
                 $output .= $this->displayError(
-                    $this->l('You can not store the configuration for all Shops or a Shop Group.'));
+                    $this->l('You can not store the configuration for all Shops or a Shop Group.','abstractmodule'));
             }
         }
         return $output;
@@ -402,11 +402,11 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
             if (!$this->context->shop->isFeatureActive() || $this->context->shop->getContext() == Shop::CONTEXT_SHOP) {
                     Configuration::updateValue(self::CK_FEE_ITEM,
                         Tools::getValue(self::CK_FEE_ITEM));
-                  $output .= $this->displayConfirmation($this->l('Settings updated'));
+                    $output .= $this->displayConfirmation($this->l('Settings updated','abstractmodule'));
             }
             else {
                 $output .= $this->displayError(
-                    $this->l('You can not store the configuration for all Shops or a Shop Group.'));
+                    $this->l('You can not store the configuration for all Shops or a Shop Group.','abstractmodule'));
             }
        
         }
@@ -421,11 +421,11 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
                     Configuration::updateValue(self::CK_INVOICE, Tools::getValue(self::CK_INVOICE));
                     Configuration::updateValue(self::CK_PACKING_SLIP,
                         Tools::getValue(self::CK_PACKING_SLIP));
-                    $output .= $this->displayConfirmation($this->l('Settings updated'));
+                    $output .= $this->displayConfirmation($this->l('Settings updated','abstractmodule'));
             }
             else {
                     $output .= $this->displayError(
-                        $this->l('You can not store the configuration for all Shops or a Shop Group.'));
+                        $this->l('You can not store the configuration for all Shops or a Shop Group.','abstractmodule'));
             }
            
         }
@@ -439,12 +439,12 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
             if (!$this->context->shop->isFeatureActive() || $this->context->shop->getContext() == Shop::CONTEXT_SHOP) {
                     Configuration::updateValue(self::CK_SPACE_VIEW_ID,
                         Tools::getValue(self::CK_SPACE_VIEW_ID));
-                    $output .= $this->displayConfirmation($this->l('Settings updated'));
+                    $output .= $this->displayConfirmation($this->l('Settings updated','abstractmodule'));
             }
             else {
                 $refresh = false;
                 $output .= $this->displayError(
-                    $this->l('You can not store the configuration for all Shops or a Shop Group.'));
+                    $this->l('You can not store the configuration for all Shops or a Shop Group.','abstractmodule'));
             }
         }
         return $output;
@@ -462,10 +462,10 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
                 Configuration::updateValue(self::CK_STATUS_MANUAL, Tools::getValue(self::CK_STATUS_MANUAL));
                 Configuration::updateValue(self::CK_STATUS_DECLINED, Tools::getValue(self::CK_STATUS_DECLINED));
                 Configuration::updateValue(self::CK_STATUS_FULFILL, Tools::getValue(self::CK_STATUS_FULFILL));
-                $output .= $this->displayConfirmation($this->l('Settings updated'));
+                $output .= $this->displayConfirmation($this->l('Settings updated','abstractmodule'));
             }else {
                     $output .= $this->displayError(
-                        $this->l('You can not store the configuration for all Shops or a Shop Group.'));
+                        $this->l('You can not store the configuration for all Shops or a Shop Group.','abstractmodule'));
             }
         }
         return $output;
@@ -504,7 +504,7 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
     {
         $userIdConfig = array(
                 'type' => 'text',
-                'label' => $this->l('User Id'),
+            'label' => $this->l('User Id','abstractmodule'),
                 'name' => self::CK_USER_ID,
                 'required' => true,
                 'col' => 3,
@@ -512,7 +512,7 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
         );
         $userPwConfig = array(
                 'type' => 'postfinancecheckout_password',
-                'label' => $this->l('Authentication Key'),
+            'label' => $this->l('Authentication Key','abstractmodule'),
                 'name' => self::CK_APP_KEY,
                 'required' => true,
                 'col' => 3,
@@ -523,7 +523,7 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
                 'type' => 'html',
                 'name' => 'IGNORE',
                 'col' => 3,
-                'html_content' => '<b>' . $this->l('The User Id needs to be configured globally.') .
+            'html_content' => '<b>' . $this->l('The User Id needs to be configured globally.','abstractmodule') .
                      '</b>'
         );
             
@@ -532,12 +532,12 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
                 'name' => 'IGNORE',
                 'col' => 3,
                 'html_content' => '<b>' .
-                 $this->l('The Authentication Key needs to be configured globally.') . '</b>'
+            $this->l('The Authentication Key needs to be configured globally.','abstractmodule') . '</b>'
         );
         
         $spaceIdConfig = array(
                 'type' => 'text',
-                'label' => $this->l('Space Id'),
+            'label' => $this->l('Space Id','abstractmodule'),
                 'name' => self::CK_SPACE_ID,
                 'required' => true,
                 'col' => 3,
@@ -548,14 +548,14 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
                 'type' => 'html',
                 'name' => 'IGNORE',
                 'col' => 3,
-                'html_content' => '<b>' . $this->l('The Space Id needs to be configured per shop.') .
+            'html_content' => '<b>' . $this->l('The Space Id needs to be configured per shop.','abstractmodule') .
                      '</b>'
         );
         
         $generalInputs = array($spaceIdConfig, $userIdConfig, $userPwConfig);
         $buttons = array(
             array(
-                'title' => $this->l('Save'),
+                'title' => $this->l('Save','abstractmodule'),
                 'class' => 'pull-right',
                 'type' => 'input',
                 'icon' => 'process-icon-save',
@@ -571,7 +571,7 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
                 $generalInputs = array($spaceIdConfig, $userIdInfo, $userPwInfo);
                 array_unshift($buttons,
                     array(
-                        'title' => $this->l('Save All'),
+                        'title' => $this->l('Save All','abstractmodule'),
                         'class' => 'pull-right',
                         'type' => 'input',
                         'icon' => 'process-icon-save',
@@ -586,7 +586,7 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
         else{
             array_unshift($buttons,
                 array(
-                    'title' => $this->l('Save All'),
+                    'title' => $this->l('Save All','abstractmodule'),
                     'class' => 'pull-right',
                     'type' => 'input',
                     'icon' => 'process-icon-save',
@@ -597,7 +597,7 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
         // General Settings
         $fieldsForm[]['form'] = array(
             'legend' => array(
-                'title' => 'PostFinance Checkout ' . $this->l('General Settings')
+                'title' => 'PostFinance Checkout ' . $this->l('General Settings','abstractmodule')
             ),
             'input' => $generalInputs,
             'buttons' => $buttons
@@ -648,41 +648,41 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
         $emailConfig = array(
             array(
                 'type' => 'switch',
-                'label' => $this->l('Send Order Emails'),
+                'label' => $this->l('Send Order Emails','abstractmodule'),
                 'name' => self::CK_MAIL,
                 'is_bool' => true,
                 'values' => array(
                     array(
                         'id' => 'active_on',
                         'value' => 1,
-                        'label' => $this->l('Send')
+                        'label' => $this->l('Send','abstractmodule')
                     ),
                     array(
                         'id' => 'active_off',
                         'value' => 0,
-                        'label' => $this->l('Disabled')
+                        'label' => $this->l('Disabled','abstractmodule')
                     )
                 ),
-                'desc' => $this->l('Send the prestashop order emails.'),
+                'desc' => $this->l('Send the prestashop order emails.','abstractmodule'),
                 'lang' => false
             )
         );
         
         return array(
             'legend' => array(
-                'title' => $this->l('Order Email Settings')
+                'title' => $this->l('Order Email Settings','abstractmodule')
             ),
             'input' => $emailConfig,
             'buttons' => array(
                 array(
-                    'title' => $this->l('Save All'),
+                    'title' => $this->l('Save All','abstractmodule'),
                     'class' => 'pull-right',
                     'type' => 'input',
                     'icon' => 'process-icon-save',
                     'name' => 'submit' . $this->name . '_all'
                 ),
                 array(
-                    'title' => $this->l('Save'),
+                    'title' => $this->l('Save','abstractmodule'),
                     'class' => 'pull-right',
                     'type' => 'input',
                     'icon' => 'process-icon-save',
@@ -708,14 +708,14 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
         array_unshift($products,
             array(
                 'id_product' => '-1',
-                'name' => $this->l('None (disables payment fees)')
+                'name' => $this->l('None (disables payment fees)','abstractmodule')
             ));
         
         $feeItemConfig = array(
             array(
                 'type' => 'select',
-                'label' => $this->l('Payment Fee Product'),
-                'desc' => $this->l('Select the product that should be inserted into the cart as a payment fee.'),
+                'label' => $this->l('Payment Fee Product','abstractmodule'),
+                'desc' => $this->l('Select the product that should be inserted into the cart as a payment fee.','abstractmodule'),
                 'name' => self::CK_FEE_ITEM,
                 'options' => array(
                     'query' => $products,
@@ -727,19 +727,19 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
         
         return array(
             'legend' => array(
-                'title' => $this->l('Fee Item Settings')
+                'title' => $this->l('Fee Item Settings','abstractmodule')
             ),
             'input' => $feeItemConfig,
             'buttons' => array(
                 array(
-                    'title' => $this->l('Save All'),
+                    'title' => $this->l('Save All','abstractmodule'),
                     'class' => 'pull-right',
                     'type' => 'input',
                     'icon' => 'process-icon-save',
                     'name' => 'submit' . $this->name . '_all'
                 ),
                 array(
-                    'title' => $this->l('Save'),
+                    'title' => $this->l('Save','abstractmodule'),
                     'class' => 'pull-right',
                     'type' => 'input',
                     'icon' => 'process-icon-save',
@@ -763,43 +763,43 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
         $documentConfig = array(
             array(
                 'type' => 'switch',
-                'label' => $this->l('Invoice Download'),
+                'label' => $this->l('Invoice Download','abstractmodule'),
                 'name' => self::CK_INVOICE,
                 'is_bool' => true,
                 'values' => array(
                     array(
                         'id' => 'active_on',
                         'value' => 1,
-                        'label' => $this->l('Allow')
+                        'label' => $this->l('Allow','abstractmodule')
                     ),
                     array(
                         'id' => 'active_off',
                         'value' => 0,
-                        'label' => $this->l('Disallow')
+                        'label' => $this->l('Disallow','abstractmodule')
                     )
                 ),
-                'desc' => sprintf($this->l('Allow the customers to download the %s invoice.'),
+                'desc' => sprintf($this->l('Allow the customers to download the %s invoice.','abstractmodule'),
                     'PostFinance Checkout'),
                 'lang' => false
             ),
             array(
                 'type' => 'switch',
-                'label' => $this->l('Packing Slip Download'),
+                'label' => $this->l('Packing Slip Download','abstractmodule'),
                 'name' => self::CK_PACKING_SLIP,
                 'is_bool' => true,
                 'values' => array(
                     array(
                         'id' => 'active_on',
                         'value' => 1,
-                        'label' => $this->l('Allow')
+                        'label' => $this->l('Allow','abstractmodule')
                     ),
                     array(
                         'id' => 'active_off',
                         'value' => 0,
-                        'label' => $this->l('Disallow')
+                        'label' => $this->l('Disallow','abstractmodule')
                     )
                 ),
-                'desc' => sprintf($this->l('Allow the customers to download the %s packing slip.'),
+                'desc' => sprintf($this->l('Allow the customers to download the %s packing slip.','abstractmodule'),
                     'PostFinance Checkout'),
                 'lang' => false
             )
@@ -807,19 +807,19 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
         
         return array(
             'legend' => array(
-                'title' => $this->l('Document Settings')
+                'title' => $this->l('Document Settings','abstractmodule')
             ),
             'input' => $documentConfig,
             'buttons' => array(
                 array(
-                    'title' => $this->l('Save All'),
+                    'title' => $this->l('Save All','abstractmodule'),
                     'class' => 'pull-right',
                     'type' => 'input',
                     'icon' => 'process-icon-save',
                     'name' => 'submit' . $this->name . '_all'
                 ),
                 array(
-                    'title' => $this->l('Save'),
+                    'title' => $this->l('Save','abstractmodule'),
                     'class' => 'pull-right',
                     'type' => 'input',
                     'icon' => 'process-icon-save',
@@ -847,7 +847,7 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
         $spaceViewIdConfig =  array(
             array(
             'type' => 'text',
-            'label' => $this->l('Space View Id'),
+                'label' => $this->l('Space View Id','abstractmodule'),
             'name' => self::CK_SPACE_VIEW_ID,
             'col' => 3,
             'lang' => false
@@ -855,19 +855,19 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
        
         return array(
             'legend' => array(
-                'title' => $this->l('Space View Id Settings')
+                'title' => $this->l('Space View Id Settings','abstractmodule')
             ),
             'input' => $spaceViewIdConfig,
             'buttons' => array(
                 array(
-                    'title' => $this->l('Save All'),
+                    'title' => $this->l('Save All','abstractmodule'),
                     'class' => 'pull-right',
                     'type' => 'input',
                     'icon' => 'process-icon-save',
                     'name' => 'submit' . $this->name . '_all'
                 ),
                 array(
-                    'title' => $this->l('Save'),
+                    'title' => $this->l('Save','abstractmodule'),
                     'class' => 'pull-right',
                     'type' => 'input',
                     'icon' => 'process-icon-save',
@@ -895,8 +895,8 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
         $orderStatusConfig = array(
             array(
                 'type' => 'select',
-                'label' => $this->l('Failed Status'),
-                'desc' => $this->l('Status the order enters when the transaction is in the failed status.'),
+                'label' => $this->l('Failed Status','abstractmodule'),
+                'desc' => $this->l('Status the order enters when the transaction is in the failed status.','abstractmodule'),
                 'name' => self::CK_STATUS_FAILED,
                 'options' => array(
                     'query' => $orderStates,
@@ -906,8 +906,8 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
             ),
             array(
                 'type' => 'select',
-                'label' => $this->l('Authorized Status'),
-                'desc' => $this->l('Status the order enters when the transaction is in the authorized status.'),
+                'label' => $this->l('Authorized Status','abstractmodule'),
+                'desc' => $this->l('Status the order enters when the transaction is in the authorized status.','abstractmodule'),
                 'name' => self::CK_STATUS_AUTHORIZED,
                 'options' => array(
                     'query' => $orderStates,
@@ -917,8 +917,8 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
             ),
             array(
                 'type' => 'select',
-                'label' => $this->l('Voided Status'),
-                'desc' =>  $this->l('Status the order enters when the transaction is in the voided status.'),
+                'label' => $this->l('Voided Status','abstractmodule'),
+                'desc' =>  $this->l('Status the order enters when the transaction is in the voided status.','abstractmodule'),
                 'name' => self::CK_STATUS_VOIDED,
                 'options' => array(
                     'query' => $orderStates,
@@ -928,8 +928,8 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
             ),
             array(
                 'type' => 'select',
-                'label' => $this->l('Waiting Status'),
-                'desc' => $this->l('Status the order enters when the transaction is in the completed status and the delivery indication is in a pending state.'),
+                'label' => $this->l('Waiting Status','abstractmodule'),
+                'desc' => $this->l('Status the order enters when the transaction is in the completed status and the delivery indication is in a pending state.','abstractmodule'),
                 'name' => self::CK_STATUS_COMPLETED,
                 'options' => array(
                     'query' => $orderStates,
@@ -939,8 +939,8 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
             ),
             array(
                 'type' => 'select',
-                'label' => $this->l('Manual  Status'),
-                'desc' => $this->l('Status the order enters when the transaction is in the completed status and the delivery indication requires a manual decision.'),
+                'label' => $this->l('Manual  Status','abstractmodule'),
+                'desc' => $this->l('Status the order enters when the transaction is in the completed status and the delivery indication requires a manual decision.','abstractmodule'),
                 'name' => self::CK_STATUS_MANUAL,
                 'options' => array(
                     'query' => $orderStates,
@@ -950,8 +950,8 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
             ),
             array(
                 'type' => 'select',
-                'label' => $this->l('Decline  Status'),
-                'desc' => $this->l('Status the order enters when the transaction is in the declined status.'),
+                'label' => $this->l('Decline  Status','abstractmodule'),
+                'desc' => $this->l('Status the order enters when the transaction is in the declined status.','abstractmodule'),
                 'name' => self::CK_STATUS_DECLINED,
                 'options' => array(
                     'query' => $orderStates,
@@ -961,8 +961,8 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
             ),
             array(
                 'type' => 'select',
-                'label' => $this->l('Fulfill  Status'),
-                'desc' => $this->l('Status the order enters when the transaction is in the fulfill status.'),
+                'label' => $this->l('Fulfill  Status','abstractmodule'),
+                'desc' => $this->l('Status the order enters when the transaction is in the fulfill status.','abstractmodule'),
                 'name' => self::CK_STATUS_FULFILL,
                 'options' => array(
                     'query' => $orderStates,
@@ -974,19 +974,19 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
         
         return array(
             'legend' => array(
-                'title' => $this->l('Order Status Settings')
+                'title' => $this->l('Order Status Settings','abstractmodule')
             ),
             'input' => $orderStatusConfig,
             'buttons' => array(
                 array(
-                    'title' => $this->l('Save All'),
+                    'title' => $this->l('Save All','abstractmodule'),
                     'class' => 'pull-right',
                     'type' => 'input',
                     'icon' => 'process-icon-save',
                     'name' => 'submit' . $this->name . '_all'
                 ),
                 array(
-                    'title' => $this->l('Save'),
+                    'title' => $this->l('Save','abstractmodule'),
                     'class' => 'pull-right',
                     'type' => 'input',
                     'icon' => 'process-icon-save',
@@ -1027,25 +1027,25 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
         }
         catch (Exception $e) {
             PrestaShopLogger::addLog($e->getMessage(), 2, null, null, false);
-            $errors[] = $this->l('Synchronization of the payment method configurations failed.');
+            $errors[] = $this->l('Synchronization of the payment method configurations failed.','abstractmodule');
         }
         try {
             PostFinanceCheckout_Service_Webhook::instance()->install();
         }
         catch (Exception $e) {
             PrestaShopLogger::addLog($e->getMessage(), 2, null, null, false);
-            $errors[] = $this->l('Installation of the webhooks failed, please check if the feature is active in your space.');
+            $errors[] = $this->l('Installation of the webhooks failed, please check if the feature is active in your space.','abstractmodule');
         }
         try {
             PostFinanceCheckout_Service_ManualTask::instance()->update();
         }
         catch (Exception $e) {
             PrestaShopLogger::addLog($e->getMessage(), 2, null, null, false);
-            $errors[] = $this->l('Update of Manual Tasks failed.');
+            $errors[] = $this->l('Update of Manual Tasks failed.','abstractmodule');
         }
         $this->deleteCachedEntries();
         if( empty(!$errors)){
-            return $this->l('Please check your credentials and grant the application user the necessary rights (Account Admin) for your space.').' '.implode(" ", $errors);
+            return $this->l('Please check your credentials and grant the application user the necessary rights (Account Admin) for your space.','abstractmodule').' '.implode(" ", $errors);
         }
         return "";
     }
@@ -1264,6 +1264,8 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
                 $transaction = PostFinanceCheckout_Service_Transaction::instance()->confirmTransaction($dataOrder,
                     $orders);
                 PostFinanceCheckout_Service_Transaction::instance()->updateTransactionInfo($transaction, $dataOrder);
+                $GLOBALS['postfinancecheckoutTransactionIds'] = array('spaceId' => $transaction->getLinkedSpaceId(),'transactionId' => $transaction->getId());
+                
             }
             catch (Exception $e) {
                 PrestaShopLogger::addLog($e->getMessage(), 3, null, null, false);
@@ -1274,14 +1276,14 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
                     $order->setCurrentState($canceledStatusId);
                     $order->save();
                 }
-                $emailMessages = PostFinanceCheckout::stopRecordingMailMessages();
+                PostFinanceCheckout::stopRecordingMailMessages();
                 throw new Exception(
-                    PostFinanceCheckout_Helper::getModuleInstance()->l("There was a techincal issue, please try again."));
+                    PostFinanceCheckout_Helper::getModuleInstance()->l('There was a techincal issue, please try again.','abstractmodule'));
             }
         }
         else {
             throw new Exception(
-                PostFinanceCheckout_Helper::getModuleInstance()->l("There was a techincal issue, please try again."));
+                PostFinanceCheckout_Helper::getModuleInstance()->l('There was a techincal issue, please try again.','abstractmodule'));
         }
     }
     
@@ -1344,7 +1346,7 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
             }
             catch(Exception $e){
                 $this->displayError(
-                    $this->l(sprintf('Error migrating the database for %s. Please check the log to resolve the issue.'),'PostFinance Checkout'));
+                    $this->l(sprintf('Error migrating the database for %s. Please check the log to resolve the issue.','abstractmodule'),'PostFinance Checkout'));
                 PrestaShopLogger::addLog(
                     $e->getMessage(), 3, null,
                     'PostFinanceCheckout');
@@ -1355,7 +1357,7 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
             $order = new Order((int) $idOrder);
             $backendController = Context::getContext()->controller;
             if (Validate::isLoadedObject($order) && $order->module == $this->name) {
-                $backendController->errors[] = Tools::displayError('You cannot change the currency for this order.');
+                $backendController->errors[] = Tools::displayError('You cannot change the currency for this order.','abstractmodule');
                 unset($_POST['submitChangeCurrency']);
                 return;
             }
@@ -1672,7 +1674,7 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
             ))) {
             $templateVars['postFinanceCheckoutDocuments'][] = array(
                 'icon' => 'file-text-o',
-                'name' => $this->l('Invoice'),
+                'name' => $this->l('Invoice','abstractmodule'),
                 'url' => $this->context->link->getAdminLink('AdminPostFinanceCheckoutDocuments') .
                      '&action=postFinanceCheckoutInvoice&id_order=' . $order->id
             );
@@ -1680,7 +1682,7 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
         if ($transactionInfo->getState() == \PostFinanceCheckout\Sdk\Model\TransactionState::FULFILL) {
             $templateVars['postFinanceCheckoutDocuments'][] = array(
                 'icon' => 'truck',
-                'name' => $this->l('Packing Slip'),
+                'name' => $this->l('Packing Slip','abstractmodule'),
                 'url' => $this->context->link->getAdminLink('AdminPostFinanceCheckoutDocuments') .
                      '&action=postFinanceCheckoutPackingSlip&id_order=' . $order->id
             );
@@ -1809,7 +1811,7 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
                             'result' => false,
                             'error' => Tools::displayError(
                                 sprintf(
-                                    $this->l('Could not load the corresponding transaction for order with id %d.'),
+                                    $this->l('Could not load the corresponding transaction for order with id %d.','abstractmodule'),
                                     $order->id))
                         )));
             }
@@ -1821,7 +1823,7 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
                         array(
                             'result' => false,
                             'error' => Tools::displayError(
-                                $this->l('The line items for this order can not be changed.'))
+                                $this->l('The line items for this order can not be changed.','abstractmodule'))
                         )));
             }
             
@@ -1836,7 +1838,7 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
                         array(
                             'result' => false,
                             'error' => Tools::displayError(
-                                sprintf($this->l('Could not update the line items at %s. Reason: %s'),
+                                sprintf($this->l('Could not update the line items at %s. Reason: %s','abstractmodule'),
                                     'PostFinance Checkout',                                    
                                     PostFinanceCheckout_Helper::cleanExceptionMessage(
                                         $e->getMessage())))
@@ -1845,4 +1847,5 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
             PostFinanceCheckout_Helper::commitDBTransaction();
         }
     }
+
 }

@@ -193,7 +193,7 @@ class PostFinanceCheckout_Helper
         if ($diff != 0) {
             $lineItem = new \PostFinanceCheckout\Sdk\Model\LineItemCreate();
             $lineItem->setAmountIncludingTax(self::roundAmount($diff, $currencyCode));
-            $lineItem->setName(self::getModuleInstance()->l('Rounding Adjustment'));
+            $lineItem->setName(self::getModuleInstance()->l('Rounding Adjustment','helper'));
             $lineItem->setQuantity(1);
             $lineItem->setSku('rounding-adjustment');
             $lineItem->setType(
@@ -483,25 +483,25 @@ class PostFinanceCheckout_Helper
     public static function getTransactionState(PostFinanceCheckout_Model_TransactionInfo $info){
         switch ($info->getState()) {
             case \PostFinanceCheckout\Sdk\Model\TransactionState::AUTHORIZED:
-                return self::getModuleInstance()->l('Authorized');
+                return self::getModuleInstance()->l('Authorized','helper');
             case \PostFinanceCheckout\Sdk\Model\TransactionState::COMPLETED:
-                return self::getModuleInstance()->l('Completed');
+                return self::getModuleInstance()->l('Completed','helper');
             case \PostFinanceCheckout\Sdk\Model\TransactionState::CONFIRMED:
-                return self::getModuleInstance()->l('Confirmed');
+                return self::getModuleInstance()->l('Confirmed','helper');
             case \PostFinanceCheckout\Sdk\Model\TransactionState::DECLINE:
-                return self::getModuleInstance()->l('Decline');
+                return self::getModuleInstance()->l('Decline','helper');
             case \PostFinanceCheckout\Sdk\Model\TransactionState::FAILED:
-                return self::getModuleInstance()->l('Failed');
+                return self::getModuleInstance()->l('Failed','helper');
             case \PostFinanceCheckout\Sdk\Model\TransactionState::FULFILL:
-                return self::getModuleInstance()->l('Fulfill');
+                return self::getModuleInstance()->l('Fulfill','helper');
             case \PostFinanceCheckout\Sdk\Model\TransactionState::PENDING:
-                return self::getModuleInstance()->l('Pending');
+                return self::getModuleInstance()->l('Pending','helper');
             case \PostFinanceCheckout\Sdk\Model\TransactionState::PROCESSING:
-                return self::getModuleInstance()->l('Processing');
+                return self::getModuleInstance()->l('Processing','helper');
             case \PostFinanceCheckout\Sdk\Model\TransactionState::VOIDED:
-                return self::getModuleInstance()->l('Voided');
+                return self::getModuleInstance()->l('Voided','helper');
             default:
-                return self::getModuleInstance()->l('Unknown State');
+                return self::getModuleInstance()->l('Unknown State','helper');
         }
     }
     
