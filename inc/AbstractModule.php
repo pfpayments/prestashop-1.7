@@ -1200,8 +1200,8 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
                 // Copy messages to new cart
                 $messageCollection = new PrestaShopCollection('Message');
                 $messageCollection->where('id_cart', '=', (int) $id_cart);
-                foreach($messageCollection->getResults() as $message){
-                    $duplicateMessage = $message->duplicateObject();
+                foreach($messageCollection->getResults() as $orderMessage){
+                    $duplicateMessage = $orderMessage->duplicateObject();
                     $duplicateMessage->id_cart = $cart->id;
                     $duplicateMessage->save();
                 }
