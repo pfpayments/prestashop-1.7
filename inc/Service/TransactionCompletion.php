@@ -1,14 +1,11 @@
 <?php
-if (! defined('_PS_VERSION_')) {
-    exit();
-}
-
 /**
  * PostFinance Checkout Prestashop
  *
  * This Prestashop module enables to process payments with PostFinance Checkout (https://www.postfinance.ch).
  *
  * @author customweb GmbH (http://www.customweb.com/)
+ * @copyright 2017 - 2018 customweb GmbH
  * @license http://www.apache.org/licenses/LICENSE-2.0 Apache Software License (ASL 2.0)
  */
 
@@ -33,7 +30,8 @@ class PostFinanceCheckout_Service_TransactionCompletion extends PostFinanceCheck
             $transactionInfo = PostFinanceCheckout_Helper::getTransactionInfoForOrder($order);
             if ($transactionInfo === null) {
                 throw new Exception(
-                    PostFinanceCheckout_Helper::getModuleInstance()->l('Could not load corresponding transaction.','transactioncompletion'));
+                    PostFinanceCheckout_Helper::getModuleInstance()->l('Could not load corresponding transaction.', 'transactioncompletion')
+                );
             }
            
             PostFinanceCheckout_Helper::lockByTransactionId($transactionInfo->getSpaceId(), $transactionInfo->getTransactionId());
@@ -43,17 +41,20 @@ class PostFinanceCheckout_Service_TransactionCompletion extends PostFinanceCheck
             $transactionId = $transactionInfo->getTransactionId();
             
             if ($transactionInfo->getState() != \PostFinanceCheckout\Sdk\Model\TransactionState::AUTHORIZED) {
-                throw new Exception(PostFinanceCheckout_Helper::getModuleInstance()->l('The transaction is not in a state to be completed.','transactioncompletion'));
+                throw new Exception(PostFinanceCheckout_Helper::getModuleInstance()->l('The transaction is not in a state to be completed.', 'transactioncompletion'));
             }
             
             if (PostFinanceCheckout_Model_CompletionJob::isCompletionRunningForTransaction(
-                $spaceId, $transactionId)){
-                    throw new Exception( PostFinanceCheckout_Helper::getModuleInstance()->l('Please wait until the existing completion is processed.','transactioncompletion'));
+                $spaceId,
+                $transactionId
+            )) {
+                    throw new Exception(PostFinanceCheckout_Helper::getModuleInstance()->l('Please wait until the existing completion is processed.', 'transactioncompletion'));
             }
             
             if (PostFinanceCheckout_Model_VoidJob::isVoidRunningForTransaction($spaceId, $transactionId)) {
                 throw new Exception(
-                    PostFinanceCheckout_Helper::getModuleInstance()->l('There is a void in process. The order can not be completed.','transactioncompletion'));
+                    PostFinanceCheckout_Helper::getModuleInstance()->l('There is a void in process. The order can not be completed.', 'transactioncompletion')
+                );
             }
 
             $completionJob = new PostFinanceCheckout_Model_CompletionJob();
@@ -64,8 +65,7 @@ class PostFinanceCheckout_Service_TransactionCompletion extends PostFinanceCheck
             $completionJob->save();
             $currentCompletionJob = $completionJob->getId();
             PostFinanceCheckout_Helper::commitDBTransaction();
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             PostFinanceCheckout_Helper::rollbackDBTransaction();
             throw $e;
         }
@@ -73,14 +73,14 @@ class PostFinanceCheckout_Service_TransactionCompletion extends PostFinanceCheck
         try {
             $this->updateLineItems($currentCompletionJob);
             $this->sendCompletion($currentCompletionJob);
-        }
-        catch (Exception $e) {
-            throw $e;            
+        } catch (Exception $e) {
+            throw $e;
         }
     }
     
     
-    protected function updateLineItems($completionJobId){
+    protected function updateLineItems($completionJobId)
+    {
         
         $completionJob = new PostFinanceCheckout_Model_CompletionJob($completionJobId);
         PostFinanceCheckout_Helper::startDBTransaction();
@@ -103,24 +103,45 @@ class PostFinanceCheckout_Service_TransactionCompletion extends PostFinanceCheck
             $completionJob->setState(PostFinanceCheckout_Model_CompletionJob::STATE_ITEMS_UPDATED);
             $completionJob->save();
             PostFinanceCheckout_Helper::commitDBTransaction();
-        }
-        catch (Exception $e) {
-            $completionJob->setFailureReason(
-                array(
-                    'en-US' => sprintf(
-                        PostFinanceCheckout_Helper::getModuleInstance()->l('Could not update the line items. Error: %s','transactioncompletion'),
-                        PostFinanceCheckout_Helper::cleanExceptionMessage($e->getMessage()))
-                ));
-            
-            $completionJob->setState(PostFinanceCheckout_Model_CompletionJob::STATE_FAILURE);
+        } catch (\PostFinanceCheckout\Sdk\ApiException $e) {
+            if ($e->getResponseObject() instanceof \PostFinanceCheckout\Sdk\Model\ClientError) {
+                $completionJob->setFailureReason(
+                    array(
+                        'en-US' => sprintf(
+                            PostFinanceCheckout_Helper::getModuleInstance()->l('Could not update the line items. Error: %s', 'transactioncompletion'),
+                            PostFinanceCheckout_Helper::cleanExceptionMessage($e->getMessage())
+                        )
+                    )
+                );
+                $completionJob->setState(PostFinanceCheckout_Model_CompletionJob::STATE_FAILURE);
+                $completionJob->save();
+                PostFinanceCheckout_Helper::commitDBTransaction();
+            } else {
+                $completionJob->save();
+                PostFinanceCheckout_Helper::commitDBTransaction();
+                $message = sprintf(
+                    PostFinanceCheckout_Helper::getModuleInstance()->l('Error updating line items for completion job with id %d: %s', 'transactioncompletion'),
+                    $completionJobId,
+                    $e->getMessage()
+                );
+                PrestaShopLogger::addLog($message, 3, null, 'PostFinanceCheckout_Model_CompletionJob');
+                throw $e;
+            }
+        } catch (Exception $e) {
             $completionJob->save();
             PostFinanceCheckout_Helper::commitDBTransaction();
+            $message = sprintf(
+                PostFinanceCheckout_Helper::getModuleInstance()->l('Error updating line items for completion job with id %d: %s', 'transactioncompletion'),
+                $completionJobId,
+                $e->getMessage()
+            );
+            PrestaShopLogger::addLog($message, 3, null, 'PostFinanceCheckout_Model_CompletionJob');
             throw $e;
         }
     }
 
     protected function sendCompletion($completionJobId)
-    {        
+    {
         $completionJob = new PostFinanceCheckout_Model_CompletionJob($completionJobId);
         PostFinanceCheckout_Helper::startDBTransaction();
         PostFinanceCheckout_Helper::lockByTransactionId($completionJob->getSpaceId(), $completionJob->getTransactionId());
@@ -132,23 +153,46 @@ class PostFinanceCheckout_Service_TransactionCompletion extends PostFinanceCheck
             PostFinanceCheckout_Helper::rollbackDBTransaction();
             return;
         }
-        try {                        
+        try {
             $completion = $this->getCompletionService()->completeOnline($completionJob->getSpaceId(), $completionJob->getTransactionId());
             $completionJob->setCompletionId($completion->getId());
             $completionJob->setState(PostFinanceCheckout_Model_CompletionJob::STATE_SENT);
             $completionJob->save();
             PostFinanceCheckout_Helper::commitDBTransaction();
-        }
-        catch (Exception $e) {
-            $completionJob->setFailureReason(
-                array(
-                    'en-US' => sprintf(
-                        PostFinanceCheckout_Helper::getModuleInstance()->l('Could not send the completion to %s. Error: %s','transactioncompletion'), 'PostFinance Checkout',
-                        PostFinanceCheckout_Helper::cleanExceptionMessage($e->getMessage()))
-                ));
-            $completionJob->setState(PostFinanceCheckout_Model_CompletionJob::STATE_FAILURE);
+        } catch (\PostFinanceCheckout\Sdk\ApiException $e) {
+            if ($e->getResponseObject() instanceof \PostFinanceCheckout\Sdk\Model\ClientError) {
+                $completionJob->setFailureReason(
+                    array(
+                        'en-US' => sprintf(
+                            PostFinanceCheckout_Helper::getModuleInstance()->l('Could not send the completion to %s. Error: %s', 'transactioncompletion'),
+                            'PostFinance Checkout',
+                            PostFinanceCheckout_Helper::cleanExceptionMessage($e->getMessage())
+                        )
+                    )
+                );
+                $completionJob->setState(PostFinanceCheckout_Model_CompletionJob::STATE_FAILURE);
+                $completionJob->save();
+                PostFinanceCheckout_Helper::commitDBTransaction();
+            } else {
+                $completionJob->save();
+                PostFinanceCheckout_Helper::commitDBTransaction();
+                $message = sprintf(
+                    PostFinanceCheckout_Helper::getModuleInstance()->l('Error sending completion job with id %d: %s', 'transactioncompletion'),
+                    $completionJobId,
+                    $e->getMessage()
+                );
+                PrestaShopLogger::addLog($message, 3, null, 'PostFinanceCheckout_Model_CompletionJob');
+                throw $e;
+            }
+        } catch (Exception $e) {
             $completionJob->save();
             PostFinanceCheckout_Helper::commitDBTransaction();
+            $message = sprintf(
+                PostFinanceCheckout_Helper::getModuleInstance()->l('Error sending completion job with id %d: %s', 'transactioncompletion'),
+                $completionJobId,
+                $e->getMessage()
+            );
+            PrestaShopLogger::addLog($message, 3, null, 'PostFinanceCheckout_Model_CompletionJob');
             throw $e;
         }
     }
@@ -168,24 +212,25 @@ class PostFinanceCheckout_Service_TransactionCompletion extends PostFinanceCheck
     {
         $toProcess = PostFinanceCheckout_Model_CompletionJob::loadNotSentJobIds();
         foreach ($toProcess as $id) {
-            if($endTime!== null && time()+15 > $endTime){
+            if ($endTime!== null && time()+15 > $endTime) {
                 return;
             }
             try {
                 $this->updateLineItems($id);
                 $this->sendCompletion($id);
-            }
-            catch (Exception $e) {
+            } catch (Exception $e) {
                 $message = sprintf(
-                    PostFinanceCheckout_Helper::getModuleInstance()->l('Error updating completion job with id %d: %s','transactioncompletion'), $id,
-                    $e->getMessage());
+                    PostFinanceCheckout_Helper::getModuleInstance()->l('Error updating completion job with id %d: %s', 'transactioncompletion'),
+                    $id,
+                    $e->getMessage()
+                );
                 PrestaShopLogger::addLog($message, 3, null, 'PostFinanceCheckout_Model_CompletionJob');
-                
             }
         }
     }
     
-    public function hasPendingCompletions(){
+    public function hasPendingCompletions()
+    {
         $toProcess = PostFinanceCheckout_Model_CompletionJob::loadNotSentJobIds();
         return !empty($toProcess);
     }
@@ -200,7 +245,8 @@ class PostFinanceCheckout_Service_TransactionCompletion extends PostFinanceCheck
     {
         if ($this->completionService == null) {
             $this->completionService = new \PostFinanceCheckout\Sdk\Service\TransactionCompletionService(
-                PostFinanceCheckout_Helper::getApiClient());
+                PostFinanceCheckout_Helper::getApiClient()
+            );
         }
         return $this->completionService;
     }

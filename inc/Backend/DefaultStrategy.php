@@ -1,14 +1,11 @@
 <?php
-if (! defined('_PS_VERSION_')) {
-    exit();
-}
-
 /**
  * PostFinance Checkout Prestashop
  *
  * This Prestashop module enables to process payments with PostFinance Checkout (https://www.postfinance.ch).
  *
  * @author customweb GmbH (http://www.customweb.com/)
+ * @copyright 2017 - 2018 customweb GmbH
  * @license http://www.apache.org/licenses/LICENSE-2.0 Apache Software License (ASL 2.0)
  */
 
@@ -30,7 +27,7 @@ class PostFinanceCheckout_Backend_DefaultStrategy implements PostFinanceCheckout
         if (isset($postData['cancelProduct'])) {
             return $this->validateDataCancelProductType($order, $postData);
         }
-        throw new Exception(PostFinanceCheckout_Helper::getModuleInstance()->l('The refund type is not supported.','defaultstrategy'));
+        throw new Exception(PostFinanceCheckout_Helper::getModuleInstance()->l('The refund type is not supported.', 'defaultstrategy'));
     }
 
     private function validateDataPartialRefundType(Order $order, array $postData)
@@ -58,10 +55,12 @@ class PostFinanceCheckout_Backend_DefaultStrategy implements PostFinanceCheckout
                     $order_detail_list[$id_order_detail]['amount'] = $order_detail->unit_price_tax_incl *
                          $order_detail_list[$id_order_detail]['quantity'];
                     $order_detail_list[$id_order_detail]['amount_modified'] = false;
-                }
-                else {
-                    $order_detail_list[$id_order_detail]['amount'] = (float) str_replace(',', '.',
-                        $amount_detail);
+                } else {
+                    $order_detail_list[$id_order_detail]['amount'] = (float) str_replace(
+                        ',',
+                        '.',
+                        $amount_detail
+                    );
                     $order_detail_list[$id_order_detail]['unit_price'] = $order_detail_list[$id_order_detail]['amount'] /
                          $order_detail_list[$id_order_detail]['quantity'];
                     $order_detail_list[$id_order_detail]['amount_modified'] = true;
@@ -70,30 +69,43 @@ class PostFinanceCheckout_Backend_DefaultStrategy implements PostFinanceCheckout
                 if (! $order->hasBeenDelivered() || ($order->hasBeenDelivered() &&
                      isset($postData['reinjectQuantities'])) &&
                      $order_detail_list[$id_order_detail]['quantity'] > 0) {
-                    $product = new Product($order_detail->product_id, false,
-                        (int) Context::getContext()->language->id, (int) $order_detail->id_shop);
+                    $product = new Product(
+                        $order_detail->product_id,
+                        false,
+                        (int) Context::getContext()->language->id,
+                        (int) $order_detail->id_shop
+                    );
                     if (! ((Configuration::get('PS_ADVANCED_STOCK_MANAGEMENT') &&
                          $product->advanced_stock_management && $order_detail->id_warehouse != 0) ||
                          $order_detail->id_warehouse == 0)) {
                         throw new Exception(
                             sprintf(
-                                PostFinanceCheckout_Helper::getModuleInstance()->l('The product "%s" cannot be re-stocked.','defaultstrategy'),
-                                $product->name));
+                                PostFinanceCheckout_Helper::getModuleInstance()->l('The product "%s" cannot be re-stocked.', 'defaultstrategy'),
+                                $product->name
+                            )
+                        );
                     }
                 }
             }
-            $shipping_cost_amount = (float) str_replace(',', '.',
-                $postData['partialRefundShippingCost']) ? (float) str_replace(',', '.',
-                $postData['partialRefundShippingCost']) : false;
+            $shipping_cost_amount = (float) str_replace(
+                ',',
+                '.',
+                $postData['partialRefundShippingCost']
+            ) ? (float) str_replace(
+                ',',
+                '.',
+                $postData['partialRefundShippingCost']
+            ) : false;
             
             if ($amount == 0 && $shipping_cost_amount == 0) {
                 if (! empty($refunds)) {
                     throw new Exception(
-                        PostFinanceCheckout_Helper::getModuleInstance()->l('Please enter a quantity to proceed with your refund.','defaultstrategy'));
-                }
-                else {
+                        PostFinanceCheckout_Helper::getModuleInstance()->l('Please enter a quantity to proceed with your refund.', 'defaultstrategy')
+                    );
+                } else {
                     throw new Exception(
-                        PostFinanceCheckout_Helper::getModuleInstance()->l('Please enter an amount to proceed with your refund.','defaultstrategy'));
+                        PostFinanceCheckout_Helper::getModuleInstance()->l('Please enter an amount to proceed with your refund.', 'defaultstrategy')
+                    );
                 }
             }
             $choosen = false;
@@ -102,10 +114,9 @@ class PostFinanceCheckout_Backend_DefaultStrategy implements PostFinanceCheckout
             if (isset($postData['refund_voucher_off']) && (int) $postData['refund_voucher_off'] == 1) {
                 //Refund vouchers
                 $amount -= $voucher = (float) $postData['order_discount_price'];
-            }
-            elseif (isset($postData['refund_voucher_off']) &&
+            } elseif (isset($postData['refund_voucher_off']) &&
                  (int) $postData['refund_voucher_off'] == 2) {
-                     throw new Exception( PostFinanceCheckout_Helper::getModuleInstance()->l('This type of refund is not possible for this order.','defaultstrategy'));
+                     throw new Exception(PostFinanceCheckout_Helper::getModuleInstance()->l('This type of refund is not possible for this order.', 'defaultstrategy'));
             }
             
             if ($shipping_cost_amount > 0) {
@@ -115,10 +126,10 @@ class PostFinanceCheckout_Backend_DefaultStrategy implements PostFinanceCheckout
                     $tax_calculator = new TaxCalculator(
                         array(
                             $tax
-                        ));
+                        )
+                    );
                     $amount += $tax_calculator->addTaxes($shipping_cost_amount);
-                }
-                else {
+                } else {
                     $amount += $shipping_cost_amount;
                 }
             }
@@ -137,33 +148,30 @@ class PostFinanceCheckout_Backend_DefaultStrategy implements PostFinanceCheckout
                     'generateDiscountRefund' => isset($postData['generateDiscountRefund']),
                     'postFinanceCheckoutOffline' => isset($postData['postfinancecheckout_offline'])
                 );
-            }
-            else {
+            } else {
                 if (! empty($refunds)) {
                     throw new Exception(
-                        PostFinanceCheckout_Helper::getModuleInstance()->l('Please enter a quantity to proceed with your refund.','defaultstrategy'));
-                }
-                else {
+                        PostFinanceCheckout_Helper::getModuleInstance()->l('Please enter a quantity to proceed with your refund.', 'defaultstrategy')
+                    );
+                } else {
                     throw new Exception(
-                        PostFinanceCheckout_Helper::getModuleInstance()->l('Please enter an amount to proceed with your refund.','defaultstrategy'));
+                        PostFinanceCheckout_Helper::getModuleInstance()->l('Please enter an amount to proceed with your refund.', 'defaultstrategy')
+                    );
                 }
             }
-        }
-        else {
-            throw new Exception(PostFinanceCheckout_Helper::getModuleInstance()->l('The partial refund data is incorrect.','defaultstrategy'));
+        } else {
+            throw new Exception(PostFinanceCheckout_Helper::getModuleInstance()->l('The partial refund data is incorrect.', 'defaultstrategy'));
         }
     }
 
     private function validateDataCancelProductType(Order $order, array $postData)
     {
         if (! isset($postData['id_order_detail']) && ! isset($postData['id_customization'])) {
-            throw new Exception(PostFinanceCheckout_Helper::getModuleInstance()->l('You must select a product.','defaultstrategy'));
-        }
-        elseif (! isset($postData['cancelQuantity']) &&
+            throw new Exception(PostFinanceCheckout_Helper::getModuleInstance()->l('You must select a product.', 'defaultstrategy'));
+        } elseif (! isset($postData['cancelQuantity']) &&
              ! isset($postData['cancelCustomizationQuantity'])) {
-                 throw new Exception(PostFinanceCheckout_Helper::getModuleInstance()->l('You must enter a quantity.','defaultstrategy'));
-        }
-        else {
+                 throw new Exception(PostFinanceCheckout_Helper::getModuleInstance()->l('You must enter a quantity.', 'defaultstrategy'));
+        } else {
             $productList = isset($postData['id_order_detail']) ? $postData['id_order_detail'] : false;
             if ($productList) {
                 $productList = array_map('intval', $productList);
@@ -205,14 +213,17 @@ class PostFinanceCheckout_Backend_DefaultStrategy implements PostFinanceCheckout
                         $qtyCancelProduct = abs($qtyList[$key]);
                         if (! $qtyCancelProduct) {
                             $this->errors[] = Tools::displayError(
-                                'No quantity has been selected for this product.','defaultstrategy');
+                                'No quantity has been selected for this product.',
+                                'defaultstrategy'
+                            );
                         }
                         
                         $order_detail = new OrderDetail($id_order_detail);
                         $customization_quantity = 0;
                         if (array_key_exists($order_detail->product_id, $customization_quantities) && array_key_exists(
                             $order_detail->product_attribute_id,
-                            $customization_quantities[$order_detail->product_id])) {
+                            $customization_quantities[$order_detail->product_id]
+                        )) {
                             $customization_quantity = (int) $customization_quantities[$order_detail->product_id][$order_detail->product_attribute_id];
                         }
                         
@@ -220,14 +231,17 @@ class PostFinanceCheckout_Backend_DefaultStrategy implements PostFinanceCheckout
                              $order_detail->product_quantity_refunded -
                              $order_detail->product_quantity_return) < $qtyCancelProduct) {
                             $this->errors[] = Tools::displayError(
-                                'An invalid quantity was selected for this product.','defaultstrategy');
+                                'An invalid quantity was selected for this product.',
+                                'defaultstrategy'
+                            );
                         }
                     }
                 }
                 
                 if ($customizationList) {
                     $customization_quantities = Customization::retrieveQuantitiesFromIds(
-                        array_keys($customizationList));
+                        array_keys($customizationList)
+                    );
                     
                     foreach ($customizationList as $id_customization => $id_order_detail) {
                         $qtyCancelProduct = abs($customizationQtyList[$id_customization]);
@@ -235,13 +249,15 @@ class PostFinanceCheckout_Backend_DefaultStrategy implements PostFinanceCheckout
                         
                         if (! $qtyCancelProduct) {
                             throw new Exception(
-                                PostFinanceCheckout_Helper::getModuleInstance()->l('No quantity has been selected for this product.','defaultstrategy'));
+                                PostFinanceCheckout_Helper::getModuleInstance()->l('No quantity has been selected for this product.', 'defaultstrategy')
+                            );
                         }
                         
                         if ($qtyCancelProduct > ($customization_quantity['quantity'] - ($customization_quantity['quantity_refunded'] +
                              $customization_quantity['quantity_returned']))) {
                             throw new Exception(
-                                PostFinanceCheckout_Helper::getModuleInstance()->l('An invalid quantity was selected for this product.','defaultstrategy'));
+                                PostFinanceCheckout_Helper::getModuleInstance()->l('An invalid quantity was selected for this product.', 'defaultstrategy')
+                            );
                         }
                     }
                 }
@@ -273,10 +289,9 @@ class PostFinanceCheckout_Backend_DefaultStrategy implements PostFinanceCheckout
                 if (isset($postData['refund_total_voucher_off']) &&
                      (int) $postData['refund_total_voucher_off'] == 1) {
                     $total -= $voucher = isset($postData['order_discount_price']) ? (float) $postData['order_discount_price'] : 0;
-                }
-                elseif (isset($postData['refund_total_voucher_off']) &&
+                } elseif (isset($postData['refund_total_voucher_off']) &&
                      (int) $postData['refund_total_voucher_off'] == 2) {
-                         throw new Exception( PostFinanceCheckout_Helper::getModuleInstance()->l('This type of refund is not possible for this order.','defaultstrategy'));
+                         throw new Exception(PostFinanceCheckout_Helper::getModuleInstance()->l('This type of refund is not possible for this order.', 'defaultstrategy'));
                 }
                 
                 return array(
@@ -298,24 +313,22 @@ class PostFinanceCheckout_Backend_DefaultStrategy implements PostFinanceCheckout
                     'languageId' => Context::getContext()->language->id,
                     'postFinanceCheckoutOffline' => isset($postData['postfinancecheckout_offline'])
                 );
-            }
-            else {
+            } else {
                 throw new Exception(
-                    PostFinanceCheckout_Helper::getModuleInstance()->l('No product or quantity has been selected.','defaultstrategy'));
+                    PostFinanceCheckout_Helper::getModuleInstance()->l('No product or quantity has been selected.', 'defaultstrategy')
+                );
             }
         }
     }
 
     public function createReductions(Order $order, array $parsedData)
     {
-        if ( $parsedData['refundType'] == self::REFUND_TYPE_PARTIAL_REFUND) {
+        if ($parsedData['refundType'] == self::REFUND_TYPE_PARTIAL_REFUND) {
             return  $this->createReductionsPartialRefundType($order, $parsedData);
-        }
-        elseif ( $parsedData['refundType'] == self::REFUND_TYPE_CANCEL_PRODUCT) {
+        } elseif ($parsedData['refundType'] == self::REFUND_TYPE_CANCEL_PRODUCT) {
             return $this->createReductionsCancelProductType($order, $parsedData);
-        }
-        else{
-            throw new Exception(PostFinanceCheckout_Helper::getModuleInstance()->l('The refund type is not supported.','defaultstrategy'));
+        } else {
+            throw new Exception(PostFinanceCheckout_Helper::getModuleInstance()->l('The refund type is not supported.', 'defaultstrategy'));
         }
     }
        
@@ -340,8 +353,7 @@ class PostFinanceCheckout_Backend_DefaultStrategy implements PostFinanceCheckout
             if (! $details['amount_modified']) {
                 $reduction->setQuantityReduction((int) $quantity);
                 $reduction->setUnitPriceReduction(0);
-            }
-            else {
+            } else {
                 // Merchant did most likely not refund complete amount
                 $amount = $details['amount'];
                 $unitPrice = $amount / $quantity;
@@ -350,9 +362,9 @@ class PostFinanceCheckout_Backend_DefaultStrategy implements PostFinanceCheckout
                     Tools::ps_round($unitPrice, $computePrecision)) {
                     $reduction->setQuantityReduction(0);
                     $reduction->setUnitPriceReduction(
-                        round($amount / $orderDetail->product_quantity, 8));
-                }
-                else {
+                        round($amount / $orderDetail->product_quantity, 8)
+                    );
+                } else {
                     $reduction->setQuantityReduction((int) $quantity);
                     $reduction->setUnitPriceReduction(0);
                 }
@@ -363,15 +375,14 @@ class PostFinanceCheckout_Backend_DefaultStrategy implements PostFinanceCheckout
         
         if ($shippingCostAmount > 0) {
             $uniqueId = 'order-' . $order->id . '-shipping';
-            if (! $refundData['TaxMethod']) {
+            if (! $parsedData['TaxMethod']) {
                 $tax = new Tax();
                 $tax->rate = $order->carrier_tax_rate;
                 $taxCalculator = new TaxCalculator(array(
                     $tax
                 ));
                 $totalShippingCost = $taxCalculator->addTaxes($shippingCostAmount);
-            }
-            else {
+            } else {
                 $totalShippingCost = $shippingCostAmount;
             }
             $reduction = new \PostFinanceCheckout\Sdk\Model\LineItemReductionCreate();
@@ -380,12 +391,12 @@ class PostFinanceCheckout_Backend_DefaultStrategy implements PostFinanceCheckout
             $reduction->setUnitPriceReduction(round($totalShippingCost, 8));
             $reductions[] = $reduction;
         }
-        if($parsedData['voucher'] > 0){
+        if ($parsedData['voucher'] > 0) {
             //It is only possible to refund all vouchers at once
             $usedTaxes = $this->getUsedTaxes($order);
             foreach ($order->getCartRules() as $orderCartRule) {
                 $uniqueIds = $this->getUsedDiscountUniqueIds('order-' . $order->id . '-discount-' . $orderCartRule['id_order_cart_rule'], new CartRule($orderCartRule['id_cart_rule']), $orderCartRule['value_tax_excl'], $order, $usedTaxes);
-                foreach($uniqueIds as $uniqueId){
+                foreach ($uniqueIds as $uniqueId) {
                     $reduction = new \PostFinanceCheckout\Sdk\Model\LineItemReductionCreate();
                     $reduction->setLineItemUniqueId($uniqueId);
                     $reduction->setQuantityReduction(1);
@@ -399,10 +410,8 @@ class PostFinanceCheckout_Backend_DefaultStrategy implements PostFinanceCheckout
 
     private function createReductionsCancelProductType(Order $order, array $parsedData)
     {
-        $configuration = PostFinanceCheckout_VersionAdapter::getConfigurationInterface();
-        $computePrecision = $configuration->get('_PS_PRICE_COMPUTE_PRECISION_');
-        
-        $reductions = array();        
+
+        $reductions = array();
         foreach ($parsedData['fullProductList'] as $idOrderDetail => $details) {
             $quantity = $parsedData['fullQuantiyList'][$idOrderDetail];
             $orderDetail = new OrderDetail((int) $idOrderDetail);
@@ -425,12 +434,12 @@ class PostFinanceCheckout_Backend_DefaultStrategy implements PostFinanceCheckout
             $reductions[] = $reduction;
         }
         
-        if($parsedData['voucher'] > 0){
+        if ($parsedData['voucher'] > 0) {
             //It is only possible to refund all vouchers at once
             $usedTaxes = $this->getUsedTaxes($order);
             foreach ($order->getCartRules() as $orderCartRule) {
                 $uniqueIds = $this->getUsedDiscountUniqueIds('order-' . $order->id . '-discount-' . $orderCartRule['id_order_cart_rule'], new CartRule($orderCartRule['id_cart_rule']), $orderCartRule['value_tax_excl'], $order, $usedTaxes);
-                foreach($uniqueIds as $uniqueId){
+                foreach ($uniqueIds as $uniqueId) {
                     $reduction = new \PostFinanceCheckout\Sdk\Model\LineItemReductionCreate();
                     $reduction->setLineItemUniqueId($uniqueId);
                     $reduction->setQuantityReduction(1);
@@ -442,7 +451,8 @@ class PostFinanceCheckout_Backend_DefaultStrategy implements PostFinanceCheckout
         return $reductions;
     }
     
-    private function getUsedDiscountUniqueIds($uniqueIdBase, CartRule $cartRule, $discountWithoutTax, Order $order, $usedTaxes){
+    private function getUsedDiscountUniqueIds($uniqueIdBase, CartRule $cartRule, $discountWithoutTax, Order $order, $usedTaxes)
+    {
         $reductionPercent = $cartRule->reduction_percent;
         $reductionAmount = $cartRule->reduction_amount;
         $reductionProduct = $cartRule->reduction_product;
@@ -451,15 +461,15 @@ class PostFinanceCheckout_Backend_DefaultStrategy implements PostFinanceCheckout
         if ($reductionPercent > 0) {
             if ($reductionProduct > 0) {
                 return array($uniqueIdBase);
-            }
-            elseif ($reductionProduct == - 1) {
+            } elseif ($reductionProduct == - 1) {
                 return array($uniqueIdBase);
-            }
-            else {
+            } else {
                 $selectedProducts = array();
                 if ($reductionProduct == - 2) {
                     $selectedProducts = PostFinanceCheckout_CartRuleAccessor::checkProductRestrictionsStatic(
-                        $cartRule, new Cart($order->id_cart));
+                        $cartRule,
+                        new Cart($order->id_cart)
+                    );
                     // Selection of Product
                 }
                 $discountUniqueIds = array();
@@ -473,7 +483,9 @@ class PostFinanceCheckout_Backend_DefaultStrategy implements PostFinanceCheckout
                         }
                     }
                     $totalAmount = PostFinanceCheckout_Helper::roundAmount(
-                        $amount * $reductionPercent / 100 * -1, $currencyCode);
+                        $amount * $reductionPercent / 100 * -1,
+                        $currencyCode
+                    );
                     if ($totalAmount == 0) {
                         continue;
                     }
@@ -487,9 +499,7 @@ class PostFinanceCheckout_Backend_DefaultStrategy implements PostFinanceCheckout
         if ((float) $reductionAmount > 0) {
             if ($reductionProduct > 0) {
                 return array($uniqueIdBase);
-            }
-            
-            elseif ($reductionProduct == 0) {
+            } elseif ($reductionProduct == 0) {
                 $ratio = $discountWithoutTax / $order->total_products;
                 $discountUniqueIds = array();
                 foreach ($usedTaxes as $id => $values) {
@@ -511,14 +521,15 @@ class PostFinanceCheckout_Backend_DefaultStrategy implements PostFinanceCheckout
         }
     }
     
-    private function getUsedTaxes(Order $order){
+    private function getUsedTaxes(Order $order)
+    {
         $usedTaxes = array();
         foreach ($order->getProducts() as $orderItem) {
-            $itemCosts = floatval($orderItem['total_wt']);
-            $itemCostsE = floatval($orderItem['total_price']);
+            $itemCosts = (float) $orderItem['total_wt'];
+            $itemCostsE = (float) $orderItem['total_price'];
             if (isset($orderItem['total_customization_wt'])) {
-                $itemCosts = floatval($orderItem['total_customization_wt']);
-                $itemCostsE = floatval($orderItem['total_customization']);
+                $itemCosts = (float) $orderItem['total_customization_wt'];
+                $itemCostsE = (float) $orderItem['total_customization'];
             }
             $productTaxCalculator = $orderItem['tax_calculator'];
             if ($itemCosts != $itemCostsE) {
@@ -530,13 +541,11 @@ class PostFinanceCheckout_Backend_DefaultStrategy implements PostFinanceCheckout
                         'products' => array()
                     );
                 }
-                $taxes = array();
-                foreach ($psTaxes as $id => $taxAmount) {
-                    if (! isset($usedTaxes[$taxesKey]['products'][$orderItem['product_id']])) {
-                        $usedTaxes[$taxesKey]['products'][$orderItem['product_id']] = array();
-                    }
-                    $usedTaxes[$taxesKey]['products'][$orderItem['product_id']][$orderItem['product_attribute_id']] = $itemCosts;
+
+                if (! isset($usedTaxes[$taxesKey]['products'][$orderItem['product_id']])) {
+                    $usedTaxes[$taxesKey]['products'][$orderItem['product_id']] = array();
                 }
+                $usedTaxes[$taxesKey]['products'][$orderItem['product_id']][$orderItem['product_attribute_id']] = $itemCosts;
             }
         }
         return $usedTaxes;
@@ -544,10 +553,10 @@ class PostFinanceCheckout_Backend_DefaultStrategy implements PostFinanceCheckout
 
     public function applyRefund(Order $order, array $parsedData)
     {
-        if ( $parsedData['refundType'] == self::REFUND_TYPE_PARTIAL_REFUND) {
+        if ($parsedData['refundType'] == self::REFUND_TYPE_PARTIAL_REFUND) {
             return $this->applyRefundPartialRefundType($order, $parsedData);
         }
-        if ( $parsedData['refundType'] == self::REFUND_TYPE_CANCEL_PRODUCT) {
+        if ($parsedData['refundType'] == self::REFUND_TYPE_CANCEL_PRODUCT) {
             return $this->applyRefundCancelProductType($order, $parsedData);
         }
     }
@@ -559,8 +568,12 @@ class PostFinanceCheckout_Backend_DefaultStrategy implements PostFinanceCheckout
                  $parsedData['reinjectQuantities']) && $details['quantity'] > 0) {
                 // Admin OrderController;
                 $order_detail = new OrderDetail((int) $idOrderDetail);
-                $this->reinjectQuantity($order_detail, $details['quantity'], false,
-                    $parsedData['languageId']);
+                $this->reinjectQuantity(
+                    $order_detail,
+                    $details['quantity'],
+                    false,
+                    $parsedData['languageId']
+                );
             }
         }
         
@@ -568,23 +581,38 @@ class PostFinanceCheckout_Backend_DefaultStrategy implements PostFinanceCheckout
         if (Validate::isLoadedObject($order_carrier)) {
             $order_carrier->weight = (float) $order->getTotalWeight();
             if ($order_carrier->update()) {
-                $order->weight = sprintf("%.3f " . Configuration::get('PS_WEIGHT_UNIT'),
-                    $order_carrier->weight);
+                $order->weight = sprintf(
+                    "%.3f " . Configuration::get('PS_WEIGHT_UNIT'),
+                    $order_carrier->weight
+                );
             }
         }
         
-        if (! OrderSlip::create($order, $parsedData['orderDetailList'],
-            $parsedData['shippingCostAmount'], $parsedData['voucher'], $parsedData['choosen'],
-            ($parsedData['taxMethod'] ? false : true))) {
+        if (! OrderSlip::create(
+            $order,
+            $parsedData['orderDetailList'],
+            $parsedData['shippingCostAmount'],
+            $parsedData['voucher'],
+            $parsedData['choosen'],
+            ($parsedData['taxMethod'] ? false : true)
+        )) {
             throw new Exception(
-                PostFinanceCheckout_Helper::getModuleInstance()->l('You cannot generate a partial credit slip.','defaultstrategy'));
+                PostFinanceCheckout_Helper::getModuleInstance()->l('You cannot generate a partial credit slip.', 'defaultstrategy')
+            );
         }
-        Hook::exec('actionOrderSlipAdd',
+        Hook::exec(
+            'actionOrderSlipAdd',
             array(
                 'order' => $order,
                 'productList' => $parsedData['orderDetailList'],
                 'qtyList' => $parsedData['fullQuantityList']
-            ), null, false, true, false, $order->id_shop);
+            ),
+            null,
+            false,
+            true,
+            false,
+            $order->id_shop
+        );
         
         foreach ($parsedData['orderDetailList'] as &$product) {
             $order_detail = new OrderDetail((int) $product['id_order_detail']);
@@ -597,7 +625,9 @@ class PostFinanceCheckout_Backend_DefaultStrategy implements PostFinanceCheckout
         if ($parsedData['generateDiscountRefund']) {
             $cart_rule = new CartRule();
             $cart_rule->description = sprintf(
-                PostFinanceCheckout_Helper::getModuleInstance()->l('Credit slip for order #%d','defaultstrategy'), $order->id);
+                PostFinanceCheckout_Helper::getModuleInstance()->l('Credit slip for order #%d', 'defaultstrategy'),
+                $order->id
+            );
             $language_ids = Language::getIDs(false);
             foreach ($language_ids as $id_lang) {
                 // Define a temporary name
@@ -623,23 +653,34 @@ class PostFinanceCheckout_Backend_DefaultStrategy implements PostFinanceCheckout
             $cart_rule->reduction_currency = $order->id_currency;
             
             if (! $cart_rule->add()) {
-                throw new Exception(PostFinanceCheckout_Helper::getModuleInstance()->l('You cannot generate a voucher.','defaultstrategy'));
+                throw new Exception(PostFinanceCheckout_Helper::getModuleInstance()->l('You cannot generate a voucher.', 'defaultstrategy'));
             }
             // Update the voucher code and name
             foreach ($language_ids as $id_lang) {
-                $cart_rule->name[$id_lang] = sprintf('V%1$dC%2$dO%3$d', $cart_rule->id,
-                    $order->id_customer, $order->id);
+                $cart_rule->name[$id_lang] = sprintf(
+                    'V%1$dC%2$dO%3$d',
+                    $cart_rule->id,
+                    $order->id_customer,
+                    $order->id
+                );
             }
-            $cart_rule->code = sprintf('V%1$dC%2$dO%3$d', $cart_rule->id, $order->id_customer,
-                $order->id);
+            $cart_rule->code = sprintf(
+                'V%1$dC%2$dO%3$d',
+                $cart_rule->id,
+                $order->id_customer,
+                $order->id
+            );
             
             if (! $cart_rule->update()) {
-                throw new Exception(PostFinanceCheckout_Helper::getModuleInstance()->l('You cannot generate a voucher.','defaultstrategy'));
+                throw new Exception(PostFinanceCheckout_Helper::getModuleInstance()->l('You cannot generate a voucher.', 'defaultstrategy'));
             }
             $result['voucherCreated'] = true;
             $result['voucherCode'] = $cart_rule->code;
-            $result['voucherAmount'] = Tools::displayPrice($cart_rule->reduction_amount,
-                $order->id_currency, false);
+            $result['voucherAmount'] = Tools::displayPrice(
+                $cart_rule->reduction_amount,
+                $order->id_currency,
+                false
+            );
         }
         return $result;
     }
@@ -660,8 +701,12 @@ class PostFinanceCheckout_Backend_DefaultStrategy implements PostFinanceCheckout
                 
                 if (! $order->hasBeenDelivered() || ($order->hasBeenDelivered() &&
                      $parsedData['reinjectQuantities']) && $qty_cancel_product > 0) {
-                    $this->reinjectQuantity($order_detail, $qty_cancel_product, false,
-                        $parsedData['languageId']);
+                    $this->reinjectQuantity(
+                        $order_detail,
+                        $qty_cancel_product,
+                        false,
+                        $parsedData['languageId']
+                    );
                 }
                 
                 // Delete product
@@ -669,16 +714,20 @@ class PostFinanceCheckout_Backend_DefaultStrategy implements PostFinanceCheckout
                 if (! $order->deleteProduct($order, $order_detail, $qty_cancel_product)) {
                     throw new Exception(
                         sprintf(
-                            PostFinanceCheckout_Helper::getModuleInstance()->l('An error occurred while attempting to delete the product. %s','defaultstrategy'),
-                            ' <span class="bold">' . $order_detail->product_name . '</span>'));
+                            PostFinanceCheckout_Helper::getModuleInstance()->l('An error occurred while attempting to delete the product. %s', 'defaultstrategy'),
+                            ' <span class="bold">' . $order_detail->product_name . '</span>'
+                        )
+                    );
                 }
                 // Update weight SUM
                 $order_carrier = new OrderCarrier((int) $order->getIdOrderCarrier());
                 if (Validate::isLoadedObject($order_carrier)) {
                     $order_carrier->weight = (float) $order->getTotalWeight();
                     if ($order_carrier->update()) {
-                        $order->weight = sprintf("%.3f " . Configuration::get('PS_WEIGHT_UNIT'),
-                            $order_carrier->weight);
+                        $order->weight = sprintf(
+                            "%.3f " . Configuration::get('PS_WEIGHT_UNIT'),
+                            $order_carrier->weight
+                        );
                     }
                 }
                 
@@ -686,11 +735,18 @@ class PostFinanceCheckout_Backend_DefaultStrategy implements PostFinanceCheckout
                      StockAvailable::dependsOnStock($order_detail->product_id)) {
                     StockAvailable::synchronize($order_detail->product_id);
                 }
-                Hook::exec('actionProductCancel',
+                Hook::exec(
+                    'actionProductCancel',
                     array(
                         'order' => $order,
                         'id_order_detail' => (int) $id_order_detail
-                    ), null, false, true, false, $order->id_shop);
+                    ),
+                    null,
+                    false,
+                    true,
+                    false,
+                    $order->id_shop
+                );
             }
         }
         if ($parsedData['customizationList']) {
@@ -698,12 +754,17 @@ class PostFinanceCheckout_Backend_DefaultStrategy implements PostFinanceCheckout
             foreach ($parsedData['customizationList'] as $id_customization => $id_order_detail) {
                 $order_detail = new OrderDetail((int) ($id_order_detail));
                 $qtyCancelProduct = abs($customizationQtyList[$id_customization]);
-                if (! $order->deleteCustomization($id_customization, $qtyCancelProduct,
-                    $order_detail)) {
+                if (! $order->deleteCustomization(
+                    $id_customization,
+                    $qtyCancelProduct,
+                    $order_detail
+                )) {
                     throw new Exception(
                         sprintf(
-                            PostFinanceCheckout_Helper::getModuleInstance()->l('An error occurred while attempting to delete product customization. %d','defaultstrategy'),
-                            $id_customization));
+                            PostFinanceCheckout_Helper::getModuleInstance()->l('An error occurred while attempting to delete product customization. %d', 'defaultstrategy'),
+                            $id_customization
+                        )
+                    );
                 }
             }
         }
@@ -714,20 +775,30 @@ class PostFinanceCheckout_Backend_DefaultStrategy implements PostFinanceCheckout
         $result = array();
         // Generate credit slip
         if ($parsedData['generateCreditSlip']) {
-            
-            $shipping = Tools::isSubmit('shippingBack') ? null : false;
-            
-            if (! OrderSlip::create($order, $parsedData['productListSlip'],
-                $parsedData['shippingBack'], $parsedData['voucher'], $parsedData['choosen'])) {
+            if (! OrderSlip::create(
+                $order,
+                $parsedData['productListSlip'],
+                $parsedData['shippingBack'],
+                $parsedData['voucher'],
+                $parsedData['choosen']
+            )) {
                 throw new Exception(
-                    PostFinanceCheckout_Helper::getModuleInstance()->l('A credit slip cannot be generated.','defaultstrategy'));
+                    PostFinanceCheckout_Helper::getModuleInstance()->l('A credit slip cannot be generated.', 'defaultstrategy')
+                );
             }
-            Hook::exec('actionOrderSlipAdd',
+            Hook::exec(
+                'actionOrderSlipAdd',
                 array(
                     'order' => $order,
                     'productList' => $parsedData['fullProductList'],
                     'qtyList' => $parsedData['fullQuantityList']
-                ), null, false, true, false, $order->id_shop);
+                ),
+                null,
+                false,
+                true,
+                false,
+                $order->id_shop
+            );
         }
         
         // Generate voucher
@@ -735,7 +806,9 @@ class PostFinanceCheckout_Backend_DefaultStrategy implements PostFinanceCheckout
             $cartrule = new CartRule();
             $language_ids = Language::getIDs((bool) $order);
             $cartrule->description = sprintf(
-                PostFinanceCheckout_Helper::getModuleInstance()->l('Credit slip for order #%d','defaultstrategy'), $order->id);
+                PostFinanceCheckout_Helper::getModuleInstance()->l('Credit slip for order #%d', 'defaultstrategy'),
+                $order->id
+            );
             foreach ($language_ids as $id_lang) {
                 // Define a temporary name
                 $cartrule->name[$id_lang] = 'V0C' . (int) ($order->id_customer) . 'O' .
@@ -758,9 +831,8 @@ class PostFinanceCheckout_Backend_DefaultStrategy implements PostFinanceCheckout
             $cartrule->reduction_currency = $order->id_currency;
             
             if (! $cartrule->add()) {
-                throw new Exception(PostFinanceCheckout_Helper::getModuleInstance()->l('You cannot generate a voucher.','defaultstrategy'));
-            }
-            else {
+                throw new Exception(PostFinanceCheckout_Helper::getModuleInstance()->l('You cannot generate a voucher.', 'defaultstrategy'));
+            } else {
                 // Update the voucher code and name
                 foreach ($language_ids as $id_lang) {
                     $cartrule->name[$id_lang] = 'V' . (int) ($cartrule->id) . 'C' .
@@ -769,12 +841,15 @@ class PostFinanceCheckout_Backend_DefaultStrategy implements PostFinanceCheckout
                 $cartrule->code = 'V' . (int) ($cartrule->id) . 'C' . (int) ($order->id_customer) .
                      'O' . $order->id;
                 if (! $cartrule->update()) {
-                    throw new Exception(PostFinanceCheckout_Helper::getModuleInstance()->l('You cannot generate a voucher.','defaultstrategy'));
+                    throw new Exception(PostFinanceCheckout_Helper::getModuleInstance()->l('You cannot generate a voucher.', 'defaultstrategy'));
                 }
                 $result['voucherCreated'] = true;
-                $result['voucherCode'] = $cart_rule->code;
-                $result['voucherAmount'] = Tools::displayPrice($cart_rule->reduction_amount,
-                    $order->id_currency, false);
+                $result['voucherCode'] = $cartrule->code;
+                $result['voucherAmount'] = Tools::displayPrice(
+                    $cartrule->reduction_amount,
+                    $order->id_currency,
+                    false
+                );
             }
         }
         return $result;
@@ -786,18 +861,28 @@ class PostFinanceCheckout_Backend_DefaultStrategy implements PostFinanceCheckout
         if ($parsedData['refundType'] == self::REFUND_TYPE_PARTIAL_REFUND ||
              ($parsedData['refundType'] == self::REFUND_TYPE_CANCEL_PRODUCT &&
              $parsedData['generateCreditSlip'])) {
-            // Send credit slip email, if configuration is set to send emails 
-            if(Configuration::get(PostFinanceCheckout::CK_MAIL, null, null, $order->id_shop)){
+            // Send credit slip email, if configuration is set to send emails
+            if (Configuration::get(PostFinanceCheckout::CK_MAIL, null, null, $order->id_shop)) {
                 $params = array();
                 $params['{lastname}'] = $customer->lastname;
                 $params['{firstname}'] = $customer->firstname;
                 $params['{id_order}'] = $order->id;
                 $params['{order_name}'] = $order->getUniqReference();
-                $orderLanguage = new Language((int) $order->id_lang);
-                @Mail::Send((int) $order->id_lang, 'credit_slip',
-                    Mail::l('New credit slip regarding your order', (int) $order->id_lang), $params,
-                    $customer->email, $customer->firstname . ' ' . $customer->lastname, null, null, null,
-                    null, _PS_MAIL_DIR_, false, (int) $order->id_shop);
+                @Mail::Send(
+                    (int) $order->id_lang,
+                    'credit_slip',
+                    Mail::l('New credit slip regarding your order', (int) $order->id_lang),
+                    $params,
+                    $customer->email,
+                    $customer->firstname . ' ' . $customer->lastname,
+                    null,
+                    null,
+                    null,
+                    null,
+                    _PS_MAIL_DIR_,
+                    false,
+                    (int) $order->id_shop
+                );
             }
         }
         // The voucher email is sent regardless of the configuration
@@ -807,16 +892,27 @@ class PostFinanceCheckout_Backend_DefaultStrategy implements PostFinanceCheckout
             $params['{firstname}'] = $customer->firstname;
             $params['{id_order}'] = $order->id;
             $params['{order_name}'] = $order->getUniqReference();
-            $params['{voucher_amount}'] = $result['voucherAmount'];
+            $params['{voucher_amount}'] = $appliedData['voucherAmount'];
             $params['{voucher_num}'] = $appliedData['voucherCode'];
-            $orderLanguage = new Language((int) $order->id_lang);
-            @Mail::Send((int) $order->id_lang, 'voucher',
-                sprintf(Mail::l('New voucher for your order #%s', (int) $order->id_lang),
-                    $order->reference), $params, $customer->email,
-                $customer->firstname . ' ' . $customer->lastname, null, null, null, null,
-                _PS_MAIL_DIR_, false, (int) $order->id_shop);
+            @Mail::Send(
+                (int) $order->id_lang,
+                'voucher',
+                sprintf(
+                    Mail::l('New voucher for your order #%s', (int) $order->id_lang),
+                    $order->reference
+                ),
+                $params,
+                $customer->email,
+                $customer->firstname . ' ' . $customer->lastname,
+                null,
+                null,
+                null,
+                null,
+                _PS_MAIL_DIR_,
+                false,
+                (int) $order->id_shop
+            );
         }
-        
     }
 
     public function getPostFinanceCheckoutRefundType(array $parsedData)
@@ -833,7 +929,8 @@ class PostFinanceCheckout_Backend_DefaultStrategy implements PostFinanceCheckout
     }
     
     
-    public function isVoucherOnlyPostFinanceCheckout(Order $order, array $postData){
+    public function isVoucherOnlyPostFinanceCheckout(Order $order, array $postData)
+    {
         return isset($postData['generateDiscount']) && !isset($postData['postfinancecheckout_offline']);
     }
 
@@ -853,15 +950,20 @@ class PostFinanceCheckout_Backend_DefaultStrategy implements PostFinanceCheckout
             PostFinanceCheckout_Helper::rollbackDBTransaction();
             throw new Exception(
                 sprintf(
-                    PostFinanceCheckout_Helper::getModuleInstance()->l('Could not load the coresponding transaction for order with id %d','defaultstrategy'),
-                    $order->id));
+                    PostFinanceCheckout_Helper::getModuleInstance()->l('Could not load the coresponding transaction for order with id %d', 'defaultstrategy'),
+                    $order->id
+                )
+            );
         }
-        PostFinanceCheckout_Helper::lockByTransactionId($transactionInfo->getSpaceId(),
-            $transactionInfo->getTransactionId());
+        PostFinanceCheckout_Helper::lockByTransactionId(
+            $transactionInfo->getSpaceId(),
+            $transactionInfo->getTransactionId()
+        );
         if ($transactionInfo->getState() != \PostFinanceCheckout\Sdk\Model\TransactionState::AUTHORIZED) {
             PostFinanceCheckout_Helper::rollbackDBTransaction();
             throw new Exception(
-                PostFinanceCheckout_Helper::getModuleInstance()->l('The line items for this order can not be changed','defaultstrategy'));
+                PostFinanceCheckout_Helper::getModuleInstance()->l('The line items for this order can not be changed', 'defaultstrategy')
+            );
         }
         try {
             $parsedData = $this->validateDataCancelProductType($order, $postData);
@@ -869,37 +971,54 @@ class PostFinanceCheckout_Backend_DefaultStrategy implements PostFinanceCheckout
             $orders = $order->getBrother()->getResults();
             $orders[] = $order;
             $lineItems = PostFinanceCheckout_Service_LineItem::instance()->getItemsFromOrders($orders);
-            PostFinanceCheckout_Service_Transaction::instance()->updateLineItems($transactionInfo->getSpaceId(),
-                $transactionInfo->getTransactionId(), $lineItems);
-        }
-        catch (Exception $e) {
+            PostFinanceCheckout_Service_Transaction::instance()->updateLineItems(
+                $transactionInfo->getSpaceId(),
+                $transactionInfo->getTransactionId(),
+                $lineItems
+            );
+        } catch (Exception $e) {
             PostFinanceCheckout_Helper::rollbackDBTransaction();
             throw new Exception(
                 sprintf(
-                    PostFinanceCheckout_Helper::getModuleInstance()->l('Could not update the line items at %s. Reason: %s','defaultstrategy'), 'PostFinance Checkout',
-                    PostFinanceCheckout_Helper::cleanExceptionMessage($e->getMessage())));
+                    PostFinanceCheckout_Helper::getModuleInstance()->l('Could not update the line items at %s. Reason: %s', 'defaultstrategy'),
+                    'PostFinance Checkout',
+                    PostFinanceCheckout_Helper::cleanExceptionMessage($e->getMessage())
+                )
+            );
         }
         PostFinanceCheckout_Helper::commitDBTransaction();
     }
 
-    private function reinjectQuantity($order_detail, $qty_cancel_product, $delete = false, $languageId)
+    private function reinjectQuantity($order_detail, $qty_cancel_product, $delete, $languageId)
     {
         // Reinject product
         $reinjectable_quantity = (int) $order_detail->product_quantity -
              (int) $order_detail->product_quantity_reinjected;
         $quantity_to_reinject = $qty_cancel_product > $reinjectable_quantity ? $reinjectable_quantity : $qty_cancel_product;
         // @since 1.5.0 : Advanced Stock Management
-        $product_to_inject = new Product($order_detail->product_id, false, (int) $languageId,
-            (int) $order_detail->id_shop);
+        $product_to_inject = new Product(
+            $order_detail->product_id,
+            false,
+            (int) $languageId,
+            (int) $order_detail->id_shop
+        );
         
-        $product = new Product($order_detail->product_id, false, (int) $languageId,
-            (int) $order_detail->id_shop);
+        $product = new Product(
+            $order_detail->product_id,
+            false,
+            (int) $languageId,
+            (int) $order_detail->id_shop
+        );
         
         if (Configuration::get('PS_ADVANCED_STOCK_MANAGEMENT') && $product->advanced_stock_management &&
              $order_detail->id_warehouse != 0) {
             $manager = StockManagerFactory::getManager();
-            $movements = StockMvt::getNegativeStockMvts($order_detail->id_order,
-                $order_detail->product_id, $order_detail->product_attribute_id, $quantity_to_reinject);
+            $movements = StockMvt::getNegativeStockMvts(
+                $order_detail->id_order,
+                $order_detail->product_id,
+                $order_detail->product_attribute_id,
+                $quantity_to_reinject
+            );
             $left_to_reinject = $quantity_to_reinject;
             foreach ($movements as $movement) {
                 if ($left_to_reinject > $movement['physical_quantity']) {
@@ -911,32 +1030,48 @@ class PostFinanceCheckout_Backend_DefaultStrategy implements PostFinanceCheckout
                     // Gets items
                     if ($product->pack_stock_type == 1 || $product->pack_stock_type == 2 || ($product->pack_stock_type ==
                          3 && Configuration::get('PS_PACK_STOCK_TYPE') > 0)) {
-                        $products_pack = Pack::getItems((int) $product->id,
-                            (int) Configuration::get('PS_LANG_DEFAULT'));
+                        $products_pack = Pack::getItems(
+                            (int) $product->id,
+                            (int) Configuration::get('PS_LANG_DEFAULT')
+                        );
                         // Foreach item
                         foreach ($products_pack as $product_pack) {
                             if ($product_pack->advanced_stock_management == 1) {
-                                $manager->addProduct($product_pack->id,
+                                $manager->addProduct(
+                                    $product_pack->id,
                                     $product_pack->id_pack_product_attribute,
                                     new Warehouse($movement['id_warehouse']),
-                                    $product_pack->pack_quantity * $quantity_to_reinject, null,
-                                    $movement['price_te'], true);
+                                    $product_pack->pack_quantity * $quantity_to_reinject,
+                                    null,
+                                    $movement['price_te'],
+                                    true
+                                );
                             }
                         }
                     }
                     if ($product->pack_stock_type == 0 || $product->pack_stock_type == 2 || ($product->pack_stock_type ==
                          3 && (Configuration::get('PS_PACK_STOCK_TYPE') == 0 ||
                          Configuration::get('PS_PACK_STOCK_TYPE') == 2))) {
-                        $manager->addProduct($order_detail->product_id,
+                        $manager->addProduct(
+                            $order_detail->product_id,
                             $order_detail->product_attribute_id,
-                            new Warehouse($movement['id_warehouse']), $quantity_to_reinject, null,
-                            $movement['price_te'], true);
+                            new Warehouse($movement['id_warehouse']),
+                            $quantity_to_reinject,
+                            null,
+                            $movement['price_te'],
+                            true
+                        );
                     }
-                }
-                else {
-                    $manager->addProduct($order_detail->product_id,
-                        $order_detail->product_attribute_id, new Warehouse($movement['id_warehouse']),
-                        $quantity_to_reinject, null, $movement['price_te'], true);
+                } else {
+                    $manager->addProduct(
+                        $order_detail->product_id,
+                        $order_detail->product_attribute_id,
+                        new Warehouse($movement['id_warehouse']),
+                        $quantity_to_reinject,
+                        null,
+                        $movement['price_te'],
+                        true
+                    );
                 }
             }
             $id_product = $order_detail->product_id;
@@ -944,10 +1079,13 @@ class PostFinanceCheckout_Backend_DefaultStrategy implements PostFinanceCheckout
                 $order_detail->delete();
             }
             StockAvailable::synchronize($id_product);
-        }
-        elseif ($order_detail->id_warehouse == 0) {
-            StockAvailable::updateQuantity($order_detail->product_id,
-                $order_detail->product_attribute_id, $quantity_to_reinject, $order_detail->id_shop);
+        } elseif ($order_detail->id_warehouse == 0) {
+            StockAvailable::updateQuantity(
+                $order_detail->product_id,
+                $order_detail->product_attribute_id,
+                $quantity_to_reinject,
+                $order_detail->id_shop
+            );
             
             if ($delete) {
                 $order_detail->delete();
@@ -955,7 +1093,8 @@ class PostFinanceCheckout_Backend_DefaultStrategy implements PostFinanceCheckout
         }
     }
     
-    public function processVoucherDeleteRequest(Order $order, array $data){
+    public function processVoucherDeleteRequest(Order $order, array $data)
+    {
         $order_cart_rule = new OrderCartRule($data['id_order_cart_rule']);
         if (Validate::isLoadedObject($order_cart_rule) && $order_cart_rule->id_order == $order->id) {
             PostFinanceCheckout_Helper::startDBTransaction();
@@ -963,7 +1102,7 @@ class PostFinanceCheckout_Backend_DefaultStrategy implements PostFinanceCheckout
                 $order_invoice = new OrderInvoice($order_cart_rule->id_order_invoice);
                 if (!Validate::isLoadedObject($order_invoice)) {
                     PostFinanceCheckout_Helper::rollbackDBTransaction();
-                    throw new Exception(PostFinanceCheckout_Helper::getModuleInstance()->l("Can't load Order Invoice object",'defaultstrategy'));
+                    throw new Exception(PostFinanceCheckout_Helper::getModuleInstance()->l("Can't load Order Invoice object", 'defaultstrategy'));
                 }
                 
                 // Update amounts of Order Invoice
@@ -994,39 +1133,47 @@ class PostFinanceCheckout_Backend_DefaultStrategy implements PostFinanceCheckout
             if (! $transactionInfo) {
                 PostFinanceCheckout_Helper::rollbackDBTransaction();
                 throw new Exception(sprintf(
-                    PostFinanceCheckout_Helper::getModuleInstance()->l('Could not load the coresponding transaction for order with id %d.','defaultstrategy'),
-                    $order->id));
+                    PostFinanceCheckout_Helper::getModuleInstance()->l('Could not load the coresponding transaction for order with id %d.', 'defaultstrategy'),
+                    $order->id
+                ));
             }
-            PostFinanceCheckout_Helper::lockByTransactionId($transactionInfo->getSpaceId(),
-                $transactionInfo->getTransactionId());
+            PostFinanceCheckout_Helper::lockByTransactionId(
+                $transactionInfo->getSpaceId(),
+                $transactionInfo->getTransactionId()
+            );
             if ($transactionInfo->getState() != \PostFinanceCheckout\Sdk\Model\TransactionState::AUTHORIZED) {
                 PostFinanceCheckout_Helper::rollbackDBTransaction();
                 throw new Exception(
-                    PostFinanceCheckout_Helper::getModuleInstance()->l('The line items for this order can not be changed.','defaultstrategy'));
+                    PostFinanceCheckout_Helper::getModuleInstance()->l('The line items for this order can not be changed.', 'defaultstrategy')
+                );
             }
             try {
                 $orders = $order->getBrother()->getResults();
                 $orders[] = $order;
                 $lineItems = PostFinanceCheckout_Service_LineItem::instance()->getItemsFromOrders($orders);
-                PostFinanceCheckout_Service_Transaction::instance()->updateLineItems($transactionInfo->getSpaceId(),
-                    $transactionInfo->getTransactionId(), $lineItems);
+                PostFinanceCheckout_Service_Transaction::instance()->updateLineItems(
+                    $transactionInfo->getSpaceId(),
+                    $transactionInfo->getTransactionId(),
+                    $lineItems
+                );
                 PostFinanceCheckout_Helper::commitDBTransaction();
-            }
-            catch (Exception $e) {
+            } catch (Exception $e) {
                 PostFinanceCheckout_Helper::rollbackDBTransaction();
                 throw new Exception(
-                sprintf(
-                    PostFinanceCheckout_Helper::getModuleInstance()->l('Could not update the line items at %s. Reason: %s','defaultstrategy'), 'PostFinance Checkout',
-                    PostFinanceCheckout_Helper::cleanExceptionMessage($e->getMessage())));
+                    sprintf(
+                        PostFinanceCheckout_Helper::getModuleInstance()->l('Could not update the line items at %s. Reason: %s', 'defaultstrategy'),
+                        'PostFinance Checkout',
+                        PostFinanceCheckout_Helper::cleanExceptionMessage($e->getMessage())
+                    )
+                );
             }
-        }
-        else {
-            throw new Exception(PostFinanceCheckout_Helper::getModuleInstance()->l('You cannot edit this cart rule.','defaultstrategy'));
+        } else {
+            throw new Exception(PostFinanceCheckout_Helper::getModuleInstance()->l('You cannot edit this cart rule.', 'defaultstrategy'));
         }
     }
     
-    public function processVoucherAddRequest(Order $order, array $data){
-        throw new Exception(PostFinanceCheckout_Helper::getModuleInstance()->l('You cannot add a discount to this order.','defaultstrategy'));
+    public function processVoucherAddRequest(Order $order, array $data)
+    {
+        throw new Exception(PostFinanceCheckout_Helper::getModuleInstance()->l('You cannot add a discount to this order.', 'defaultstrategy'));
     }
-    
 }

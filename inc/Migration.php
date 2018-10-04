@@ -1,21 +1,19 @@
 <?php
-
-if (!defined('_PS_VERSION_')) {
-    exit;
-}
-
 /**
  * PostFinance Checkout Prestashop
  *
  * This Prestashop module enables to process payments with PostFinance Checkout (https://www.postfinance.ch).
  *
  * @author customweb GmbH (http://www.customweb.com/)
+ * @copyright 2017 - 2018 customweb GmbH
  * @license http://www.apache.org/licenses/LICENSE-2.0 Apache Software License (ASL 2.0)
  */
 
-class PostFinanceCheckout_Migration extends PostFinanceCheckout_AbstractMigration{
+class PostFinanceCheckout_Migration extends PostFinanceCheckout_AbstractMigration
+{
    
-    protected static function getMigrations(){
+    protected static function getMigrations()
+    {
         return array(
             '1.0.0' => 'initializeTables',
             '1.0.1' => 'orderStatusUpdate',
@@ -35,7 +33,8 @@ class PostFinanceCheckout_Migration extends PostFinanceCheckout_AbstractMigratio
         static::installOrderPaymentSaveHookBase();
     }
     
-    public static function tokenInfoImproved(){
+    public static function tokenInfoImproved()
+    {
         static::updateCustomerIdOnTokenInfoBase();
     }
 }

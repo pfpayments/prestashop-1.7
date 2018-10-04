@@ -1,14 +1,11 @@
 <?php
-if (! defined('_PS_VERSION_')) {
-    exit();
-}
-
 /**
  * PostFinance Checkout Prestashop
  *
  * This Prestashop module enables to process payments with PostFinance Checkout (https://www.postfinance.ch).
  *
  * @author customweb GmbH (http://www.customweb.com/)
+ * @copyright 2017 - 2018 customweb GmbH
  * @license http://www.apache.org/licenses/LICENSE-2.0 Apache Software License (ASL 2.0)
  */
 
@@ -26,17 +23,20 @@ class PostFinanceCheckout_SmartyFunctions
      *
      * @return string
      */
-    public static function getRefundUrl($params, $smarty){
+    public static function getRefundUrl($params, $smarty)
+    {
         $refundJob = $params['refund'];
         return PostFinanceCheckout_Helper::getRefundUrl($refundJob);
     }
     
-    public static function getRefundAmount($params, $smarty){
+    public static function getRefundAmount($params, $smarty)
+    {
         $refundJob = $params['refund'];
         return PostFinanceCheckout_Backend_StrategyProvider::getStrategy()->getRefundTotal($refundJob->getRefundParameters());
     }
     
-    public static function getRefundType($params, $smarty){
+    public static function getRefundType($params, $smarty)
+    {
         $refundJob = $params['refund'];
         return PostFinanceCheckout_Backend_StrategyProvider::getStrategy()->getPostFinanceCheckoutRefundType($refundJob->getRefundParameters());
     }
@@ -46,7 +46,8 @@ class PostFinanceCheckout_SmartyFunctions
      *
      * @return string
      */
-    public static function getCompletionUrl($params, $smarty){
+    public static function getCompletionUrl($params, $smarty)
+    {
         $completionJob = $params['completion'];
         return PostFinanceCheckout_Helper::getCompletionUrl($completionJob);
     }
@@ -56,9 +57,9 @@ class PostFinanceCheckout_SmartyFunctions
      *
      * @return string
      */
-    public static function getVoidUrl($params, $smarty){
+    public static function getVoidUrl($params, $smarty)
+    {
         $voidJob = $params['void'];
         return PostFinanceCheckout_Helper::getVoidUrl($voidJob);
     }
-    
 }

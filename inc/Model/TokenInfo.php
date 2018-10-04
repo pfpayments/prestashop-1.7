@@ -1,14 +1,11 @@
 <?php
-if (! defined('_PS_VERSION_')) {
-    exit();
-}
-
 /**
  * PostFinance Checkout Prestashop
  *
  * This Prestashop module enables to process payments with PostFinance Checkout (https://www.postfinance.ch).
  *
  * @author customweb GmbH (http://www.customweb.com/)
+ * @copyright 2017 - 2018 customweb GmbH
  * @license http://www.apache.org/licenses/LICENSE-2.0 Apache Software License (ASL 2.0)
  */
 
@@ -97,74 +94,89 @@ class PostFinanceCheckout_Model_TokenInfo extends ObjectModel
     }
     
     
-    public function getTokenId(){
+    public function getTokenId()
+    {
         return $this->token_id;
     }
     
-    public function setTokenId($id){
+    public function setTokenId($id)
+    {
         $this->token_id = $id;
     }
     
-    public function getState(){
+    public function getState()
+    {
         return $this->state;
     }
     
-    public function setState($state){
+    public function setState($state)
+    {
         $this->state = $state;
     }
     
-    public function getSpaceId(){
+    public function getSpaceId()
+    {
         return $this->space_id;
     }
     
-    public function setSpaceId($id){
+    public function setSpaceId($id)
+    {
         $this->space_id = $id;
     }
     
-    public function getName(){
+    public function getName()
+    {
         return $this->name;
     }
     
-    public function setName($name){
+    public function setName($name)
+    {
         $this->name = $name;
     }
     
-    public function getCustomerId(){
+    public function getCustomerId()
+    {
         return $this->customer_id;
     }
     
-    public function setCustomerId($id){
+    public function setCustomerId($id)
+    {
         $this->customer_id = $id;
     }
     
-    public function getPaymentMethodId(){
+    public function getPaymentMethodId()
+    {
         return $this->payment_method_id;
     }
     
-    public function setPaymentMethodId($id){
+    public function setPaymentMethodId($id)
+    {
         $this->payment_method_id = $id;
     }
     
-    public function getConnectorId(){
+    public function getConnectorId()
+    {
         return $this->connector_id;
     }
     
-    public function setConnectorId($id){
+    public function setConnectorId($id)
+    {
         $this->connector_id = $id;
     }
         
     /**
-     * 
+     *
      * @param int $spaceId
      * @param int $tokenId
      * @return PostFinanceCheckout_Model_TokenInfo
      */
-    public static function loadByToken($spaceId, $tokenId){
+    public static function loadByToken($spaceId, $tokenId)
+    {
         $tokenInfos = new PrestaShopCollection('PostFinanceCheckout_Model_TokenInfo');
         $tokenInfos->where('space_id', '=', $spaceId);
         $tokenInfos->where('token_id', '=', $tokenId);
         $result = $tokenInfos->getFirst();
-        if($result=== false){
+        if ($result=== false) {
             $result = new PostFinanceCheckout_Model_TokenInfo();
         }
         return $result;

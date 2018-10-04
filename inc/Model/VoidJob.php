@@ -1,14 +1,11 @@
 <?php
-if (! defined('_PS_VERSION_')) {
-    exit();
-}
-
 /**
  * PostFinance Checkout Prestashop
  *
  * This Prestashop module enables to process payments with PostFinance Checkout (https://www.postfinance.ch).
  *
  * @author customweb GmbH (http://www.customweb.com/)
+ * @copyright 2017 - 2018 customweb GmbH
  * @license http://www.apache.org/licenses/LICENSE-2.0 Apache Software License (ASL 2.0)
  */
 
@@ -186,7 +183,7 @@ class PostFinanceCheckout_Model_VoidJob extends ObjectModel
         $voidJobs->where('space_id', '=', $spaceId);
         $voidJobs->where('transaction_id', '=', $transactionId);
         $result = $voidJobs->getResults();
-        if(!$result){
+        if (!$result) {
             return array();
         }
         return $result;
@@ -197,7 +194,9 @@ class PostFinanceCheckout_Model_VoidJob extends ObjectModel
         $result = DB::getInstance()->getValue(
             'SELECT id_void_job FROM ' . _DB_PREFIX_ . 'pfc_void_job WHERE space_id = "' .
                  pSQL($spaceId) . '" AND transaction_id="' . pSQL($transactionId) .
-                 '" AND (state != "' . pSQL(self::STATE_FAILURE) . '" AND state != "' . pSQL(self::STATE_SUCCESS).'")', false);
+            '" AND (state != "' . pSQL(self::STATE_FAILURE) . '" AND state != "' . pSQL(self::STATE_SUCCESS).'")',
+            false
+        );
         
         if ($result !== false) {
             return true;
@@ -226,7 +225,9 @@ class PostFinanceCheckout_Model_VoidJob extends ObjectModel
         $result = DB::getInstance()->query(
             'SELECT id_void_job FROM ' . _DB_PREFIX_ . 'pfc_void_job WHERE state = "' .
                  pSQL(self::STATE_CREATED) . '" AND date_upd < "' .
-                 pSQL($time->format('Y-m-d H:i:s')) . '"', false);
+            pSQL($time->format('Y-m-d H:i:s')) . '"',
+            false
+        );
         $ids = array();
         while ($row = DB::getInstance()->nextRow($result)) {
             $ids[] = $row['id_void_job'];

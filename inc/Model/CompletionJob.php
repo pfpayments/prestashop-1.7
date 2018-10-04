@@ -1,14 +1,11 @@
 <?php
-if (! defined('_PS_VERSION_')) {
-    exit();
-}
-
 /**
  * PostFinance Checkout Prestashop
  *
  * This Prestashop module enables to process payments with PostFinance Checkout (https://www.postfinance.ch).
  *
  * @author customweb GmbH (http://www.customweb.com/)
+ * @copyright 2017 - 2018 customweb GmbH
  * @license http://www.apache.org/licenses/LICENSE-2.0 Apache Software License (ASL 2.0)
  */
 
@@ -188,7 +185,7 @@ class PostFinanceCheckout_Model_CompletionJob extends ObjectModel
         $completionJobs->where('space_id', '=', $spaceId);
         $completionJobs->where('transaction_id', '=', $transactionId);
         $result = $completionJobs->getResults();
-        if(!$result){
+        if (!$result) {
             return array();
         }
         return $result;
@@ -200,7 +197,9 @@ class PostFinanceCheckout_Model_CompletionJob extends ObjectModel
         $result = DB::getInstance()->getValue(
             'SELECT id_completion_job FROM ' . _DB_PREFIX_ . 'pfc_completion_job WHERE space_id = "' .
                  pSQL($spaceId) . '" AND transaction_id="' . pSQL($transactionId) .
-                 '" AND state != "' . pSQL(self::STATE_SUCCESS) . '" AND state != "' . pSQL(self::STATE_FAILURE) . '"', false);
+            '" AND state != "' . pSQL(self::STATE_SUCCESS) . '" AND state != "' . pSQL(self::STATE_FAILURE) . '"',
+            false
+        );
         
         if ($result !== false) {
             return true;
@@ -228,7 +227,9 @@ class PostFinanceCheckout_Model_CompletionJob extends ObjectModel
         $result = DB::getInstance()->query(
             'SELECT id_completion_job FROM ' . _DB_PREFIX_ . 'pfc_completion_job WHERE (state = "' .
             pSQL(self::STATE_CREATED) . '" OR state = "'.pSQL(self::STATE_ITEMS_UPDATED).'") AND date_upd < "' .
-            pSQL($time->format('Y-m-d H:i:s')) . '"', false);
+            pSQL($time->format('Y-m-d H:i:s')) . '"',
+            false
+        );
         $ids = array();
         while ($row = DB::getInstance()->nextRow($result)) {
             $ids[] = $row['id_completion_job'];

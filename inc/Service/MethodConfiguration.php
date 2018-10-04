@@ -1,14 +1,11 @@
 <?php
-if (! defined('_PS_VERSION_')) {
-    exit();
-}
-
 /**
  * PostFinance Checkout Prestashop
  *
  * This Prestashop module enables to process payments with PostFinance Checkout (https://www.postfinance.ch).
  *
  * @author customweb GmbH (http://www.customweb.com/)
+ * @copyright 2017 - 2018 customweb GmbH
  * @license http://www.apache.org/licenses/LICENSE-2.0 Apache Software License (ASL 2.0)
  */
 
@@ -27,8 +24,10 @@ class PostFinanceCheckout_Service_MethodConfiguration extends PostFinanceCheckou
     {
         
         $entities = PostFinanceCheckout_Model_MethodConfiguration::loadByConfiguration(
-            $configuration->getLinkedSpaceId(), $configuration->getId());
-        foreach($entities as $entity){
+            $configuration->getLinkedSpaceId(),
+            $configuration->getId()
+        );
+        foreach ($entities as $entity) {
             if ($this->hasChanged($configuration, $entity)) {
                 $entity->setConfigurationName($configuration->getName());
                 $entity->setState($this->getConfigurationState($configuration));
@@ -42,18 +41,19 @@ class PostFinanceCheckout_Service_MethodConfiguration extends PostFinanceCheckou
         }
     }
 
-    private function hasChanged(\PostFinanceCheckout\Sdk\Model\PaymentMethodConfiguration $configuration,
-        PostFinanceCheckout_Model_MethodConfiguration $entity)
-    {
+    private function hasChanged(
+        \PostFinanceCheckout\Sdk\Model\PaymentMethodConfiguration $configuration,
+        PostFinanceCheckout_Model_MethodConfiguration $entity
+    ) {
         if ($configuration->getName() != $entity->getConfigurationName()) {
             return true;
         }
         
-        if($this->getConfigurationState($configuration) != $entity->getState()){
+        if ($this->getConfigurationState($configuration) != $entity->getState()) {
             return true;
         }
         
-        if($configuration->getSortOrder() != $entity->getSortOrder()){
+        if ($configuration->getSortOrder() != $entity->getSortOrder()) {
             return true;
         }
         
@@ -69,12 +69,12 @@ class PostFinanceCheckout_Service_MethodConfiguration extends PostFinanceCheckou
         $image = $this->getResourcePath($configuration->getResolvedImageUrl());
         if ($image != $entity->getImage()) {
             return true;
-        }   
+        }
         
         $imageBase = $this->getResourceBase($configuration->getResolvedImageUrl());
         if ($imageBase != $entity->getImageBase()) {
             return true;
-        } 
+        }
         
         return false;
     }
@@ -91,22 +91,25 @@ class PostFinanceCheckout_Service_MethodConfiguration extends PostFinanceCheckou
         $spaceIdCache = array();
         
         $paymentMethodConfigurationService = new \PostFinanceCheckout\Sdk\Service\PaymentMethodConfigurationService(
-            PostFinanceCheckout_Helper::getApiClient());
+            PostFinanceCheckout_Helper::getApiClient()
+        );
         
         foreach (Shop::getShops(true, null, true) as $shopId) {
             $spaceId = Configuration::get(PostFinanceCheckout::CK_SPACE_ID, null, null, $shopId);
             
-            if ($spaceId){
-                if(!array_key_exists($spaceId, $spaceIdCache)){
-                    $spaceIdCache[$spaceId] = $paymentMethodConfigurationService->search($spaceId,
-                        new \PostFinanceCheckout\Sdk\Model\EntityQuery());
-                }                
+            if ($spaceId) {
+                if (!array_key_exists($spaceId, $spaceIdCache)) {
+                    $spaceIdCache[$spaceId] = $paymentMethodConfigurationService->search(
+                        $spaceId,
+                        new \PostFinanceCheckout\Sdk\Model\EntityQuery()
+                    );
+                }
                 $configurations = $spaceIdCache[$spaceId];
-                foreach ($configurations as $configuration) {                    
+                foreach ($configurations as $configuration) {
                     $method = PostFinanceCheckout_Model_MethodConfiguration::loadByConfigurationAndShop($spaceId, $configuration->getId(), $shopId);
                     if ($method->getId() !== null) {
                         $existingFound[] = $method->getId();
-                    }                    
+                    }
                     $method->setShopId($shopId);
                     $method->setSpaceId($spaceId);
                     $method->setConfigurationId($configuration->getId());
@@ -150,8 +153,8 @@ class PostFinanceCheckout_Service_MethodConfiguration extends PostFinanceCheckou
      * @return string
      */
     protected function getConfigurationState(
-        \PostFinanceCheckout\Sdk\Model\PaymentMethodConfiguration $configuration)
-    {
+        \PostFinanceCheckout\Sdk\Model\PaymentMethodConfiguration $configuration
+    ) {
         switch ($configuration->getState()) {
             case \PostFinanceCheckout\Sdk\Model\CreationEntityState::ACTIVE:
                 return PostFinanceCheckout_Model_MethodConfiguration::STATE_ACTIVE;

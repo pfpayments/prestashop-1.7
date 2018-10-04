@@ -1,14 +1,11 @@
 <?php
-if (! defined('_PS_VERSION_')) {
-    exit();
-}
-
 /**
  * PostFinance Checkout Prestashop
  *
  * This Prestashop module enables to process payments with PostFinance Checkout (https://www.postfinance.ch).
  *
  * @author customweb GmbH (http://www.customweb.com/)
+ * @copyright 2017 - 2018 customweb GmbH
  * @license http://www.apache.org/licenses/LICENSE-2.0 Apache Software License (ASL 2.0)
  */
 
@@ -179,19 +176,23 @@ class PostFinanceCheckout_Model_RefundJob extends ObjectModel
         $this->order_id = $id;
     }
     
-    public function setRefundParameters($params){
+    public function setRefundParameters($params)
+    {
         $this->refund_parameters = serialize($params);
     }
     
-    public function getRefundParameters(){
+    public function getRefundParameters()
+    {
         return unserialize($this->refund_parameters);
     }
     
-    public function getApplyTries(){
+    public function getApplyTries()
+    {
         return $this->apply_tries;
     }
     
-    public function increaseApplyTries(){
+    public function increaseApplyTries()
+    {
         $this->apply_tries++;
     }
 
@@ -235,7 +236,7 @@ class PostFinanceCheckout_Model_RefundJob extends ObjectModel
         $refundJobs->where('space_id', '=', $spaceId);
         $refundJobs->where('transaction_id', '=', $transactionId);
         $result = $refundJobs->getResults();
-        if(!$result){
+        if (!$result) {
             return array();
         }
         return $result;
@@ -265,7 +266,9 @@ class PostFinanceCheckout_Model_RefundJob extends ObjectModel
             'SELECT id_refund_job FROM ' . _DB_PREFIX_ . 'pfc_refund_job WHERE space_id = "' .
                  pSQL($spaceId) . '" AND transaction_id="' . pSQL($transactionId) .
                  '" AND state != "' . pSQL(self::STATE_FAILURE) . '" AND state !="' .
-                 psql(self::STATE_SUCCESS) . '"', false);
+            psql(self::STATE_SUCCESS) . '"',
+            false
+        );
         if ($result !== false) {
             return true;
         }
@@ -293,7 +296,9 @@ class PostFinanceCheckout_Model_RefundJob extends ObjectModel
         $result = DB::getInstance()->query(
             'SELECT id_refund_job FROM ' . _DB_PREFIX_ . 'pfc_refund_job WHERE state = "' .
                  pSQL(self::STATE_CREATED) . '" AND date_upd < "' .
-                 pSQL($time->format('Y-m-d H:i:s')) . '"', false);
+            pSQL($time->format('Y-m-d H:i:s')) . '"',
+            false
+        );
         $ids = array();
         while ($row = DB::getInstance()->nextRow($result)) {
             $ids[] = $row['id_refund_job'];
@@ -307,7 +312,9 @@ class PostFinanceCheckout_Model_RefundJob extends ObjectModel
         $result = DB::getInstance()->query(
             'SELECT id_refund_job FROM ' . _DB_PREFIX_ . 'pfc_refund_job WHERE state = "' .
             pSQL(self::STATE_APPLY) . '" AND date_upd < "' .
-            pSQL($time->format('Y-m-d H:i:s')) . '"', false);
+            pSQL($time->format('Y-m-d H:i:s')) . '"',
+            false
+        );
         $ids = array();
         while ($row = DB::getInstance()->nextRow($result)) {
             $ids[] = $row['id_refund_job'];

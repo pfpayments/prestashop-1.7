@@ -1,14 +1,11 @@
 <?php
-if (! defined('_PS_VERSION_')) {
-    exit();
-}
-
 /**
  * PostFinance Checkout Prestashop
  *
  * This Prestashop module enables to process payments with PostFinance Checkout (https://www.postfinance.ch).
  *
  * @author customweb GmbH (http://www.customweb.com/)
+ * @copyright 2017 - 2018 customweb GmbH
  * @license http://www.apache.org/licenses/LICENSE-2.0 Apache Software License (ASL 2.0)
  */
 
@@ -270,60 +267,74 @@ class PostFinanceCheckout_Model_MethodConfiguration extends ObjectModel
         $this->sort_order = $order;
     }
     
-    public function isActive(){
+    public function isActive()
+    {
         return $this->active;
     }
     
-    public function setActive($bool){
+    public function setActive($bool)
+    {
         $this->active = $bool;
     }
 
-    public function isShowDescription(){
+    public function isShowDescription()
+    {
         return $this->show_description;
     }
     
-    public function setShowDescription($bool){
+    public function setShowDescription($bool)
+    {
         $this->show_description = $bool;
     }
     
-    public function isShowImage(){
+    public function isShowImage()
+    {
         return $this->show_image;
     }
     
-    public function setShowImage($bool){
+    public function setShowImage($bool)
+    {
         $this->show_image = $bool;
     }
     
     
-    public function getFeeFixed(){
+    public function getFeeFixed()
+    {
         return $this->fee_fixed;
     }
     
-    public function setFeeFixed($fee){
+    public function setFeeFixed($fee)
+    {
         $this->fee_fixed = $fee;
     }
     
-    public function getFeeRate(){
+    public function getFeeRate()
+    {
         return $this->fee_rate;
     }
     
-    public function setFeeRate($rate){
+    public function setFeeRate($rate)
+    {
         $this->fee_rate = $rate;
     }
     
-    public function getFeeBase(){
+    public function getFeeBase()
+    {
         return $this->fee_base;
     }
     
-    public function setFeeBase($base){
+    public function setFeeBase($base)
+    {
         $this->fee_base = $base;
     }
     
-    public function isFeeAddTax(){
+    public function isFeeAddTax()
+    {
         return $this->fee_add_tax;
     }
     
-    public function setFeeAddTax($bool){
+    public function setFeeAddTax($bool)
+    {
         $this->fee_add_tax = $bool;
     }
     
@@ -335,7 +346,7 @@ class PostFinanceCheckout_Model_MethodConfiguration extends ObjectModel
      */
     public static function loadByIdWithChecks($id, $shopId)
     {
-        $spaceId = Configuration::get(PostFinanceCheckout::CK_SPACE_ID, null,null,$shopId);
+        $spaceId = Configuration::get(PostFinanceCheckout::CK_SPACE_ID, null, null, $shopId);
         $collection = new PrestaShopCollection('PostFinanceCheckout_Model_MethodConfiguration');
         $collection->where('id_method_configuration', '=', $id);
         $collection->where('id_shop', '=', $shopId);
@@ -358,19 +369,20 @@ class PostFinanceCheckout_Model_MethodConfiguration extends ObjectModel
     }
     
     /**
-     * 
+     *
      * @param int $spaceId
      * @param int $configurationId
      * @param int $shopId
      * @return PostFinanceCheckout_Model_MethodConfiguration
      */
-    public static function loadByConfigurationAndShop($spaceId, $configurationId, $shopId){
+    public static function loadByConfigurationAndShop($spaceId, $configurationId, $shopId)
+    {
         $collection = new PrestaShopCollection('PostFinanceCheckout_Model_MethodConfiguration');
         $collection->where('space_id', '=', $spaceId);
         $collection->where('configuration_id', '=', $configurationId);
         $collection->where('id_shop', '=', $shopId);
         $result = $collection->getFirst();
-        if($result === false){
+        if ($result === false) {
             $result = new PostFinanceCheckout_Model_MethodConfiguration();
         }
         return $result;
@@ -378,27 +390,27 @@ class PostFinanceCheckout_Model_MethodConfiguration extends ObjectModel
     
     
     /**
-     * 
+     *
      * @param int $shopId
      * @return PostFinanceCheckout_Model_MethodConfiguration[]
      */
-    public static function loadValidForShop($shopId){
-        $spaceId = Configuration::get(PostFinanceCheckout::CK_SPACE_ID, null,null,$shopId);
+    public static function loadValidForShop($shopId)
+    {
+        $spaceId = Configuration::get(PostFinanceCheckout::CK_SPACE_ID, null, null, $shopId);
         $collection = new PrestaShopCollection('PostFinanceCheckout_Model_MethodConfiguration');
         $collection->where('space_id', '=', $spaceId);
         $collection->where('id_shop', '=', $shopId);
         $collection->where('state', '=', self::STATE_ACTIVE);
         return $collection->getResults();
-        
-        
     }
         
     /**
      * @param int $shopId
      * @return PostFinanceCheckout_Model_MethodConfiguration
      */
-    public static function loadActiveForShop($shopId){
-        $spaceId = Configuration::get(PostFinanceCheckout::CK_SPACE_ID, null,null,$shopId);
+    public static function loadActiveForShop($shopId)
+    {
+        $spaceId = Configuration::get(PostFinanceCheckout::CK_SPACE_ID, null, null, $shopId);
         $collection = new PrestaShopCollection('PostFinanceCheckout_Model_MethodConfiguration');
         $collection->where('space_id', '=', $spaceId);
         $collection->where('id_shop', '=', $shopId);
@@ -410,9 +422,9 @@ class PostFinanceCheckout_Model_MethodConfiguration extends ObjectModel
     /**
      * @return PostFinanceCheckout_Model_MethodConfiguration[]
      */
-    public static function loadAll(){
+    public static function loadAll()
+    {
         $collection = new PrestaShopCollection('PostFinanceCheckout_Model_MethodConfiguration');
         return $collection->getResults();
     }
-       
 }

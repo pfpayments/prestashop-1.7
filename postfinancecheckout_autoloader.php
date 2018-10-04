@@ -1,14 +1,11 @@
 <?php
-if (! defined('_PS_VERSION_')) {
-    exit();
-}
-
 /**
  * PostFinance Checkout Prestashop
  *
  * This Prestashop module enables to process payments with PostFinance Checkout (https://www.postfinance.ch).
  *
  * @author customweb GmbH (http://www.customweb.com/)
+ * @copyright 2017 - 2018 customweb GmbH
  * @license http://www.apache.org/licenses/LICENSE-2.0 Apache Software License (ASL 2.0)
  */
 
@@ -20,13 +17,13 @@ spl_autoload_register(function ($class) {
     $baseDir = __DIR__ . '/inc/';
     
     // does the class use the namespace prefix?
-    $len = strlen($prefix);
+    $len = Tools::strlen($prefix);
     if (strncmp($prefix, $class, $len) !== 0) {
         // no, move to the next registered autoloader
         return;
     }
     
-    $cleanName = substr($class, $len);
+    $cleanName = Tools::substr($class, $len);
     
     $replaced = str_replace("_", DIRECTORY_SEPARATOR, $cleanName);
    
@@ -37,5 +34,3 @@ spl_autoload_register(function ($class) {
         require $file;
     }
 });
-
-

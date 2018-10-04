@@ -1,14 +1,11 @@
 <?php
-if (! defined('_PS_VERSION_')) {
-    exit();
-}
-
 /**
  * PostFinance Checkout Prestashop
  *
  * This Prestashop module enables to process payments with PostFinance Checkout (https://www.postfinance.ch).
  *
  * @author customweb GmbH (http://www.customweb.com/)
+ * @copyright 2017 - 2018 customweb GmbH
  * @license http://www.apache.org/licenses/LICENSE-2.0 Apache Software License (ASL 2.0)
  */
 
@@ -52,39 +49,48 @@ class PostFinanceCheckoutReturnModuleFrontController extends ModuleFrontControll
     private function processSuccess(Order $order)
     {
         $transactionService = PostFinanceCheckout_Service_Transaction::instance();
-        $transactionService->waitForTransactionState($order,
+        $transactionService->waitForTransactionState(
+            $order,
             array(
                 \PostFinanceCheckout\Sdk\Model\TransactionState::CONFIRMED,
                 \PostFinanceCheckout\Sdk\Model\TransactionState::PENDING,
                 \PostFinanceCheckout\Sdk\Model\TransactionState::PROCESSING
-            ), 5);
+            ),
+            5
+        );
         $cartId = $order->id_cart;
         $customer = new Customer($order->id_customer);
         
-        $this->redirect_after = $this->context->link->getPageLink('order-confirmation', true, null,
+        $this->redirect_after = $this->context->link->getPageLink(
+            'order-confirmation',
+            true,
+            null,
             array(
                 'id_cart' => $cartId,
                 'id_module' => $this->module->id,
                 'id_order' => $order->id,
                 'key' => $customer->secure_key
-            ));
+            )
+        );
     }
 
     private function process_failure(Order $order)
     {
         $transactionService = PostFinanceCheckout_Service_Transaction::instance();
-        $transactionService->waitForTransactionState($order,
+        $transactionService->waitForTransactionState(
+            $order,
             array(
                 \PostFinanceCheckout\Sdk\Model\TransactionState::FAILED
-            ), 5);
-        $transaction = PostFinanceCheckout_Model_TransactionInfo::loadByOrderId($order->id);        
+            ),
+            5
+        );
+        $transaction = PostFinanceCheckout_Model_TransactionInfo::loadByOrderId($order->id);
         $failureReason = $transaction->getFailureReason();
         
-        if ($failureReason !== null) {       
+        if ($failureReason !== null) {
             $this->context->cookie->pfc_error = PostFinanceCheckout_Helper::translate($failureReason);
         }
-        $this->redirect_after = $this->context->link->getPageLink('order', true, NULL, "step=3");
-
+        $this->redirect_after = $this->context->link->getPageLink('order', true, null, "step=3");
     }
 
     public function setMedia()

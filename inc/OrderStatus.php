@@ -1,18 +1,16 @@
 <?php
-if (! defined('_PS_VERSION_')) {
-    exit();
-}
-
 /**
  * PostFinance Checkout Prestashop
  *
  * This Prestashop module enables to process payments with PostFinance Checkout (https://www.postfinance.ch).
  *
  * @author customweb GmbH (http://www.customweb.com/)
+ * @copyright 2017 - 2018 customweb GmbH
  * @license http://www.apache.org/licenses/LICENSE-2.0 Apache Software License (ASL 2.0)
  */
 
-class PostFinanceCheckout_OrderStatus {
+class PostFinanceCheckout_OrderStatus
+{
 
     private static $orderStatesConfig = array(
         'PFC_REDIRECTED' => array(
@@ -67,8 +65,9 @@ class PostFinanceCheckout_OrderStatus {
         return self::getOrderStatus('PFC_MANUAL');
     }
 
-    public static function registerOrderStatus(){
-        foreach(self::$orderStatesConfig as $key => $ignore){
+    public static function registerOrderStatus()
+    {
+        foreach (self::$orderStatesConfig as $key => $ignore) {
             self::getOrderStatusId($key);
         }
     }
@@ -102,7 +101,8 @@ class PostFinanceCheckout_OrderStatus {
         $state->color = $config['color'];
         $state->deleted = 0;
         $state->hidden = 0;
-        $state->logable = $config['logable']; ;
+        $state->logable = $config['logable'];
+        ;
         foreach (Language::getLanguages() as $language) {
             $state->name[$language['id_lang']] = $config['name'];
         }
