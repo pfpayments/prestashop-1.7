@@ -6,7 +6,7 @@ before_deploy:
       mkdir build;
       mkdir build/src;
       rsync -r --exclude 'build' --exclude '.git' --exclude '.travis.yml' --exclude 'README.md' . build/src;
-      export MODULE_NAME=$(find build/src -maxdepth 1 -type f -name '*.php' -a -not -name '*autoloader.php' -printf "%f" | sed 's/\.[^.]*$//');
+      export MODULE_NAME=$(find build/src -maxdepth 1 -type f -name '*.php' -a -not -name '*autoloader.php' -a -not -name 'index.php' -printf "%f" | sed 's/\.[^.]*$//');
       mkdir build/$MODULE_NAME;
       rsync -r build/src/ build/$MODULE_NAME/;
       cd build;

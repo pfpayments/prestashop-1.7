@@ -47,6 +47,8 @@ class PostFinanceCheckout_Model_TransactionInfo extends ObjectModel
     public $date_add;
 
     public $date_upd;
+    
+    public $user_failure_message;
 
     
     /**
@@ -99,6 +101,11 @@ class PostFinanceCheckout_Model_TransactionInfo extends ObjectModel
                 'size' => 2047
             ),
             'image_base' => array(
+                'type' => self::TYPE_STRING,
+                'validate' => 'isAnything',
+                'size' => 2047
+            ),
+            'user_failure_message' => array(
                 'type' => self::TYPE_STRING,
                 'validate' => 'isAnything',
                 'size' => 2047
@@ -287,6 +294,16 @@ class PostFinanceCheckout_Model_TransactionInfo extends ObjectModel
     public function setFailureReason($failureReason)
     {
         $this->failure_reason = serialize($failureReason);
+    }
+    
+    public function getUserFailureMessage()
+    {
+    	return $this->user_failure_message;
+    }
+    
+    public function setUserFailureMessage($message)
+    {
+    	$this->user_failure_message = $message;
     }
     
     /**

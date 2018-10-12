@@ -25,9 +25,14 @@ class PostFinanceCheckout extends PostFinanceCheckout_AbstractModule
      */
     public function __construct()
     {
-        parent::__construct();
-        $this->version = '1.0.13';
+        $this->name = 'postfinancecheckout';
+        $this->tab = 'payments_gateways';
+        $this->author = 'Customweb GmbH';
+        $this->bootstrap = true;
+        $this->need_instance = 0;
+        $this->version = '1.0.14';
         $this->ps_versions_compliancy = array('min' => '1.7', 'max' => _PS_VERSION_);
+        parent::__construct();
     }
     
     protected function installHooks()

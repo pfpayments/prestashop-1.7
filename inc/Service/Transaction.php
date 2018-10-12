@@ -232,6 +232,8 @@ class PostFinanceCheckout_Service_Transaction extends PostFinanceCheckout_Servic
             } elseif ($transaction->getFailureReason() != null) {
                 $info->setFailureReason($transaction->getFailureReason()->getDescription());
             }
+            $info->setUserFailureMessage($transaction->getUserFailureMessage());
+            
         }
         $info->save();
         return $info;

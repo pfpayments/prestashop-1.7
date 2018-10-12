@@ -73,12 +73,6 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
      */
     public function __construct()
     {
-        $this->name = 'postfinancecheckout';
-        $this->tab = 'payments_gateways';
-        $this->author = 'Customweb GmbH';
-        $this->bootstrap = true;
-        $this->need_instance = 0;
-        
         parent::__construct();
         
         $this->displayName = 'PostFinance Checkout';

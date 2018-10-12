@@ -85,11 +85,21 @@ class PostFinanceCheckoutReturnModuleFrontController extends ModuleFrontControll
             5
         );
         $transaction = PostFinanceCheckout_Model_TransactionInfo::loadByOrderId($order->id);
-        $failureReason = $transaction->getFailureReason();
         
-        if ($failureReason !== null) {
-            $this->context->cookie->pfc_error = PostFinanceCheckout_Helper::translate($failureReason);
+        $userFailureMessage = $transaction->getUserFailureMessage();
+        
+        if (empty($userFailureMessage)) {
+           	$failureReason = $transaction->getFailureReason();
+        
+        	if ($failureReason !== null) {
+           	    $userFailureMessage = PostFinanceCheckout_Helper::translate($failureReason);
+           	}
         }
+        
+        if (!empty($userFailureMessage)) {
+            $this->context->cookie->pfc_error = $userFailureMessage;
+        }
+        
         $this->redirect_after = $this->context->link->getPageLink('order', true, null, "step=3");
     }
 
