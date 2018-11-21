@@ -114,7 +114,7 @@ class PostFinanceCheckout_OrderStatus
         $state->unremovable = 1;
         $state->module_name = 'postfinancecheckout';
         $state->add();
-        $source = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'logo'.DIRECTORY_SEPARATOR.$config['image'].'.gif';
+        $source = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'view/img/logo'.DIRECTORY_SEPARATOR.$config['image'].'.gif';
         $destination = _PS_ROOT_DIR_.DIRECTORY_SEPARATOR.'img'.DIRECTORY_SEPARATOR.'os'.DIRECTORY_SEPARATOR.(int) $state->id.'.gif';
         copy($source, $destination);
         self::setOrderStatusId($key, $state->id);

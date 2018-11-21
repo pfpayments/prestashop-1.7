@@ -1399,20 +1399,20 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
     {
         if (Tools::strtolower(Tools::getValue('controller')) == 'adminorders') {
             $this->context->controller->addJS(
-                __PS_BASE_URI__ . 'modules/' . $this->name . '/js/admin/jAlert.min.js'
+                __PS_BASE_URI__ . 'modules/' . $this->name . '/view/js/admin/jAlert.min.js'
             );
             $this->context->controller->addJS(
-                __PS_BASE_URI__ . 'modules/' . $this->name . '/js/admin/order.js'
+                __PS_BASE_URI__ . 'modules/' . $this->name . '/view/js/admin/order.js'
             );
             $this->context->controller->addCSS(
-                __PS_BASE_URI__ . 'modules/' . $this->name . '/css/admin/order.css'
+                __PS_BASE_URI__ . 'modules/' . $this->name . '/view/css/admin/order.css'
             );
             $this->context->controller->addCSS(
-                __PS_BASE_URI__ . 'modules/' . $this->name . '/css/admin/jAlert.css'
+                __PS_BASE_URI__ . 'modules/' . $this->name . '/view/css/admin/jAlert.css'
             );
         }
         $this->context->controller->addJS(
-            __PS_BASE_URI__ . 'modules/' . $this->name . '/js/admin/general.js'
+            __PS_BASE_URI__ . 'modules/' . $this->name . '/view/js/admin/general.js'
         );
     }
     

@@ -1,0 +1,54 @@
+/**
+ * PostFinance Checkout Prestashop
+ *
+ * This Prestashop module enables to process payments with PostFinance Checkout (https://www.postfinance.ch).
+ *
+ * @author customweb GmbH (http://www.customweb.com/)
+ * @copyright 2017 - 2018 customweb GmbH
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache Software License (ASL 2.0)
+ */
+
+.postfinancecheckout-loader {
+	border: 16px solid #f3f3f3; /* Light grey */
+    border-top: 16px solid #3eb0eb; /* Blue */
+    border-radius: 50%;
+    width: 120px;
+    height: 120px;
+    animation: postfinancecheckout-spin 2s linear infinite;
+    margin: 0 auto;
+}
+
+@keyframes postfinancecheckout-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+div.jAlert.unnoticeable {
+	-webkit-box-shadow: none;
+	box-shadow: none;
+	background: none;
+}
+
+div.jAlert.unnoticeable div.ja_body {
+	background: none;
+}
+
+.postfinancecheckout-information-message{
+	padding-bottom: 20px;
+}
+
+.postfinancecheckout-transaction-data-column-container
+	{
+	overflow: auto;
+}
+
+.postfinancecheckout-transaction-data-column-container .postfinancecheckout-transaction-column
+	{
+	float: left;
+	margin-right: 10px;
+}
+
+i.postfinancecheckout-document{
+	padding-right: 5px;
+	width:25px;
+}

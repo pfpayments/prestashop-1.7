@@ -326,10 +326,16 @@ class PostFinanceCheckout_Service_Transaction extends PostFinanceCheckout_Servic
         if (! isset(self::$possiblePaymentMethodCache[$currentCartId]) ||
              self::$possiblePaymentMethodCache[$currentCartId] == null) {
             $transaction = $this->getTransactionFromCart($cart);
-            $paymentMethods = $this->getTransactionService()->fetchPossiblePaymentMethods(
-                $transaction->getLinkedSpaceId(),
-                $transaction->getId()
-            );
+            try{
+                $paymentMethods = $this->getTransactionService()->fetchPossiblePaymentMethods(
+                    $transaction->getLinkedSpaceId(),
+                    $transaction->getId()
+                    );
+            } catch (\WhitelabelMachineName\Sdk\ApiException $e) {
+                self::$possiblePaymentMethodCache[$currentCartId] = array();
+                throw $e;
+            }	
+            
             $methodConfigurationService = PostFinanceCheckout_Service_MethodConfiguration::instance();
             foreach ($paymentMethods as $paymentMethod) {
                 $methodConfigurationService->updateData($paymentMethod);

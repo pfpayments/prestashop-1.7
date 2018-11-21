@@ -10,15 +10,15 @@
 <div id="postFinanceCheckoutTransactionInfo" class="panel">
 	<div class="panel-heading">
 		<i class="icon-rocket"></i>
-		PostFinance Checkout {l s="Transaction Information" mod="postfinancecheckout"}
+		PostFinance Checkout {l s='Transaction Information' mod='postfinancecheckout'}
 	</div>
 	<div class="postfinancecheckout-transaction-data-column-container">
 		<div class="postfinancecheckout-transaction-column">
 			<p>
-				<strong>{l s="General Details" mod="postfinancecheckout"}</strong>
+				<strong>{l s='General Details' mod='postfinancecheckout'}</strong>
 			</p>
 			<dl class="well list-detail">
-				<dt>{l s="Payment Method" mod="postfinancecheckout"}</dt>
+				<dt>{l s='Payment Method' mod='postfinancecheckout'}</dt>
 				<dd>{$configurationName}
 			{if !empty($methodImage)} 
 			 	<br /><img
@@ -26,18 +26,18 @@
 						width="50" />
 			{/if}
 				</dd>
-				<dt>{l s="Transaction State" mod="postfinancecheckout"}</dt>
+				<dt>{l s='Transaction State' mod='postfinancecheckout'}</dt>
 				<dd>{$transactionState}</dd>
 			{if !empty($failureReason)} 
-            	<dt>{l s="Failure Reason" mod="postfinancecheckout"}</dt>
+            	<dt>{l s='Failure Reason' mod='postfinancecheckout'}</dt>
 				<dd>{$failureReason}</dd>
 			{/if}
-        		<dt>{l s="Authorization Amount" mod="postfinancecheckout"}</dt>
+        		<dt>{l s='Authorization Amount' mod='postfinancecheckout'}</dt>
 				<dd>{displayPrice price=$authorizationAmount}</dd>
-				<dt>{l s="Transaction" mod="postfinancecheckout"}</dt>
+				<dt>{l s='Transaction' mod='postfinancecheckout'}</dt>
 				<dd>
 					<a href="{$transactionUrl|escape:'html'}" target="_blank">
-						{l s="View" mod="postfinancecheckout"}
+						{l s='View' mod='postfinancecheckout'}
 					</a>
 				</dd>
 			</dl>
@@ -66,26 +66,26 @@
 		<div class="postfinancecheckout-transaction-data-column-container panel">
 			<div class="panel-heading">
 				<i class="icon-check"></i>
-					PostFinance Checkout {l s="Completions" mod="postfinancecheckout"}
+					PostFinance Checkout {l s='Completions' mod='postfinancecheckout'}
 			</div>
 			<div class="table-responsive">
 				<table class="table" id="postfinancecheckout_completion_table">
 					<thead>
 						<tr>
 							<th>
-								<span class="title_box ">{l s="Job Id" mod="postfinancecheckout"}</span>
+								<span class="title_box ">{l s='Job Id' mod='postfinancecheckout'}</span>
 							</th>
 							<th>
-								<span class="title_box ">{l s="Completion Id" mod="postfinancecheckout"}</span>
+								<span class="title_box ">{l s='Completion Id' mod='postfinancecheckout'}</span>
 							</th>
 							<th>
-								<span class="title_box ">{l s="Status" mod="postfinancecheckout"}</span>
+								<span class="title_box ">{l s='Status' mod='postfinancecheckout'}</span>
 							</th>
 							<th>
-								<span class="title_box ">{l s="Error Message" mod="postfinancecheckout"}</span>
+								<span class="title_box ">{l s='Error Message' mod='postfinancecheckout'}</span>
 							</th>
 							<th>
-								<span class="title_box ">{l s="Links" mod="postfinancecheckout"}</span>
+								<span class="title_box ">{l s='Links' mod='postfinancecheckout'}</span>
 							</th>
 						</tr>
 					</thead>
@@ -96,7 +96,7 @@
 							<td>{if ($completion->getCompletionId() != 0)}
 									{$completion->getCompletionId()}
 								{else}
-									{l s="Not available" mod="postfinancecheckout"}
+									{l s='Not available' mod='postfinancecheckout'}
 								{/if}	
 							</td>
 							<td>{$completion->getState()}</td>
@@ -104,17 +104,17 @@
 									{assign var='failureReason' value="{postfinancecheckout_translate text=$completion->getFailureReason()}"}
 									{$failureReason}
 								{else}
-									{l s="(None)" mod="postfinancecheckout"}
+									{l s='(None)' mod='postfinancecheckout'}
 								{/if}
 							</td>
 							<td>
 								{if ($completion->getCompletionId() != 0)}
 									{assign var='completionUrl' value="{postfinancecheckout_completion_url completion=$completion}"}
 									<a href="{$completionUrl|escape:'html'}" target="_blank">
-										{l s="View" mod="postfinancecheckout"}
+										{l s='View' mod='postfinancecheckout'}
 									</a>
 								{else}
-									{l s="Not available" mod="postfinancecheckout"}
+									{l s='Not available' mod='postfinancecheckout'}
 								{/if}	
 							</td>
 						</tr>
@@ -128,26 +128,26 @@
 		<div class="postfinancecheckout-transaction-data-column-container panel">
 			<div class="panel-heading">
 				<i class="icon-remove"></i>
-					PostFinance Checkout {l s="Voids" mod="postfinancecheckout"}
+					PostFinance Checkout {l s='Voids' mod='postfinancecheckout'}
 			</div>
 			<div class="table-responsive">
 				<table class="table" id="postfinancecheckout_void_table">
 					<thead>
 						<tr>
 							<th>
-								<span class="title_box ">{l s="Job Id" mod="postfinancecheckout"}</span>
+								<span class="title_box ">{l s='Job Id' mod='postfinancecheckout'}</span>
 							</th>
 							<th>
-								<span class="title_box ">{l s="Void Id" mod="postfinancecheckout"}</span>
+								<span class="title_box ">{l s='Void Id' mod='postfinancecheckout'}</span>
 							</th>
 							<th>
-								<span class="title_box ">{l s="Status" mod="postfinancecheckout"}</span>
+								<span class="title_box ">{l s='Status' mod='postfinancecheckout'}</span>
 							</th>
 							<th>
-								<span class="title_box ">{l s="Error Message" mod="postfinancecheckout"}</span>
+								<span class="title_box ">{l s='Error Message' mod='postfinancecheckout}</span>
 							</th>
 							<th>
-								<span class="title_box ">{l s="Links" mod="postfinancecheckout"}</span>
+								<span class="title_box ">{l s='Links' mod='postfinancecheckout'}</span>
 							</th>
 						</tr>
 					</thead>
@@ -158,7 +158,7 @@
 							<td>{if ($voidItem->getVoidId() != 0)}
 									{$voidItem->getVoidId()}
 								{else}
-									{l s="Not available" mod="postfinancecheckout"}
+									{l s='Not available' mod='postfinancecheckout'}
 								{/if}		
 							</td>
 							<td>{$voidItem->getState()}</td>
@@ -166,17 +166,17 @@
 									{assign var='failureReason' value="{postfinancecheckout_translate text=$voidItem->getFailureReason()}"}
 									{$failureReason}
 								{else}
-									{l s="(None)" mod="postfinancecheckout"}
+									{l s='(None)' mod='postfinancecheckout'}
 								{/if}
 							</td>
 							<td>
 								{if ($voidItem->getVoidId() != 0)}
 									{assign var='voidUrl' value="{postfinancecheckout_void_url void=$voidItem}"}
 									<a href="{$voidUrl|escape:'html'}" target="_blank">
-										{l s="View" mod="postfinancecheckout"}
+										{l s='View' mod='postfinancecheckout'}
 									</a>
 								{else}
-									{l s="Not available" mod="postfinancecheckout"}
+									{l s='Not available' mod='postfinancecheckout'}
 								{/if}	
 							</td>
 						</tr>
@@ -190,36 +190,36 @@
 		<div class="postfinancecheckout-transaction-data-column-container panel">
 			<div class="panel-heading">
 				<i class="icon-exchange"></i>
-					PostFinance Checkout {l s="Refunds" mod="postfinancecheckout"}
+					PostFinance Checkout {l s='Refunds' mod='postfinancecheckout'}
 			</div>
 			<div class="table-responsive">
 				<table class="table" id="postfinancecheckout_refund_table">
 					<thead>
 						<tr>
 							<th>
-								<span class="title_box ">{l s="Job Id" mod="postfinancecheckout"}</span>
+								<span class="title_box ">{l s='Job Id' mod='postfinancecheckout'}</span>
 							</th>
 							
 							<th>
-								<span class="title_box ">{l s="External Id" mod="postfinancecheckout"}</span>
+								<span class="title_box ">{l s='External Id' mod='postfinancecheckout'}</span>
 							</th>
 							<th>
-								<span class="title_box ">{l s="Refund Id" mod="postfinancecheckout"}</span>
+								<span class="title_box ">{l s='Refund Id' mod='postfinancecheckout'}</span>
 							</th>
 							<th>
-								<span class="title_box ">{l s="Amount" mod="postfinancecheckout"}</span>
+								<span class="title_box ">{l s='Amount' mod='postfinancecheckout'}</span>
 							</th>
 							<th>
-								<span class="title_box ">{l s="Type" mod="postfinancecheckout"}</span>
+								<span class="title_box ">{l s='Type' mod='postfinancecheckout'}</span>
 							</th>
 							<th>
-								<span class="title_box ">{l s="Status" mod="postfinancecheckout"}</span>
+								<span class="title_box ">{l s='Status' mod='postfinancecheckout'}</span>
 							</th>
 							<th>
-								<span class="title_box ">{l s="Error Message" mod="postfinancecheckout"}</span>
+								<span class="title_box ">{l s='Error Message' mod='postfinancecheckout'}</span>
 							</th>
 							<th>
-								<span class="title_box ">{l s="Links" mod="postfinancecheckout"}</span>
+								<span class="title_box ">{l s='Links' mod='postfinancecheckout'}</span>
 							</th>
 						</tr>
 					</thead>
@@ -232,7 +232,7 @@
 								{if ($refund->getRefundId() != 0)}
 									{$refund->getRefundId()}
 								{else}
-									{l s="Not available" mod="postfinancecheckout"}
+									{l s='Not available' mod='postfinancecheckout'}
 								{/if}	
 							</td>
 							<td>
@@ -248,17 +248,17 @@
 									{assign var='failureReason' value="{postfinancecheckout_translate text=$refund->getFailureReason()}"}
 									{$failureReason}
 								{else}
-									{l s="(None)" mod="postfinancecheckout"}
+									{l s='(None)' mod='postfinancecheckout'}
 								{/if}
 							</td>
 							<td>
 								{if ($refund->getRefundId() != 0)}
 									{assign var='refundURl' value="{postfinancecheckout_refund_url refund=$refund}"}
 									<a href="{$refundURl|escape:'html'}" target="_blank">
-										{l s="View" mod="postfinancecheckout"}
+										{l s='View' mod='postfinancecheckout'}
 									</a>
 								{else}
-									{l s="Not available" mod="postfinancecheckout"}
+									{l s='Not available' mod='postfinancecheckout'}
 								{/if}	
 							</td>
 						</tr>

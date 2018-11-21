@@ -16,7 +16,7 @@ class PostFinanceCheckoutWebhookModuleFrontController extends ModuleFrontControl
     public $ssl = true;
     
    
-    public function handle_webhook_errors($errno, $errstr, $errfile, $errline)
+    public function handleWebhookErrors($errno, $errstr, $errfile, $errline)
     {
         $fatal = E_ERROR | E_CORE_ERROR | E_COMPILE_ERROR | E_USER_ERROR | E_RECOVERABLE_ERROR | E_PARSE;
         if ($errno & $fatal) {
@@ -31,9 +31,9 @@ class PostFinanceCheckoutWebhookModuleFrontController extends ModuleFrontControl
         //the webhook is marked as failed.
         header('HTTP/1.1 500 Internal Server Error');
         $webhookService = PostFinanceCheckout_Service_Webhook::instance();
-        set_error_handler(array($this, 'handle_webhook_errors'));
+        set_error_handler(array($this, 'handleWebhookErrors'));
         try {
-            $requestBody = trim(file_get_contents("php://input"));
+            $requestBody = trim(Tools::file_get_contents("php://input"));
             
             $parsed = Tools::jsonDecode($requestBody);
             if ($parsed == false) {
