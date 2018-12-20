@@ -30,7 +30,7 @@ class PostFinanceCheckout extends PostFinanceCheckout_AbstractModule
         $this->author = 'Customweb GmbH';
         $this->bootstrap = true;
         $this->need_instance = 0;
-        $this->version = '1.0.15';
+        $this->version = '1.0.16';
         $this->ps_versions_compliancy = array('min' => '1.7', 'max' => _PS_VERSION_);
         parent::__construct();
     }
