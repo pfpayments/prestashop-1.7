@@ -49,6 +49,7 @@ class DocumentTemplateType  {
 	private static $swaggerTypes = array(
 		'description' => 'map[string,string]',
 		'feature' => 'int',
+		'group' => '\PostFinanceCheckout\Sdk\Model\DocumentTemplateTypeGroup',
 		'id' => 'int',
 		'title' => 'map[string,string]'	);
 
@@ -78,6 +79,13 @@ class DocumentTemplateType  {
 	private $feature;
 
 	/**
+	 * 
+	 *
+	 * @var \PostFinanceCheckout\Sdk\Model\DocumentTemplateTypeGroup
+	 */
+	private $group;
+
+	/**
 	 * The ID is the primary key of the entity. The ID identifies the entity uniquely.
 	 *
 	 * @var int
@@ -100,6 +108,9 @@ class DocumentTemplateType  {
 	public function __construct(array $data = null) {
 		if (isset($data['description'])) {
 			$this->setDescription($data['description']);
+		}
+		if (isset($data['group'])) {
+			$this->setGroup($data['group']);
 		}
 		if (isset($data['title'])) {
 			$this->setTitle($data['title']);
@@ -125,7 +136,11 @@ class DocumentTemplateType  {
 	 * @return DocumentTemplateType
 	 */
 	public function setDescription($description) {
-		$this->description = $description;
+		if (is_array($description) && empty($description)) {
+			$this->description = new \stdClass;
+		} else {
+			$this->description = $description;
+		}
 
 		return $this;
 	}
@@ -149,6 +164,29 @@ class DocumentTemplateType  {
 	 */
 	protected function setFeature($feature) {
 		$this->feature = $feature;
+
+		return $this;
+	}
+
+	/**
+	 * Returns group.
+	 *
+	 * 
+	 *
+	 * @return \PostFinanceCheckout\Sdk\Model\DocumentTemplateTypeGroup
+	 */
+	public function getGroup() {
+		return $this->group;
+	}
+
+	/**
+	 * Sets group.
+	 *
+	 * @param \PostFinanceCheckout\Sdk\Model\DocumentTemplateTypeGroup $group
+	 * @return DocumentTemplateType
+	 */
+	public function setGroup($group) {
+		$this->group = $group;
 
 		return $this;
 	}
@@ -194,7 +232,11 @@ class DocumentTemplateType  {
 	 * @return DocumentTemplateType
 	 */
 	public function setTitle($title) {
-		$this->title = $title;
+		if (is_array($title) && empty($title)) {
+			$this->title = new \stdClass;
+		} else {
+			$this->title = $title;
+		}
 
 		return $this;
 	}

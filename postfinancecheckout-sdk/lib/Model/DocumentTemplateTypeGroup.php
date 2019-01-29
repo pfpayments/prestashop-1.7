@@ -24,7 +24,7 @@ namespace PostFinanceCheckout\Sdk\Model;
 use PostFinanceCheckout\Sdk\ValidationException;
 
 /**
- * StaticValue model
+ * DocumentTemplateTypeGroup model
  *
  * @category    Class
  * @description 
@@ -32,14 +32,14 @@ use PostFinanceCheckout\Sdk\ValidationException;
  * @author      customweb GmbH
  * @license     http://www.apache.org/licenses/LICENSE-2.0 Apache License v2
  */
-class StaticValue  {
+class DocumentTemplateTypeGroup  {
 
 	/**
 	 * The original name of the model.
 	 *
 	 * @var string
 	 */
-	private static $swaggerModelName = 'StaticValue';
+	private static $swaggerModelName = 'DocumentTemplateTypeGroup';
 
 	/**
 	 * An array of property to type mappings. Used for (de)serialization.
@@ -47,10 +47,8 @@ class StaticValue  {
 	 * @var string[]
 	 */
 	private static $swaggerTypes = array(
-		'description' => 'map[string,string]',
-		'features' => 'int[]',
 		'id' => 'int',
-		'name' => 'map[string,string]'	);
+		'title' => 'map[string,string]'	);
 
 	/**
 	 * Returns an array of property to type mappings.
@@ -64,20 +62,6 @@ class StaticValue  {
 	
 
 	/**
-	 * 
-	 *
-	 * @var map[string,string]
-	 */
-	private $description;
-
-	/**
-	 * 
-	 *
-	 * @var int[]
-	 */
-	private $features;
-
-	/**
 	 * The ID is the primary key of the entity. The ID identifies the entity uniquely.
 	 *
 	 * @var int
@@ -89,7 +73,7 @@ class StaticValue  {
 	 *
 	 * @var map[string,string]
 	 */
-	private $name;
+	private $title;
 
 
 	/**
@@ -98,67 +82,11 @@ class StaticValue  {
 	 * @param mixed[] $data an associated array of property values initializing the model
 	 */
 	public function __construct(array $data = null) {
-		if (isset($data['description'])) {
-			$this->setDescription($data['description']);
-		}
-		if (isset($data['features'])) {
-			$this->setFeatures($data['features']);
-		}
-		if (isset($data['name'])) {
-			$this->setName($data['name']);
+		if (isset($data['title'])) {
+			$this->setTitle($data['title']);
 		}
 	}
 
-
-	/**
-	 * Returns description.
-	 *
-	 * 
-	 *
-	 * @return map[string,string]
-	 */
-	public function getDescription() {
-		return $this->description;
-	}
-
-	/**
-	 * Sets description.
-	 *
-	 * @param map[string,string] $description
-	 * @return StaticValue
-	 */
-	public function setDescription($description) {
-		if (is_array($description) && empty($description)) {
-			$this->description = new \stdClass;
-		} else {
-			$this->description = $description;
-		}
-
-		return $this;
-	}
-
-	/**
-	 * Returns features.
-	 *
-	 * 
-	 *
-	 * @return int[]
-	 */
-	public function getFeatures() {
-		return $this->features;
-	}
-
-	/**
-	 * Sets features.
-	 *
-	 * @param int[] $features
-	 * @return StaticValue
-	 */
-	public function setFeatures($features) {
-		$this->features = $features;
-
-		return $this;
-	}
 
 	/**
 	 * Returns id.
@@ -175,7 +103,7 @@ class StaticValue  {
 	 * Sets id.
 	 *
 	 * @param int $id
-	 * @return StaticValue
+	 * @return DocumentTemplateTypeGroup
 	 */
 	protected function setId($id) {
 		$this->id = $id;
@@ -184,27 +112,27 @@ class StaticValue  {
 	}
 
 	/**
-	 * Returns name.
+	 * Returns title.
 	 *
 	 * 
 	 *
 	 * @return map[string,string]
 	 */
-	public function getName() {
-		return $this->name;
+	public function getTitle() {
+		return $this->title;
 	}
 
 	/**
-	 * Sets name.
+	 * Sets title.
 	 *
-	 * @param map[string,string] $name
-	 * @return StaticValue
+	 * @param map[string,string] $title
+	 * @return DocumentTemplateTypeGroup
 	 */
-	public function setName($name) {
-		if (is_array($name) && empty($name)) {
-			$this->name = new \stdClass;
+	public function setTitle($title) {
+		if (is_array($title) && empty($title)) {
+			$this->title = new \stdClass;
 		} else {
-			$this->name = $name;
+			$this->title = $title;
 		}
 
 		return $this;

@@ -24,7 +24,7 @@ namespace PostFinanceCheckout\Sdk\Model;
 use PostFinanceCheckout\Sdk\ValidationException;
 
 /**
- * LabelDescriptor model
+ * TwoFactorAuthenticationType model
  *
  * @category    Class
  * @description 
@@ -32,14 +32,14 @@ use PostFinanceCheckout\Sdk\ValidationException;
  * @author      customweb GmbH
  * @license     http://www.apache.org/licenses/LICENSE-2.0 Apache License v2
  */
-class LabelDescriptor  {
+class TwoFactorAuthenticationType  {
 
 	/**
 	 * The original name of the model.
 	 *
 	 * @var string
 	 */
-	private static $swaggerModelName = 'LabelDescriptor';
+	private static $swaggerModelName = 'TwoFactorAuthenticationType';
 
 	/**
 	 * An array of property to type mappings. Used for (de)serialization.
@@ -47,14 +47,11 @@ class LabelDescriptor  {
 	 * @var string[]
 	 */
 	private static $swaggerTypes = array(
-		'category' => '\PostFinanceCheckout\Sdk\Model\LabelDescriptorCategory',
 		'description' => 'map[string,string]',
-		'features' => 'int[]',
-		'group' => 'int',
+		'feature' => 'int',
+		'icon' => 'string',
 		'id' => 'int',
-		'name' => 'map[string,string]',
-		'type' => 'int',
-		'weight' => 'int'	);
+		'name' => 'map[string,string]'	);
 
 	/**
 	 * Returns an array of property to type mappings.
@@ -70,13 +67,6 @@ class LabelDescriptor  {
 	/**
 	 * 
 	 *
-	 * @var \PostFinanceCheckout\Sdk\Model\LabelDescriptorCategory
-	 */
-	private $category;
-
-	/**
-	 * 
-	 *
 	 * @var map[string,string]
 	 */
 	private $description;
@@ -84,16 +74,16 @@ class LabelDescriptor  {
 	/**
 	 * 
 	 *
-	 * @var int[]
+	 * @var int
 	 */
-	private $features;
+	private $feature;
 
 	/**
 	 * 
 	 *
-	 * @var int
+	 * @var string
 	 */
-	private $group;
+	private $icon;
 
 	/**
 	 * The ID is the primary key of the entity. The ID identifies the entity uniquely.
@@ -109,20 +99,6 @@ class LabelDescriptor  {
 	 */
 	private $name;
 
-	/**
-	 * 
-	 *
-	 * @var int
-	 */
-	private $type;
-
-	/**
-	 * 
-	 *
-	 * @var int
-	 */
-	private $weight;
-
 
 	/**
 	 * Constructor.
@@ -130,43 +106,14 @@ class LabelDescriptor  {
 	 * @param mixed[] $data an associated array of property values initializing the model
 	 */
 	public function __construct(array $data = null) {
-		if (isset($data['category'])) {
-			$this->setCategory($data['category']);
-		}
 		if (isset($data['description'])) {
 			$this->setDescription($data['description']);
-		}
-		if (isset($data['features'])) {
-			$this->setFeatures($data['features']);
 		}
 		if (isset($data['name'])) {
 			$this->setName($data['name']);
 		}
 	}
 
-
-	/**
-	 * Returns category.
-	 *
-	 * 
-	 *
-	 * @return \PostFinanceCheckout\Sdk\Model\LabelDescriptorCategory
-	 */
-	public function getCategory() {
-		return $this->category;
-	}
-
-	/**
-	 * Sets category.
-	 *
-	 * @param \PostFinanceCheckout\Sdk\Model\LabelDescriptorCategory $category
-	 * @return LabelDescriptor
-	 */
-	public function setCategory($category) {
-		$this->category = $category;
-
-		return $this;
-	}
 
 	/**
 	 * Returns description.
@@ -183,7 +130,7 @@ class LabelDescriptor  {
 	 * Sets description.
 	 *
 	 * @param map[string,string] $description
-	 * @return LabelDescriptor
+	 * @return TwoFactorAuthenticationType
 	 */
 	public function setDescription($description) {
 		if (is_array($description) && empty($description)) {
@@ -196,47 +143,47 @@ class LabelDescriptor  {
 	}
 
 	/**
-	 * Returns features.
-	 *
-	 * 
-	 *
-	 * @return int[]
-	 */
-	public function getFeatures() {
-		return $this->features;
-	}
-
-	/**
-	 * Sets features.
-	 *
-	 * @param int[] $features
-	 * @return LabelDescriptor
-	 */
-	public function setFeatures($features) {
-		$this->features = $features;
-
-		return $this;
-	}
-
-	/**
-	 * Returns group.
+	 * Returns feature.
 	 *
 	 * 
 	 *
 	 * @return int
 	 */
-	public function getGroup() {
-		return $this->group;
+	public function getFeature() {
+		return $this->feature;
 	}
 
 	/**
-	 * Sets group.
+	 * Sets feature.
 	 *
-	 * @param int $group
-	 * @return LabelDescriptor
+	 * @param int $feature
+	 * @return TwoFactorAuthenticationType
 	 */
-	protected function setGroup($group) {
-		$this->group = $group;
+	protected function setFeature($feature) {
+		$this->feature = $feature;
+
+		return $this;
+	}
+
+	/**
+	 * Returns icon.
+	 *
+	 * 
+	 *
+	 * @return string
+	 */
+	public function getIcon() {
+		return $this->icon;
+	}
+
+	/**
+	 * Sets icon.
+	 *
+	 * @param string $icon
+	 * @return TwoFactorAuthenticationType
+	 */
+	protected function setIcon($icon) {
+		$this->icon = $icon;
 
 		return $this;
 	}
@@ -256,7 +203,7 @@ class LabelDescriptor  {
 	 * Sets id.
 	 *
 	 * @param int $id
-	 * @return LabelDescriptor
+	 * @return TwoFactorAuthenticationType
 	 */
 	protected function setId($id) {
 		$this->id = $id;
@@ -279,7 +226,7 @@ class LabelDescriptor  {
 	 * Sets name.
 	 *
 	 * @param map[string,string] $name
-	 * @return LabelDescriptor
+	 * @return TwoFactorAuthenticationType
 	 */
 	public function setName($name) {
 		if (is_array($name) && empty($name)) {
@@ -287,52 +234,6 @@ class LabelDescriptor  {
 		} else {
 			$this->name = $name;
 		}
-
-		return $this;
-	}
-
-	/**
-	 * Returns type.
-	 *
-	 * 
-	 *
-	 * @return int
-	 */
-	public function getType() {
-		return $this->type;
-	}
-
-	/**
-	 * Sets type.
-	 *
-	 * @param int $type
-	 * @return LabelDescriptor
-	 */
-	protected function setType($type) {
-		$this->type = $type;
-
-		return $this;
-	}
-
-	/**
-	 * Returns weight.
-	 *
-	 * 
-	 *
-	 * @return int
-	 */
-	public function getWeight() {
-		return $this->weight;
-	}
-
-	/**
-	 * Sets weight.
-	 *
-	 * @param int $weight
-	 * @return LabelDescriptor
-	 */
-	protected function setWeight($weight) {
-		$this->weight = $weight;
 
 		return $this;
 	}

@@ -196,7 +196,7 @@ class AbstractTransactionPending  {
 	private $token;
 
 	/**
-	 * The tokenization mode controls if and how a token is automatically applied to the transaction. When a token is directly assigned to the transaction the mode will have no effect at all. Obmitting the mode will disable the automatic application of a token.
+	 * The tokenization mode controls if and how the tokenization of payment information is applied to the transaction.
 	 *
 	 * @var \PostFinanceCheckout\Sdk\Model\TokenizationnMode
 	 */
@@ -537,7 +537,11 @@ class AbstractTransactionPending  {
 	 * @return AbstractTransactionPending
 	 */
 	public function setMetaData($metaData) {
-		$this->metaData = $metaData;
+		if (is_array($metaData) && empty($metaData)) {
+			$this->metaData = new \stdClass;
+		} else {
+			$this->metaData = $metaData;
+		}
 
 		return $this;
 	}
@@ -660,7 +664,7 @@ class AbstractTransactionPending  {
 	/**
 	 * Returns tokenizationMode.
 	 *
-	 * The tokenization mode controls if and how a token is automatically applied to the transaction. When a token is directly assigned to the transaction the mode will have no effect at all. Obmitting the mode will disable the automatic application of a token.
+	 * The tokenization mode controls if and how the tokenization of payment information is applied to the transaction.
 	 *
 	 * @return \PostFinanceCheckout\Sdk\Model\TokenizationnMode
 	 */

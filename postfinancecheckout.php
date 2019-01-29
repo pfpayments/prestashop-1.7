@@ -5,7 +5,7 @@
  * This Prestashop module enables to process payments with PostFinance Checkout (https://www.postfinance.ch).
  *
  * @author customweb GmbH (http://www.customweb.com/)
- * @copyright 2017 - 2018 customweb GmbH
+ * @copyright 2017 - 2019 customweb GmbH
  * @license http://www.apache.org/licenses/LICENSE-2.0 Apache Software License (ASL 2.0)
  */
 
@@ -30,7 +30,7 @@ class PostFinanceCheckout extends PostFinanceCheckout_AbstractModule
         $this->author = 'Customweb GmbH';
         $this->bootstrap = true;
         $this->need_instance = 0;
-        $this->version = '1.0.16';
+        $this->version = '1.0.17';
         $this->ps_versions_compliancy = array('min' => '1.7', 'max' => _PS_VERSION_);
         parent::__construct();
     }
@@ -209,11 +209,11 @@ class PostFinanceCheckout extends PostFinanceCheckout_AbstractModule
         if ($this->context->controller->php_self == 'order') {
             $this->context->controller->registerStylesheet(
                 'postfinancecheckout-checkut-css',
-                'modules/' . $this->name . '/view/css/frontend/checkout.css'
+                'modules/' . $this->name . '/views/css/frontend/checkout.css'
             );
             $this->context->controller->registerJavascript(
                 'postfinancecheckout-checkout-js',
-                'modules/' . $this->name . '/view/js/frontend/checkout.js'
+                'modules/' . $this->name . '/views/js/frontend/checkout.js'
             );
             Media::addJsDef(
                 array(
@@ -247,7 +247,7 @@ class PostFinanceCheckout extends PostFinanceCheckout_AbstractModule
         if ($this->context->controller->php_self == 'order-detail') {
             $this->context->controller->registerJavascript(
                 'postfinancecheckout-checkout-js',
-                'modules/' . $this->name . '/view/js/frontend/orderdetail.js'
+                'modules/' . $this->name . '/views/js/frontend/orderdetail.js'
             );
         }
     }
@@ -256,7 +256,7 @@ class PostFinanceCheckout extends PostFinanceCheckout_AbstractModule
     {
         parent::hookActionAdminControllerSetMedia($arr);
         $this->context->controller->addCSS(
-            __PS_BASE_URI__ . 'modules/' . $this->name . '/view/css/admin/general.css'
+            __PS_BASE_URI__ . 'modules/' . $this->name . '/views/css/admin/general.css'
         );
     }
 

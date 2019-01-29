@@ -55,7 +55,8 @@ class Permission  {
 		'name' => 'map[string,string]',
 		'parent' => 'int',
 		'pathToRoot' => 'int[]',
-		'title' => 'map[string,string]'	);
+		'title' => 'map[string,string]',
+		'twoFactorRequired' => 'bool'	);
 
 	/**
 	 * Returns an array of property to type mappings.
@@ -131,6 +132,13 @@ class Permission  {
 	 */
 	private $title;
 
+	/**
+	 * 
+	 *
+	 * @var bool
+	 */
+	private $twoFactorRequired;
+
 
 	/**
 	 * Constructor.
@@ -171,7 +179,11 @@ class Permission  {
 	 * @return Permission
 	 */
 	public function setDescription($description) {
-		$this->description = $description;
+		if (is_array($description) && empty($description)) {
+			$this->description = new \stdClass;
+		} else {
+			$this->description = $description;
+		}
 
 		return $this;
 	}
@@ -286,7 +298,11 @@ class Permission  {
 	 * @return Permission
 	 */
 	public function setName($name) {
-		$this->name = $name;
+		if (is_array($name) && empty($name)) {
+			$this->name = new \stdClass;
+		} else {
+			$this->name = $name;
+		}
 
 		return $this;
 	}
@@ -355,7 +371,34 @@ class Permission  {
 	 * @return Permission
 	 */
 	public function setTitle($title) {
-		$this->title = $title;
+		if (is_array($title) && empty($title)) {
+			$this->title = new \stdClass;
+		} else {
+			$this->title = $title;
+		}
+
+		return $this;
+	}
+
+	/**
+	 * Returns twoFactorRequired.
+	 *
+	 * 
+	 *
+	 * @return bool
+	 */
+	public function getTwoFactorRequired() {
+		return $this->twoFactorRequired;
+	}
+
+	/**
+	 * Sets twoFactorRequired.
+	 *
+	 * @param bool $twoFactorRequired
+	 * @return Permission
+	 */
+	protected function setTwoFactorRequired($twoFactorRequired) {
+		$this->twoFactorRequired = $twoFactorRequired;
 
 		return $this;
 	}
