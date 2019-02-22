@@ -14,7 +14,10 @@ abstract class PostFinanceCheckout_AbstractMigration
 
     const CK_DB_VERSION = 'PFC_DB_VERSION';
 
-    abstract protected static function getMigrations();
+    //This method should be abstract, but PHP < 7.0 throws a strict warning for an abstract static method.
+    protected static function getMigrations(){
+        return array();
+    }
     
     public static function installDb()
     {

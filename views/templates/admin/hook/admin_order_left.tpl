@@ -144,7 +144,7 @@
 								<span class="title_box ">{l s='Status' mod='postfinancecheckout'}</span>
 							</th>
 							<th>
-								<span class="title_box ">{l s='Error Message' mod='postfinancecheckout}</span>
+								<span class="title_box ">{l s='Error Message' mod='postfinancecheckout'}</span>
 							</th>
 							<th>
 								<span class="title_box ">{l s='Links' mod='postfinancecheckout'}</span>

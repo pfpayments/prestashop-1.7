@@ -576,7 +576,7 @@ class PostFinanceCheckout_Helper
             $labelsByGroupId = array();
             foreach ($info->getLabels() as $descriptorId => $value) {
                 $descriptor = $labelDescriptionProvider->find($descriptorId);
-                if ($descriptor) {
+                if ($descriptor && $descriptor->getCategory() == \PostFinanceCheckout\Sdk\Model\LabelDescriptorCategory::HUMAN) {
                     $labelsByGroupId[$descriptor->getGroup()][] = array(
                         'descriptor' => $descriptor,
                         'translatedName' => PostFinanceCheckout_Helper::translate($descriptor->getName()),
