@@ -248,12 +248,16 @@ class PostFinanceCheckout_Model_TransactionInfo extends ObjectModel
     
     public function getLabels()
     {
-        return unserialize($this->labels);
+        $decoded =  base64_decode($this->labels, true);
+        if($decoded === false){
+            $decoded = $this->labels;
+        }
+        return unserialize($decoded);
     }
     
     public function setLabels(array $labels)
     {
-        $this->labels = serialize($labels);
+        $this->labels = base64_encode(serialize($labels));
     }
     
     public function getPaymentMethodId()
@@ -288,12 +292,16 @@ class PostFinanceCheckout_Model_TransactionInfo extends ObjectModel
     
     public function getFailureReason()
     {
-        return unserialize($this->failure_reason);
+        $decoded =  base64_decode($this->failure_reason, true);
+        if($decoded === false){
+            $decoded = $this->failure_reason;
+        }
+        return unserialize($decoded);
     }
     
     public function setFailureReason($failureReason)
     {
-        $this->failure_reason = serialize($failureReason);
+        $this->failure_reason = base64_encode(serialize($failureReason));
     }
     
     public function getUserFailureMessage()

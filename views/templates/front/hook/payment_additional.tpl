@@ -10,7 +10,7 @@
 <div sytle="display:none" class="postfinancecheckout-method-data" data-method-id="{$methodId}" data-configuration-id="{$configurationId}"></div>
 <section>
   {if !empty($description)}
-    <p>{$description}</p>
+    <p>{$description nofilter}</p>
   {/if}
   {if !empty($feeValues)}
 	<span class="postfinancecheckout-payment-fee"><span class="postfinancecheckout-payment-fee-text">{l s='Additional Fee:' mod='postfinancecheckout'}</span>

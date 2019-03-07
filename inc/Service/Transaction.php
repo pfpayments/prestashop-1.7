@@ -444,7 +444,8 @@ class PostFinanceCheckout_Service_Transaction extends PostFinanceCheckout_Servic
                 array(
                     'order_id' => $dataSource->id,
                     'secret' => PostFinanceCheckout_Helper::computeOrderSecret($dataSource),
-                    'action' => 'success'
+                    'action' => 'success',
+                    'utm_nooverride' => '1'
                 ),
                 true
             )
@@ -457,7 +458,8 @@ class PostFinanceCheckout_Service_Transaction extends PostFinanceCheckout_Servic
                 array(
                     'order_id' => $dataSource->id,
                     'secret' => PostFinanceCheckout_Helper::computeOrderSecret($dataSource),
-                    'action' => 'failure'
+                    'action' => 'failure',
+                    'utm_nooverride' => '1'
                 ),
                 true
             )

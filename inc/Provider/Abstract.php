@@ -94,7 +94,11 @@ abstract class PostFinanceCheckout_Provider_Abstract
     {
         $cachedData = Cache::retrieve($this->cacheKey);
         if ($cachedData !== null) {
-            $deserialized = unserialize($cachedData);
+            $decoded =  base64_decode($cachedData, true);
+            if($decoded === false){
+                $decoded = $cachedData;
+            }            
+            $deserialized = unserialize($decoded);
             if (is_array($deserialized)) {
                 $this->data = $deserialized;
                 return;
@@ -106,7 +110,7 @@ abstract class PostFinanceCheckout_Provider_Abstract
             foreach ($this->fetchData() as $entry) {
                 $this->data[$this->getId($entry)] = $entry;
             }
-            Cache::store($this->cacheKey, serialize($this->data));
+            Cache::store($this->cacheKey, base64_encode(serialize($this->data)));
         } catch (\PostFinanceCheckout\Sdk\ApiException $e) {
         } catch (\PostFinanceCheckout\Sdk\Http\ConnectionException $e) {
         }

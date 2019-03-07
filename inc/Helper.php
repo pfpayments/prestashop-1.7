@@ -126,15 +126,6 @@ class PostFinanceCheckout_Helper
         return round($amount, self::getCurrencyFractionDigits($currencyCode));
     }
 
-    public static function encodeObjectForStorage($value)
-    {
-        return serialize($value);
-    }
-
-    public static function decodeObjectFromStorage($value)
-    {
-        return unserialize($value);
-    }
 
     public static function convertCurrencyIdToCode($id)
     {
@@ -263,8 +254,8 @@ class PostFinanceCheckout_Helper
         Db::getInstance()->execute(
             'INSERT INTO ' . _DB_PREFIX_ .
             'pfc_cart_meta (cart_id, meta_key, meta_value) VALUES ("' . pSQL($cart->id) .
-            '", "' . pSQL($key) . '", "' . pSQL(serialize($value)) .
-            '") ON DUPLICATE KEY UPDATE meta_value = "' . pSQL(serialize($value)) . '";'
+            '", "' . pSQL($key) . '", "' . pSQL(base64_encode(serialize($value))) .
+            '") ON DUPLICATE KEY UPDATE meta_value = "' . pSQL(base64_encode(serialize($value))) . '";'
         );
     }
     
@@ -276,7 +267,11 @@ class PostFinanceCheckout_Helper
             false
         );
         if ($value !== false) {
-            return unserialize($value);
+            $decoded =  base64_decode($value, true);
+            if($decoded === false){
+                $decoded = $value;
+            }
+            return unserialize($decoded);
         }
         return null;
     }

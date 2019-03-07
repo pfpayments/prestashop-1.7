@@ -218,22 +218,30 @@ class PostFinanceCheckout_Model_MethodConfiguration extends ObjectModel
 
     public function setTitle(array $title)
     {
-        $this->title = serialize($title);
+        $this->title = base64_encode(serialize($title));
     }
 
     public function getTitle()
     {
-        return unserialize($this->title);
+        $decoded =  base64_decode($this->title, true);
+        if($decoded === false){
+            $decoded = $this->title;
+        }
+        return unserialize($decoded);
     }
 
     public function setDescription(array $description)
     {
-        $this->description = serialize($description);
+        $this->description = base64_encode(serialize($description));
     }
 
     public function getDescription()
     {
-        return unserialize($this->description);
+        $decoded =  base64_decode($this->description, true);
+        if($decoded === false){
+            $decoded = $this->description;
+        }
+        return unserialize($decoded);
     }
 
     public function getImage()

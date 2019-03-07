@@ -1127,6 +1127,8 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
             $language
         );
         if (! empty($description) && $methodConfiguration->isShowDescription()) {
+            
+            $description = preg_replace('/((<a (?!.*target="_blank").*?)>)/', '$2 target="_blank">', $description);
             $parameters['description'] = $description;
         }
         $feeValues = PostFinanceCheckout_FeeHelper::getFeeValues($cart, $methodConfiguration);

@@ -178,12 +178,16 @@ class PostFinanceCheckout_Model_RefundJob extends ObjectModel
     
     public function setRefundParameters($params)
     {
-        $this->refund_parameters = serialize($params);
+        $this->refund_parameters = base64_encode(serialize($params));
     }
     
     public function getRefundParameters()
     {
-        return unserialize($this->refund_parameters);
+        $decoded =  base64_decode($this->refund_parameters, true);
+        if($decoded === false){
+            $decoded = $this->refund_parameters;
+        }
+        return unserialize($decoded);
     }
     
     public function getApplyTries()
@@ -198,12 +202,16 @@ class PostFinanceCheckout_Model_RefundJob extends ObjectModel
 
     public function getFailureReason()
     {
-        return unserialize($this->failure_reason);
+        $decoded =  base64_decode($this->failure_reason, true);
+        if($decoded === false){
+            $decoded = $this->failure_reason;
+        }
+        return unserialize($decoded);
     }
 
     public function setFailureReason($failureReason)
     {
-        $this->failure_reason = serialize($failureReason);
+        $this->failure_reason = base64_encode(serialize($failureReason));
     }
 
     /**
