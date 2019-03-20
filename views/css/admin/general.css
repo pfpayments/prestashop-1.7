@@ -12,6 +12,19 @@
     margin-right: 20px;
 }
 
+#postfinancecheckout_manual_notif .icon-bullhorn{
+	color: #6c868e;
+    font-size: 22px;
+    vertical-align: middle;
+}
+
+.main-header>.component.postfinancecheckout-component {
+    margin-left: 5px;
+    margin-left: .3125rem;
+    margin-right: 5px;
+    margin-right: .3125rem;
+}
+
 .postfinancecheckout-component > ul {
     padding: 0;
     margin: 0;
@@ -42,4 +55,9 @@
 
 .postfinancecheckout-component #postfinancecheckout_manual_notif_number_wrapper{
 	display:none;
+}
+
+.bootstrap #header_infos #postfinancecheckout_manual_notif .dropdown-menu {
+	transform: translate3d(-200px, 20px, 0px) !important;
+    top: 20px !important;
 }

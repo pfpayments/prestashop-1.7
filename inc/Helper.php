@@ -179,18 +179,10 @@ class PostFinanceCheckout_Helper
             self::getTotalAmountIncludingTax($lineItems),
             $currencyCode
         );
-        $diff = self::roundAmount($expectedSum, $currencyCode) - $effectiveSum;
+        $roundedExcpected = self::roundAmount($expectedSum, $currencyCode);
+        $diff = $roundedExcpected - $effectiveSum;
         if ($diff != 0) {
-            $lineItem = new \PostFinanceCheckout\Sdk\Model\LineItemCreate();
-            $lineItem->setAmountIncludingTax(self::roundAmount($diff, $currencyCode));
-            $lineItem->setName(self::getModuleInstance()->l('Rounding Adjustment', 'helper'));
-            $lineItem->setQuantity(1);
-            $lineItem->setSku('rounding-adjustment');
-            $lineItem->setType(
-                $diff < 0 ? \PostFinanceCheckout\Sdk\Model\LineItemType::DISCOUNT : \PostFinanceCheckout\Sdk\Model\LineItemType::FEE
-            );
-            $lineItem->setUniqueId('rounding-adjustment');
-            $lineItems[] = $lineItem;
+            throw new PostFinanceCheckout_Exception_InvalidTransactionAmount($effectiveSum, $roundedExcpected);
         }
         
         return self::ensureUniqueIds($lineItems);

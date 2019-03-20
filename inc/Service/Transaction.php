@@ -331,11 +331,13 @@ class PostFinanceCheckout_Service_Transaction extends PostFinanceCheckout_Servic
                     $transaction->getLinkedSpaceId(),
                     $transaction->getId()
                     );
-            } catch (\WhitelabelMachineName\Sdk\ApiException $e) {
+            } catch (\WhitelabelMachineName\Sdk\ApiException $e)  {
+                self::$possiblePaymentMethodCache[$currentCartId] = array();
+                throw $e;
+            } catch (PostFinanceCheckout_Exception_InvalidTransactionAmount $e)  {
                 self::$possiblePaymentMethodCache[$currentCartId] = array();
                 throw $e;
             }	
-            
             $methodConfigurationService = PostFinanceCheckout_Service_MethodConfiguration::instance();
             foreach ($paymentMethods as $paymentMethod) {
                 $methodConfigurationService->updateData($paymentMethod);

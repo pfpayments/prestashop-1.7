@@ -52,6 +52,13 @@ jQuery(function($) {
 					self.process_submit_button($(this).data('method-id'));
 				}
 			});
+			$('form.postfinancecheckout-amount-error').each(function() {
+				this.submit = function(evt) {
+					//This is the info message and sould not be used as method
+				}
+			});
+			
+
 		},
 
 		payment_method_click : function(event){

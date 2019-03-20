@@ -30,7 +30,7 @@ class PostFinanceCheckout extends PostFinanceCheckout_AbstractModule
         $this->author = 'Customweb GmbH';
         $this->bootstrap = true;
         $this->need_instance = 0;
-        $this->version = '1.0.19';
+        $this->version = '1.0.20';
         $this->ps_versions_compliancy = array('min' => '1.7', 'max' => _PS_VERSION_);
         parent::__construct();
     }
@@ -130,6 +130,25 @@ class PostFinanceCheckout extends PostFinanceCheckout_AbstractModule
             $possiblePaymentMethods = PostFinanceCheckout_Service_Transaction::instance()->getPossiblePaymentMethods(
                 $cart
             );
+        } catch(PostFinanceCheckout_Exception_InvalidTransactionAmount $e){
+            PrestaShopLogger::addLog(
+                $e->getMessage()." CartId: ".$cart->id,
+                3,
+                null,
+                'PostFinanceCheckout'
+                );
+            $paymentOption = new PrestaShop\PrestaShop\Core\Payment\PaymentOption();
+            $paymentOption->setCallToActionText($this->l('There is an issue with your cart, some payment methods are not available.'));
+            $paymentOption->setAdditionalInformation(
+                $this->context->smarty->fetch(
+                    'module:postfinancecheckout/views/templates/front/hook/amount_error.tpl'
+                    )
+                );
+            $paymentOption->setForm( $this->context->smarty->fetch(
+                'module:postfinancecheckout/views/templates/front/hook/amount_error_form.tpl'
+                ));
+            $paymentOption->setModuleName($this->name."-error");
+            return array($paymentOption);
         } catch (Exception $e) {
             return array();
         }

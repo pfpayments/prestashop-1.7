@@ -375,7 +375,7 @@ class PostFinanceCheckout_Backend_DefaultStrategy implements PostFinanceCheckout
         
         if ($shippingCostAmount > 0) {
             $uniqueId = 'order-' . $order->id . '-shipping';
-            if (! $parsedData['TaxMethod']) {
+            if (isset($parsedData['TaxMethod']) && !$parsedData['TaxMethod']) {
                 $tax = new Tax();
                 $tax->rate = $order->carrier_tax_rate;
                 $taxCalculator = new TaxCalculator(array(

@@ -92,6 +92,8 @@ class PostFinanceCheckout_Service_Refund extends PostFinanceCheckout_Service_Abs
             $refundJob->setExternalId(uniqid($order->id . '-'));
             $refundJob->setRefundParameters($parsedParameters);
             $refundJob->save();
+            //validate Refund Job
+            $this->createRefundObject($refundJob);
             $currentRefundJob = $refundJob->getId();
             PostFinanceCheckout_Helper::commitDBTransaction();
         } catch (Exception $e) {
