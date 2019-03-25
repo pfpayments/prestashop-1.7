@@ -94,10 +94,15 @@ class PostFinanceCheckoutReturnModuleFrontController extends ModuleFrontControll
         	if ($failureReason !== null) {
            	    $userFailureMessage = PostFinanceCheckout_Helper::translate($failureReason);
            	}
-        }
-        
+        }        
         if (!empty($userFailureMessage)) {
             $this->context->cookie->pfc_error = $userFailureMessage;
+        }
+        
+        //Set cart to cookie
+        $originalCartId = PostFinanceCheckout_Helper::getOrderMeta($order, 'originalCart');
+        if (!empty($originalCartId)) {
+            $this->context->cookie->id_cart= $originalCartId;
         }
         
         $this->redirect_after = $this->context->link->getPageLink('order', true, null, "step=3");
