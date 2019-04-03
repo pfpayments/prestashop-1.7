@@ -62,7 +62,8 @@ abstract class PostFinanceCheckout_AbstractMigration
 
     protected static function installTableBase()
     {
-        $result = Db::getInstance()->execute("CREATE TABLE IF NOT EXISTS " . _DB_PREFIX_ . "pfc_method_configuration(
+        $instance = Db::getInstance();
+        $result = $instance->execute("CREATE TABLE IF NOT EXISTS " . _DB_PREFIX_ . "pfc_method_configuration(
 				`id_method_configuration` int(10) unsigned NOT NULL AUTO_INCREMENT,
                 `id_shop` int(10) unsigned NOT NULL,
 				`state` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
@@ -93,11 +94,11 @@ abstract class PostFinanceCheckout_AbstractMigration
 				) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;");
         
         if ($result === false) {
-            throw new Exception(DB::getMsgError());
+            throw new Exception($instance->getMsgError());
         }
         
        
-        $result = Db::getInstance()->execute("CREATE TABLE IF NOT EXISTS " . _DB_PREFIX_ . "pfc_transaction_info(
+        $result = $instance->execute("CREATE TABLE IF NOT EXISTS " . _DB_PREFIX_ . "pfc_transaction_info(
 				`id_transaction_info` int(10) unsigned NOT NULL AUTO_INCREMENT,
 				`transaction_id` bigint(20) unsigned NOT NULL,
 				`state` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
@@ -122,10 +123,10 @@ abstract class PostFinanceCheckout_AbstractMigration
 				) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci");
         
         if ($result === false) {
-            throw new Exception(DB::getMsgError());
+            throw new Exception($instance->getMsgError());
         }
         
-        $result = Db::getInstance()->execute("CREATE TABLE IF NOT EXISTS " . _DB_PREFIX_ . "pfc_token_info(
+        $result = $instance->execute("CREATE TABLE IF NOT EXISTS " . _DB_PREFIX_ . "pfc_token_info(
 				`id_token_info` int(10) unsigned NOT NULL AUTO_INCREMENT,
 				`token_id` bigint(20) unsigned NOT NULL,
 				`state` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
@@ -145,10 +146,10 @@ abstract class PostFinanceCheckout_AbstractMigration
 				) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;");
         
         if ($result === false) {
-            throw new Exception(DB::getMsgError());
+            throw new Exception($instance->getMsgError());
         }
         
-        $result = Db::getInstance()->execute("CREATE TABLE IF NOT EXISTS " . _DB_PREFIX_ . "pfc_cart_meta(
+        $result = $instance->execute("CREATE TABLE IF NOT EXISTS " . _DB_PREFIX_ . "pfc_cart_meta(
 				`cart_id` int(10) unsigned NOT NULL,
                 `meta_key` varchar(128) COLLATE utf8_unicode_ci NOT NULL,
                 `meta_value` longtext COLLATE utf8_unicode_ci NULL,
@@ -157,10 +158,10 @@ abstract class PostFinanceCheckout_AbstractMigration
 				) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;");
         
         if ($result === false) {
-            throw new Exception(DB::getMsgError());
+            throw new Exception($instance->getMsgError());
         }
         
-        $result = Db::getInstance()->execute("CREATE TABLE IF NOT EXISTS " . _DB_PREFIX_ . "pfc_order_meta(
+        $result = $instance->execute("CREATE TABLE IF NOT EXISTS " . _DB_PREFIX_ . "pfc_order_meta(
 				`order_id` int(10) unsigned NOT NULL,
                 `meta_key` varchar(128) COLLATE utf8_unicode_ci NOT NULL,
                 `meta_value` longtext COLLATE utf8_unicode_ci NULL,
@@ -169,10 +170,10 @@ abstract class PostFinanceCheckout_AbstractMigration
 				) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;");
         
         if ($result === false) {
-            throw new Exception(DB::getMsgError());
+            throw new Exception($instance->getMsgError());
         }
                 
-        $result = Db::getInstance()->execute("CREATE TABLE IF NOT EXISTS " . _DB_PREFIX_ . "pfc_void_job(
+        $result = $instance->execute("CREATE TABLE IF NOT EXISTS " . _DB_PREFIX_ . "pfc_void_job(
 				`id_void_job` int(10) unsigned NOT NULL AUTO_INCREMENT,
                 `void_id` bigint(20) unsigned,
 				`state` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
@@ -190,10 +191,10 @@ abstract class PostFinanceCheckout_AbstractMigration
 				) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci");
         
         if ($result === false) {
-            throw new Exception(DB::getMsgError());
+            throw new Exception($instance->getMsgError());
         }
         
-        $result = Db::getInstance()->execute("CREATE TABLE IF NOT EXISTS " . _DB_PREFIX_ . "pfc_completion_job(
+        $result = $instance->execute("CREATE TABLE IF NOT EXISTS " . _DB_PREFIX_ . "pfc_completion_job(
 				`id_completion_job` int(10) unsigned NOT NULL AUTO_INCREMENT,
                 `completion_id` bigint(20) unsigned,
 				`state` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
@@ -211,9 +212,9 @@ abstract class PostFinanceCheckout_AbstractMigration
 				) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci");
         
         if ($result === false) {
-            throw new Exception(DB::getMsgError());
+            throw new Exception($instance->getMsgError());
         }
-        $result = Db::getInstance()->execute("CREATE TABLE IF NOT EXISTS " . _DB_PREFIX_ . "pfc_refund_job(
+        $result = $instance->execute("CREATE TABLE IF NOT EXISTS " . _DB_PREFIX_ . "pfc_refund_job(
                 `id_refund_job` int(10) unsigned NOT NULL AUTO_INCREMENT,
                 `refund_id` bigint(20) unsigned,
                 `external_id` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
@@ -236,7 +237,7 @@ abstract class PostFinanceCheckout_AbstractMigration
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci");
          
         if ($result === false) {
-            throw new Exception(DB::getMsgError());
+            throw new Exception($instance->getMsgError());
         }
     }
     
@@ -263,39 +264,51 @@ abstract class PostFinanceCheckout_AbstractMigration
     
     protected static function updateCustomerIdOnTokenInfoBase()
     {
-        $result = Db::getInstance()->execute(
+        $instance = Db::getInstance();
+        $result = $instance->execute(
             "ALTER TABLE `" . _DB_PREFIX_ . "pfc_token_info` CHANGE `customer_id` `customer_id` int(10) unsigned NULL DEFAULT NULL;"
         );
         if ($result === false) {
-            throw new Exception(DB::getMsgError());
+            throw new Exception($instance->getMsgError());
         }
     }
     
     protected static function updateImageBase()
     {
-        $result = Db::getInstance()->execute(
-            "ALTER TABLE `" . _DB_PREFIX_ . "pfc_method_configuration` ADD COLUMN `image_base` varchar(2047) COLLATE utf8_unicode_ci NULL DEFAULT NULL AFTER image;"
-        );
-        if ($result === false) {
-            throw new Exception(DB::getMsgError());
-        }
+        $instance = Db::getInstance();
+        $exists = $instance->executeS("SHOW COLUMNS FROM `" . _DB_PREFIX_ . "pfc_method_configuration` LIKE 'image_base'");
+        if (empty($exists)) {
+            $result = $instance->execute(
+                "ALTER TABLE `" . _DB_PREFIX_ . "pfc_method_configuration` ADD COLUMN `image_base` varchar(2047) COLLATE utf8_unicode_ci NULL DEFAULT NULL AFTER image;"
+                );
+            if ($result === false) {
+                throw new Exception($instance->getMsgError());
+            }
+        }       
         
-        $result = Db::getInstance()->execute(
-            "ALTER TABLE `" . _DB_PREFIX_ . "pfc_transaction_info` ADD COLUMN `image_base` VARCHAR(2047)  COLLATE utf8_unicode_ci NULL DEFAULT NULL AFTER image;"
-        );
-        if ($result === false) {
-            throw new Exception(DB::getMsgError());
+        $exists = $instance->executeS("SHOW COLUMNS FROM `" . _DB_PREFIX_ . "pfc_transaction_info` LIKE 'image_base'");
+        if (empty($exists)) {
+            $result = $instance->execute(
+                "ALTER TABLE `" . _DB_PREFIX_ . "pfc_transaction_info` ADD COLUMN `image_base` VARCHAR(2047)  COLLATE utf8_unicode_ci NULL DEFAULT NULL AFTER image;"
+            );
+            if ($result === false) {
+                throw new Exception($instance->getMsgError());
+            }
         }
     }
     
     protected static function userFailureMessageBase()
     {
-        $result = Db::getInstance()->execute(
-            "ALTER TABLE `" . _DB_PREFIX_ . "pfc_transaction_info` ADD COLUMN `user_failure_message` VARCHAR(2047)  COLLATE utf8_unicode_ci NULL DEFAULT NULL AFTER image;"
-        );
-        if ($result === false) {
-            throw new Exception(DB::getMsgError());
-        }
+        $instance = Db::getInstance();
+        $exists = $instance->executeS("SHOW COLUMNS FROM `" . _DB_PREFIX_ . "pfc_transaction_info` LIKE 'user_failure_message'");
+        if (empty($exists)) {
+            $result = $instance->execute(
+                "ALTER TABLE `" . _DB_PREFIX_ . "pfc_transaction_info` ADD COLUMN `user_failure_message` VARCHAR(2047)  COLLATE utf8_unicode_ci NULL DEFAULT NULL AFTER image;"
+                );
+            if ($result === false) {
+                throw new Exception($instance->getMsgError());
+            }
+        }       
     }
     
 }
