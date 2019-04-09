@@ -15,16 +15,16 @@ img.postfinancecheckout-image{
 	width: 32px;
 }
 
-span.postfinancecheckout-payment-fee {
+span.postfinancecheckout-additional-amount {
 	display:block;
 	font-size: 0.8em;
 }
 
-span.postfinancecheckout-payment-fee span.postfinancecheckout-payment-fee-text{
+span.postfinancecheckout-additional-amount span.postfinancecheckout-additional-amount-text{
 	font-weight: normal;
 }
 
-span.postfinancecheckout-payment-fee span.postfinancecheckout-payment-fee-value{
+span.postfinancecheckout-additional-amount span.postfinancecheckout-additional-amount-value{
 	font-weight: bold;
 }
 

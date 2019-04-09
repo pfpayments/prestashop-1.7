@@ -18,9 +18,9 @@ class PostFinanceCheckoutCheckoutModuleFrontController extends ModuleFrontContro
         $methodId = Tools::getValue('methodId', null);
         $cart = $this->context->cart;
         try {
-            PostFinanceCheckout_FeeHelper::removeFeeProductFromCart($cart);
-            
+            PostFinanceCheckout_FeeHelper::removeFeeSurchargeProductsFromCart($cart);
             if ($methodId !== null) {
+                PostFinanceCheckout_FeeHelper::addSurchargeProductToCart($cart);
                 $methodConfiguration = new PostFinanceCheckout_Model_MethodConfiguration($methodId);
                 PostFinanceCheckout_FeeHelper::addFeeProductToCart($methodConfiguration, $cart);
                 PostFinanceCheckout_Service_Transaction::instance()->getTransactionFromCart($cart);

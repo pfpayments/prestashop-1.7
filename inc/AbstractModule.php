@@ -1,4 +1,6 @@
 <?php
+use PostFinanceCheckout\Sdk\Model\PaymentMethod;
+
 /**
  * PostFinance Checkout Prestashop
  *
@@ -35,6 +37,16 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
     const CK_PACKING_SLIP = 'PFC_PACKING_SLIP_DOWNLOAD';
 
     const CK_FEE_ITEM = 'PFC_FEE_ITEM';
+    
+    const CK_SURCHARGE_ITEM = 'PFC_SURCHARGE_ITEM';
+    
+    const CK_SURCHARGE_TAX = 'PFC_SURCHARGE_TAX';
+    
+    const CK_SURCHARGE_AMOUNT = 'PFC_SURCHARGE_AMOUNT';
+    
+    const CK_SURCHARGE_TOTAL = 'PFC_SURCHARGE_TOTAL';
+    
+    const CK_SURCHARGE_BASE = 'PFC_SURCHARGE_BASE';
     
     const CK_STATUS_FAILED = 'PFC_STATUS_FAILED';
     
@@ -87,7 +99,7 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
         
         // Remove Fee Item
         if (isset($this->context->cart) && Validate::isLoadedObject($this->context->cart)) {
-            PostFinanceCheckout_FeeHelper::removeFeeProductFromCart($this->context->cart);
+            PostFinanceCheckout_FeeHelper::removeFeeSurchargeProductsFromCart($this->context->cart);
         }
         if (! empty($this->context->cookie->pfc_error)) {
             $errors = $this->context->cookie->pfc_error;
@@ -182,6 +194,11 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
         Configuration::deleteByName(self::CK_INVOICE) &&
         Configuration::deleteByName(self::CK_PACKING_SLIP) &&
         Configuration::deleteByName(self::CK_FEE_ITEM) &&
+        Configuration::deleteByName(self::CK_SURCHARGE_ITEM) &&
+        Configuration::deleteByName(self::CK_SURCHARGE_TAXM) &&
+        Configuration::deleteByName(self::CK_SURCHARGE_AMOUNT) &&
+        Configuration::deleteByName(self::CK_SURCHARGE_TOTAL) &&
+        Configuration::deleteByName(self::CK_SURCHARGE_BASE) &&
         Configuration::deleteByName(PostFinanceCheckout_Service_ManualTask::CONFIG_KEY) &&
         Configuration::deleteByName(self::CK_STATUS_FAILED) &&
         Configuration::deleteByName(self::CK_STATUS_AUTHORIZED) &&
@@ -327,6 +344,11 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
             self::CK_INVOICE,
             self::CK_PACKING_SLIP,
             self::CK_FEE_ITEM,
+            self::CK_SURCHARGE_ITEM,
+            self::CK_SURCHARGE_TAX,
+            self::CK_SURCHARGE_AMOUNT,
+            self::CK_SURCHARGE_TOTAL,
+            self::CK_SURCHARGE_BASE,
             self::CK_STATUS_FAILED,
             self::CK_STATUS_AUTHORIZED,
             self::CK_STATUS_VOIDED,
@@ -420,6 +442,26 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
                         self::CK_FEE_ITEM,
                         Tools::getValue(self::CK_FEE_ITEM)
                     );
+                    Configuration::updateValue(
+                        self::CK_SURCHARGE_ITEM,
+                        Tools::getValue(self::CK_SURCHARGE_ITEM)
+                        );
+                    Configuration::updateValue(
+                        self::CK_SURCHARGE_TAX,
+                        Tools::getValue(self::CK_SURCHARGE_TAX)
+                        );
+                    Configuration::updateValue(
+                        self::CK_SURCHARGE_AMOUNT,
+                        Tools::getValue(self::CK_SURCHARGE_AMOUNT)
+                        );
+                    Configuration::updateValue(
+                        self::CK_SURCHARGE_TOTAL,
+                        Tools::getValue(self::CK_SURCHARGE_TOTAL)
+                        );
+                    Configuration::updateValue(
+                        self::CK_SURCHARGE_BASE,
+                        Tools::getValue(self::CK_SURCHARGE_BASE)
+                        );
                     $output .= $this->displayConfirmation($this->l('Settings updated', 'abstractmodule'));
             } else {
                 $output .= $this->displayError(
@@ -721,16 +763,25 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
 
     protected function getFeeForm()
     {
-        $products = Product::getSimpleProducts($this->context->language->id);
-        
+        $feeProducts = Product::getSimpleProducts($this->context->language->id);
         array_unshift(
-            $products,
+            $feeProducts,
             array(
                 'id_product' => '-1',
                 'name' => $this->l('None (disables payment fees)', 'abstractmodule')
             )
         );
         
+        $surchargeProducts = Product::getSimpleProducts($this->context->language->id);
+        array_unshift(
+            $surchargeProducts,
+            array(
+                'id_product' => '-1',
+                'name' => $this->l('None (disables surcharges)', 'abstractmodule')
+            )
+        );
+        
+        $defaultCurrency = Currency::getCurrency(Configuration::get('PS_CURRENCY_DEFAULT'));
         $feeItemConfig = array(
             array(
                 'type' => 'select',
@@ -738,13 +789,100 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
                 'desc' => $this->l('Select the product that should be inserted into the cart as a payment fee.', 'abstractmodule'),
                 'name' => self::CK_FEE_ITEM,
                 'options' => array(
-                    'query' => $products,
+                    'query' => $feeProducts,
                     'id' => 'id_product',
                     'name' => 'name'
                 )
+            ),
+            array(
+                'type' => 'select',
+                'label' => $this->l('Minimum Sales Surcharge Product', 'abstractmodule'),
+                'desc' => $this->l('Select the product that should be inserted into the cart as a minimal sales surcharge.', 'abstractmodule'),
+                'name' => self::CK_SURCHARGE_ITEM,
+                'options' => array(
+                    'query' => $surchargeProducts,
+                    'id' => 'id_product',
+                    'name' => 'name'
+                )
+            ),
+            array(
+                'type' => 'switch',
+                'label' => $this->l('Add tax', 'abstractmodule'),
+                'name' => self::CK_SURCHARGE_TAX,
+                'desc' => $this->l('Should the tax amount be added after the computation or should the tax be included in the computed surcharge.', 'abstractmodule'),
+                'is_bool' => true,
+                'values' => array(
+                    array(
+                        'id' => 'active_on',
+                        'value' => 1,
+                        'label' => $this->l('Add', 'abstractmodule')
+                    ),
+                    array(
+                        'id' => 'active_off',
+                        'value' => 0,
+                        'label' => $this->l('Inlcuded', 'abstractmodule')
+                    )
+                ),
+                'lang' => false
+            ),
+            array(
+                'type' => 'text',
+                'label' => $this->l('Surcharge Amount', 'abstractmodule'),
+                'desc' => sprintf(
+                    $this->l('The amount has to be entered in the shops default currency. Current default currency: %s', 'abstractmodule'),
+                    $defaultCurrency['iso_code']
+                    ),
+                'name' => self::CK_SURCHARGE_AMOUNT,
+                'col' => 3
+            ),
+            array(
+                'type' => 'text',
+                'label' => $this->l('Minimum Sales Order Total', 'abstractmodule'),
+                'desc' => sprintf(
+                    $this->l('The surcharge is added, if the order total is below this amount. The total has to be entered in the shops default currency. Current default currency: %s', 'abstractmodule'),
+                    $defaultCurrency['iso_code']
+                    ),
+                'name' => self::CK_SURCHARGE_TOTAL,
+                'col' => 3
+            ),
+            array(
+                'type' => 'select',
+                'label' => $this->l('The order total is the following:', 'abstractmodule'),
+                'name' => self::CK_SURCHARGE_BASE,
+                'options' => array(
+                    
+                    'query' => array(
+                        array(
+                            'name' => $this->l('Total (inc Tax)', 'abstractmodule'),
+                            'type' => PostFinanceCheckout::TOTAL_MODE_BOTH_INC
+                        ),
+                        array(
+                            'name' => $this->l('Total (exc Tax)', 'abstractmodule'),
+                            'type' => PostFinanceCheckout::TOTAL_MODE_BOTH_EXC
+                        ),
+                        array(
+                            'name' => $this->l('Total without shipping (inc Tax)', 'abstractmodule'),
+                            'type' => PostFinanceCheckout::TOTAL_MODE_WITHOUT_SHIPPING_INC
+                        ),
+                        array(
+                            'name' => $this->l('Total without shipping (exc Tax)', 'abstractmodule'),
+                            'type' => PostFinanceCheckout::TOTAL_MODE_WITHOUT_SHIPPING_EXC
+                        ),
+                        array(
+                            'name' => $this->l('Products only (inc Tax)', 'abstractmodule'),
+                            'type' => PostFinanceCheckout::TOTAL_MODE_PRODUCTS_INC
+                        ),
+                        array(
+                            'name' => $this->l('Products only (exc Tax)', 'abstractmodule'),
+                            'type' => PostFinanceCheckout::TOTAL_MODE_PRODUCTS_EXC
+                        )
+                    ),
+                    'id' => 'type',
+                    'name' => 'name'
+                )
             )
-        );
-        
+        );        
+                
         return array(
             'legend' => array(
                 'title' => $this->l('Fee Item Settings', 'abstractmodule')
@@ -774,6 +912,11 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
         $values = array();
         if (!$this->context->shop->isFeatureActive() || $this->context->shop->getContext() == Shop::CONTEXT_SHOP) {
                 $values[self::CK_FEE_ITEM] = (int) Configuration::get(self::CK_FEE_ITEM);
+                $values[self::CK_SURCHARGE_ITEM] = (int) Configuration::get(self::CK_SURCHARGE_ITEM);
+                $values[self::CK_SURCHARGE_TAX] = (int) Configuration::get(self::CK_SURCHARGE_TAX);
+                $values[self::CK_SURCHARGE_AMOUNT] = (float) Configuration::get(self::CK_SURCHARGE_AMOUNT);
+                $values[self::CK_SURCHARGE_TOTAL] = (float) Configuration::get(self::CK_SURCHARGE_TOTAL);
+                $values[self::CK_SURCHARGE_BASE] = (int) Configuration::get(self::CK_SURCHARGE_BASE);
         }
         return $values;
     }
@@ -1113,6 +1256,7 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
             $name = $translatedName;
         }
         $parameters['name'] = $name;
+        $parameters['image'] = '';
         if (! empty($methodConfiguration->getImage()) && $methodConfiguration->isShowImage()) {
             $parameters['image'] = PostFinanceCheckout_Helper::getResourceUrl(
                 $methodConfiguration->getImageBase(),
@@ -1122,6 +1266,7 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
                 $spaceViewId
             );
         }
+        $parameters['description'] = '';
         $description = PostFinanceCheckout_Helper::translate(
             $methodConfiguration->getDescription(),
             $language
@@ -1130,6 +1275,12 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
             
             $description = preg_replace('/((<a (?!.*target="_blank").*?)>)/', '$2 target="_blank">', $description);
             $parameters['description'] = $description;
+        }
+        $surchargeValues = PostFinanceCheckout_FeeHelper::getSurchargeValues($cart);
+        if ($surchargeValues['surcharge_total'] > 0) {
+            $parameters['surchargeValues'] = $surchargeValues;
+        } else {
+            $parameters['surchargeValues'] = array();
         }
         $feeValues = PostFinanceCheckout_FeeHelper::getFeeValues($cart, $methodConfiguration);
         if ($feeValues['fee_total'] > 0) {
@@ -2004,3 +2155,4 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
         }
     }
 }
+

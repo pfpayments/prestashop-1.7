@@ -315,7 +315,7 @@ class AdminPostFinanceCheckoutMethodSettingsController extends ModuleAdminContro
                             'type' => PostFinanceCheckout::TOTAL_MODE_PRODUCTS_INC
                         ),
                         array(
-                            'name' => $this->module->l('Products only(exc Tax)', 'adminpostfinancecheckoutmethodsettingscontroller'),
+                            'name' => $this->module->l('Products only (exc Tax)', 'adminpostfinancecheckoutmethodsettingscontroller'),
                             'type' => PostFinanceCheckout::TOTAL_MODE_PRODUCTS_EXC
                         )
                         
@@ -325,11 +325,7 @@ class AdminPostFinanceCheckoutMethodSettingsController extends ModuleAdminContro
                 )
             )
         );
-        
-        $submit = array(
-            'title' => $this->module->l('Save', 'adminpostfinancecheckoutmethodsettingscontroller'),
-            'class' => 'btn btn-default pull-right'
-        );
+
         $fieldsForm = array();
         $fieldsForm[]['form'] = array(
             'legend' => array(
@@ -338,14 +334,14 @@ class AdminPostFinanceCheckoutMethodSettingsController extends ModuleAdminContro
             'input' => $configuration,
             'buttons' => array(
                 array(
-                    'title' =>$this->l('Save All', 'adminpostfinancecheckoutmethodsettingscontroller'),
+                    'title' =>$this->module->l('Save All', 'adminpostfinancecheckoutmethodsettingscontroller'),
                     'class' => 'pull-right',
                     'type' => 'input',
                     'icon' => 'process-icon-save',
                     'name' => 'save_all'
                 ),
                 array(
-                    'title' =>$this->l('Save', 'adminpostfinancecheckoutmethodsettingscontroller'),
+                    'title' =>$this->module->l('Save', 'adminpostfinancecheckoutmethodsettingscontroller'),
                     'class' => 'pull-right',
                     'type' => 'input',
                     'icon' => 'process-icon-save',
@@ -360,14 +356,14 @@ class AdminPostFinanceCheckoutMethodSettingsController extends ModuleAdminContro
             'input' => $fees,
             'buttons' => array(
                 array(
-                    'title' =>$this->l('Save All', 'adminpostfinancecheckoutmethodsettingscontroller'),
+                    'title' =>$this->module->l('Save All', 'adminpostfinancecheckoutmethodsettingscontroller'),
                     'class' => 'pull-right',
                     'type' => 'input',
                     'icon' => 'process-icon-save',
                     'name' => 'save_all'
                 ),
                 array(
-                    'title' =>$this->l('Save', 'adminpostfinancecheckoutmethodsettingscontroller'),
+                    'title' =>$this->module->l('Save', 'adminpostfinancecheckoutmethodsettingscontroller'),
                     'class' => 'pull-right',
                     'type' => 'input',
                     'icon' => 'process-icon-save',
@@ -476,7 +472,7 @@ class AdminPostFinanceCheckoutMethodSettingsController extends ModuleAdminContro
                             'type' => PostFinanceCheckout::TOTAL_MODE_PRODUCTS_INC
                         ),
                         array(
-                            'name' => $this->module->l('Products only(exc Tax)', 'adminpostfinancecheckoutmethodsettingscontroller'),
+                            'name' => $this->module->l('Products only (exc Tax)', 'adminpostfinancecheckoutmethodsettingscontroller'),
                             'type' => PostFinanceCheckout::TOTAL_MODE_PRODUCTS_EXC
                         )
                     

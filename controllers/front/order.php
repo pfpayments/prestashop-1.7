@@ -37,7 +37,8 @@ class PostFinanceCheckoutOrderModuleFrontController extends ModuleFrontControlle
             die();
         }
         //Ensure Fees are correct
-        PostFinanceCheckout_FeeHelper::removeFeeProductFromCart($cart);
+        PostFinanceCheckout_FeeHelper::removeFeeSurchargeProductsFromCart($cart);        
+        PostFinanceCheckout_FeeHelper::addSurchargeProductToCart($cart);
         PostFinanceCheckout_FeeHelper::addFeeProductToCart($methodConfiguration, $cart);
         if ($cartHash != PostFinanceCheckout_Helper::calculateCartHash($cart)) {
             $this->context->cookie->pfc_error = $this->module->l('The cart was changed, please try again.', 'order');

@@ -30,7 +30,7 @@ class PostFinanceCheckout extends PostFinanceCheckout_AbstractModule
         $this->author = 'Customweb GmbH';
         $this->bootstrap = true;
         $this->need_instance = 0;
-        $this->version = '1.0.22';
+        $this->version = '1.1.0';
         $this->ps_versions_compliancy = array('min' => '1.7', 'max' => _PS_VERSION_);
         parent::__construct();
     }
@@ -133,7 +133,7 @@ class PostFinanceCheckout extends PostFinanceCheckout_AbstractModule
         } catch(PostFinanceCheckout_Exception_InvalidTransactionAmount $e){
             PrestaShopLogger::addLog(
                 $e->getMessage()." CartId: ".$cart->id,
-                3,
+                2,
                 null,
                 'PostFinanceCheckout'
                 );
@@ -153,7 +153,6 @@ class PostFinanceCheckout extends PostFinanceCheckout_AbstractModule
             return array();
         }
         $shopId = $cart->id_shop;
-        $configurations = array();
         $language = Context::getContext()->language->language_code;
         $methods = array();
         foreach ($possiblePaymentMethods as $possible) {

@@ -1,4 +1,6 @@
 <?php
+
+
 /**
  * PostFinance Checkout Prestashop
  *
@@ -101,7 +103,7 @@ class PostFinanceCheckout_Service_LineItem extends PostFinanceCheckout_Service_A
             $item->setQuantity(1);
             $item->setShippingRequired(false);
             $item->setSku('shipping');
-            $name = PostFinanceCheckout_Helper::getModuleInstance()->l('Shipping', 'lineitem');
+            $name = "";
             $taxCalculatorFound = false;
             if (isset($summary['carrier']) && $summary['carrier'] instanceof Carrier) {
                 $name = $summary['carrier']->name;
@@ -118,6 +120,7 @@ class PostFinanceCheckout_Service_LineItem extends PostFinanceCheckout_Service_A
                 $item->setTaxes($taxes);
                 $taxCalculatorFound = true;
             }
+            $name = empty($name) ? PostFinanceCheckout_Helper::getModuleInstance()->l('Shipping', 'lineitem') : $name;
             $item->setName($name);
             if (! $taxCalculatorFound) {
                 $taxRate = 0;
@@ -195,7 +198,7 @@ class PostFinanceCheckout_Service_LineItem extends PostFinanceCheckout_Service_A
         if (count($summary['discounts']) > 0) {
             $productTotalExc = $cart->getOrderTotal(false, Cart::ONLY_PRODUCTS);
             foreach ($summary['discounts'] as $discount) {
-                $discountItems = $this->getDiscountItems($discount['description'], 'discount-' . $discount['id_cart_rule'], 'cart-' . $cart->id . '-discount-' . $discount['id_cart_rule'], (float) $discount['value_real'], (float) $discount['value_tax_exc'], new CartRule($discount['id_cart_rule']), $usedTaxes, $cheapestProduct, $productTotalExc, $cart->id, $currencyCode);
+                $discountItems = $this->getDiscountItems($discount['description'], 'discount-' . $discount['id_cart_rule'], 'cart-' . $cart->id . '-discount-' . $discount['id_cart_rule'], (float) $discount['value_real'], (float) $discount['value_tax_exc'], new CartRule($discount['id_cart_rule']), $usedTaxes, $cheapestProduct, $productTotalExc, $cart->id, $currencyCode, 'cart-' . $cart->id . '-item-', $items);
                 $items = array_merge($items, $discountItems);
             }
         }
@@ -404,6 +407,7 @@ class PostFinanceCheckout_Service_LineItem extends PostFinanceCheckout_Service_A
                 $item->setUniqueId($uniqueId);
                 $items[] = $this->cleanLineItem($item);
             }
+            
             foreach ($order->getCartRules() as $orderCartRule) {
                 $cartRuleObj = new CartRule($orderCartRule['id_cart_rule']);
                 $discountItems = $this->getDiscountItems(
@@ -417,7 +421,9 @@ class PostFinanceCheckout_Service_LineItem extends PostFinanceCheckout_Service_A
                     $cheapestProduct,
                     $order->total_products,
                     $order->id_cart,
-                    $currencyCode
+                    $currencyCode,
+                    'order-' . $order->id . '-item-',
+                    $items
                 );
                 $items = array_merge($items, $discountItems);
             }
@@ -461,21 +467,45 @@ class PostFinanceCheckout_Service_LineItem extends PostFinanceCheckout_Service_A
         return $shippingOnly;
     }
         
-    private function getDiscountItems($nameBase, $skuBase, $uniqueIdBase, $discountWithTax, $discountWithoutTax, CartRule $cartRule, array $usedTaxes, $cheapestProductId, $productTotalWithoutTax, $cartIdUsed, $currencyCode)
-    {
+    private function getDiscountItems($nameBase, $skuBase, $uniqueIdBase, $discountWithTax, $discountWithoutTax, CartRule $cartRule, array $usedTaxes, $cheapestProductId, $productTotalWithoutTax, $cartIdUsed, $currencyCode, $itemUniqueIdBase, $existingLineItems){
         
         $reductionPercent = $cartRule->reduction_percent;
         $reductionAmount = $cartRule->reduction_amount;
         $reductionProduct = $cartRule->reduction_product;
         
-        $discountTotal =  $this->roundAmount($discountWithTax * -1, $currencyCode);
+       
+        $freeGiftDiscount = 0;
+                
+        $overallDiscounts = array();
+        
+        if($cartRule->gift_product != 0){
+            foreach($existingLineItems as $exisitingLineItem){
+                if($exisitingLineItem->getUniqueId() ==  $itemUniqueIdBase.$cartRule->gift_product.'-'.$cartRule->gift_product_attribute){
+                    $freeGiftDiscount = $exisitingLineItem->getAmountIncludingTax()/$exisitingLineItem->getQuantity()*-1;
+                    $item = new \PostFinanceCheckout\Sdk\Model\LineItemCreate();
+                    $item->setAmountIncludingTax($freeGiftDiscount);
+                    $item->setName($nameBase);
+                    $item->setQuantity(1);
+                    $item->setShippingRequired(false);
+                    $item->setSku($skuBase . '-gift');
+                    $item->setTaxes($exisitingLineItem->getTaxes());
+                    $item->setType(\PostFinanceCheckout\Sdk\Model\LineItemType::DISCOUNT);
+                    $item->setUniqueId($uniqueIdBase . '-gift');
+                    $overallDiscounts[] = $this->cleanLineItem($item);
+                }
+            }
+        }
+        
+        $discountTotal =  $discountWithTax * -1;
+        $remainingDiscount = $this->roundAmount($discountTotal - $freeGiftDiscount, $currencyCode);
+        
         //Discount Rate
         if ($reductionPercent > 0) {
             if ($reductionProduct > 0) {
                 // Sepcific Product
                 // Find attribute
                 $item = new \PostFinanceCheckout\Sdk\Model\LineItemCreate();
-                $item->setAmountIncludingTax($discountTotal);
+                $item->setAmountIncludingTax($remainingDiscount);
                 $item->setName($nameBase);
                 $item->setQuantity(1);
                 $item->setShippingRequired(false);
@@ -490,11 +520,11 @@ class PostFinanceCheckout_Service_LineItem extends PostFinanceCheckout_Service_A
                 $item->setTaxes($taxes);
                 $item->setType(\PostFinanceCheckout\Sdk\Model\LineItemType::DISCOUNT);
                 $item->setUniqueId($uniqueIdBase);
-                return array($this->cleanLineItem($item));
+                $overallDiscounts[] = $this->cleanLineItem($item);
             } elseif ($reductionProduct == - 1) {
                 // Use Tax of cheapest item
                 $item = new \PostFinanceCheckout\Sdk\Model\LineItemCreate();
-                $item->setAmountIncludingTax($discountTotal);
+                $item->setAmountIncludingTax($remainingDiscount);
                 $item->setName($nameBase);
                 $item->setQuantity(1);
                 $item->setShippingRequired(false);
@@ -509,7 +539,7 @@ class PostFinanceCheckout_Service_LineItem extends PostFinanceCheckout_Service_A
                 $item->setTaxes($taxes);
                 $item->setType(\PostFinanceCheckout\Sdk\Model\LineItemType::DISCOUNT);
                 $item->setUniqueId($uniqueIdBase);
-                return array($this->cleanLineItem($item));
+                $overallDiscounts[] = $this->cleanLineItem($item);
             } else {
                 $selectedProducts = array();
                 
@@ -555,16 +585,16 @@ class PostFinanceCheckout_Service_LineItem extends PostFinanceCheckout_Service_A
                     // We had multiple taxes in the cart, but all products the discount was applied to have the same tax.
                     // So we set the value to the given amount by prestashop to avoid any further issues.
                     $discountItem = end($discountItems);
-                    $discountItem->setAmountIncludingTax($discountTotal);
-                    return array($discountItem);
+                    $discountItem->setAmountIncludingTax($remainingDiscount);
+                    $overallDiscounts[] = $discountItem;
                 } else {
-                    $diffComp = $discountTotal - $totalDiscountComputed;
+                    $diffComp = $remainingDiscount - $totalDiscountComputed;
                     $diff =  $this->roundAmount($diffComp, $currencyCode);
                     if ($diff != 0) {
                         $modify = end($discountItems);
                         $modify->setAmountIncludingTax($this->roundAmount($modify->getAmountIncludingTax() + $diff, $currencyCode));
                     }
-                    return $discountItems;
+                    $overallDiscounts = array_merge($overallDiscounts, $discountItems);
                 }
             }
         }
@@ -574,7 +604,7 @@ class PostFinanceCheckout_Service_LineItem extends PostFinanceCheckout_Service_A
                 // Sepcific Product
                 // Find attribute
                 $item = new \PostFinanceCheckout\Sdk\Model\LineItemCreate();
-                $item->setAmountIncludingTax($discountTotal);
+                $item->setAmountIncludingTax($remainingDiscount);
                 $item->setName($nameBase);
                 $item->setQuantity(1);
                 $item->setShippingRequired(false);
@@ -589,7 +619,7 @@ class PostFinanceCheckout_Service_LineItem extends PostFinanceCheckout_Service_A
                 $item->setTaxes($taxes);
                 $item->setType(\PostFinanceCheckout\Sdk\Model\LineItemType::DISCOUNT);
                 $item->setUniqueId($uniqueIdBase);
-                return array($this->cleanLineItem($item));
+                $overallDiscounts[] = $this->cleanLineItem($item);
             } elseif ($reductionProduct == 0) {
                 $ratio = $discountWithoutTax / $productTotalWithoutTax;
                 
@@ -625,24 +655,24 @@ class PostFinanceCheckout_Service_LineItem extends PostFinanceCheckout_Service_A
                     // We had multiple taxes in the cart, but all products the discount was applied to have the same tax.
                     // So we set the value to the given amount by prestashop to avoid further issues.
                     $discountItem = end($discountItems);
-                    $discountItem->setAmountIncludingTax($discountTotal);
-                    return array($discountItem);
+                    $discountItem->setAmountIncludingTax($remainingDiscount);
+                    $overallDiscounts[] = $discountItem;
                 } else {
-                    $diffComp = $discountTotal - $totalDiscountComputed;
+                    $diffComp = $remainingDiscount - $totalDiscountComputed;
                     $diff =  $this->roundAmount($diffComp, $currencyCode);
                     if ($diff != 0) {
                         $modify = end($discountItems);
                         $modify->setAmountIncludingTax($this->roundAmount($modify->getAmountIncludingTax() + $diff, $currencyCode));
                     }
-                    return $discountItems;
+                    $overallDiscounts = array_merge( $overallDiscounts, $discountItems);
                 }
             } else {
                 // the other two cases ($reductionProduct == -1 or -2)  are not available for fixed amount discounts
-                return array();
+               
             }
         }
         //Free Shipping Only Discounts are not processed here
-        return array();
+        return $overallDiscounts;
     }
 
     /**

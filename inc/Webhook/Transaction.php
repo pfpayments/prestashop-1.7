@@ -130,6 +130,7 @@ class PostFinanceCheckout_Webhook_Transaction extends PostFinanceCheckout_Webhoo
             //Do not send email
             PostFinanceCheckout::startRecordingMailMessages();
         }
+        
         $canceledStatusId = Configuration::get(PostFinanceCheckout::CK_STATUS_DECLINED);
         $orders = $sourceOrder->getBrother();
         $orders[] = $sourceOrder;
@@ -168,6 +169,10 @@ class PostFinanceCheckout_Webhook_Transaction extends PostFinanceCheckout_Webhoo
         $orders[] = $sourceOrder;
         foreach ($orders as $order) {
             $order->setCurrentState($payedStatusId);
+            if(empty($order->invoice_date) || $order->invoice_date == '0000-00-00 00:00:00'){
+               //Make sure invoice date is set, otherwise prestashop ignores the order in the statistics
+               $order->invoice_date = date('Y-m-d H:i:s');
+            }
             $order->save();
         }
         PostFinanceCheckout::stopRecordingMailMessages();

@@ -456,13 +456,21 @@ class PostFinanceCheckout_Backend_DefaultStrategy implements PostFinanceCheckout
         $reductionPercent = $cartRule->reduction_percent;
         $reductionAmount = $cartRule->reduction_amount;
         $reductionProduct = $cartRule->reduction_product;
+        
+        $usedUniqueIds = array();
+        
+        if($cartRule->gift_product != 0){
+            $usedUniqueIds[] = $uniqueIdBase . '-gift';
+        }
+        
+        
         $currencyCode = PostFinanceCheckout_Helper::convertCurrencyIdToCode($order->id_currency);
         //Discount Rate
         if ($reductionPercent > 0) {
             if ($reductionProduct > 0) {
-                return array($uniqueIdBase);
+                $usedUniqueIds[] = $uniqueIdBase;
             } elseif ($reductionProduct == - 1) {
-                return array($uniqueIdBase);
+                $usedUniqueIds[] = $uniqueIdBase;
             } else {
                 $selectedProducts = array();
                 if ($reductionProduct == - 2) {
@@ -492,13 +500,13 @@ class PostFinanceCheckout_Backend_DefaultStrategy implements PostFinanceCheckout
                     $discountUniqueIds[] = $uniqueIdBase . '-' .
                         $id;
                 }
-                return $discountUniqueIds;
+                $usedUniqueIds = array_merge($usedUniqueIds, $discountUniqueIds);
             }
         }
         // Discount Absolute
         if ((float) $reductionAmount > 0) {
             if ($reductionProduct > 0) {
-                return array($uniqueIdBase);
+                $usedUniqueIds[] = $uniqueIdBase;
             } elseif ($reductionProduct == 0) {
                 $ratio = $discountWithoutTax / $order->total_products;
                 $discountUniqueIds = array();
@@ -516,9 +524,10 @@ class PostFinanceCheckout_Backend_DefaultStrategy implements PostFinanceCheckout
                     $discountUniqueIds[] = $uniqueIdBase . '-' .
                         $id;
                 }
-                return $discountUniqueIds;
+                $usedUniqueIds = array_merge($usedUniqueIds, $discountUniqueIds);
             }
         }
+        return $usedUniqueIds;
     }
     
     private function getUsedTaxes(Order $order)

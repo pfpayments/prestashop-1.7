@@ -22,17 +22,21 @@ abstract class PostFinanceCheckout_Webhook_OrderRelatedAbstract extends PostFina
      */
     public function process(PostFinanceCheckout_Webhook_Request $request)
     {
-        
         PostFinanceCheckout_Helper::startDBTransaction();
         $entity = $this->loadEntity($request);
         try {
             $order = new Order($this->getOrderId($entity));
             if (Validate::isLoadedObject($order)) {
                 $ids = PostFinanceCheckout_Helper::getOrderMeta($order, 'mappingIds');
-
                 if ($ids['transactionId'] != $this->getTransactionId($entity)) {
                     return;
                 }
+                //We never have an employee on webhooks, but the stock magement sometimes needs one
+                if(Context::getContext()->employee == null){
+                    $employees = Employee::getEmployeesByProfile(_PS_ADMIN_PROFILE_, true);
+                    $employeeArray = reset($employees);
+                    Context::getContext()->employee = new Employee($employeeArray['id_employee']);
+                }                
                 PostFinanceCheckout_Helper::lockByTransactionId($request->getSpaceId(), $this->getTransactionId($entity));
                 $order = new Order($this->getOrderId($entity));
                 $this->processOrderRelatedInner($order, $entity);
