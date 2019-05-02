@@ -40,8 +40,8 @@ class PostFinanceCheckout_Migration extends PostFinanceCheckout_AbstractMigratio
         static::updateCustomerIdOnTokenInfoBase();
     }
     
-    public static function userFailureMessage() 
+    public static function userFailureMessage()
     {
-    	static::userFailureMessageBase();
+        static::userFailureMessageBase();
     }
 }

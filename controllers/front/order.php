@@ -37,7 +37,7 @@ class PostFinanceCheckoutOrderModuleFrontController extends ModuleFrontControlle
             die();
         }
         //Ensure Fees are correct
-        PostFinanceCheckout_FeeHelper::removeFeeSurchargeProductsFromCart($cart);        
+        PostFinanceCheckout_FeeHelper::removeFeeSurchargeProductsFromCart($cart);
         PostFinanceCheckout_FeeHelper::addSurchargeProductToCart($cart);
         PostFinanceCheckout_FeeHelper::addFeeProductToCart($methodConfiguration, $cart);
         if ($cartHash != PostFinanceCheckout_Helper::calculateCartHash($cart)) {

@@ -95,9 +95,9 @@ abstract class PostFinanceCheckout_Provider_Abstract
         $cachedData = Cache::retrieve($this->cacheKey);
         if ($cachedData !== null) {
             $decoded =  base64_decode($cachedData, true);
-            if($decoded === false){
+            if ($decoded === false) {
                 $decoded = $cachedData;
-            }            
+            }
             $deserialized = unserialize($decoded);
             if (is_array($deserialized)) {
                 $this->data = $deserialized;

@@ -20,18 +20,20 @@ class PostFinanceCheckout_Exception_InvalidTransactionAmount extends Exception
     private $itemTotal;
     private $orderTotal;
     
-    public function __construct ($itemTotal, $orderTotal) {
+    public function __construct($itemTotal, $orderTotal)
+    {
         parent::__construct("The item total '".$itemTotal."' does not match the order total '".$orderTotal."'.");
         $this->itemTotal = $itemTotal;
         $this->orderTotal = $orderTotal;
     }
 
-    public function getItemTotal(){
+    public function getItemTotal()
+    {
         return $this->itemTotal;
     }
     
-    public function getOrderTotal(){
+    public function getOrderTotal()
+    {
         return $this->orderTotal;
     }
-    
 }

@@ -410,7 +410,6 @@ class PostFinanceCheckout_Backend_DefaultStrategy implements PostFinanceCheckout
 
     private function createReductionsCancelProductType(Order $order, array $parsedData)
     {
-
         $reductions = array();
         foreach ($parsedData['fullProductList'] as $idOrderDetail => $details) {
             $quantity = $parsedData['fullQuantiyList'][$idOrderDetail];
@@ -459,7 +458,7 @@ class PostFinanceCheckout_Backend_DefaultStrategy implements PostFinanceCheckout
         
         $usedUniqueIds = array();
         
-        if($cartRule->gift_product != 0){
+        if ($cartRule->gift_product != 0) {
             $usedUniqueIds[] = $uniqueIdBase . '-gift';
         }
         
@@ -998,59 +997,51 @@ class PostFinanceCheckout_Backend_DefaultStrategy implements PostFinanceCheckout
         PostFinanceCheckout_Helper::commitDBTransaction();
     }
 
-    private function reinjectQuantity($order_detail, $qty_cancel_product, $delete, $languageId)
+    private function reinjectQuantity($orderDetail, $qtyCancelProduct, $delete, $languageId)
     {
         // Reinject product
-        $reinjectable_quantity = (int) $order_detail->product_quantity -
-             (int) $order_detail->product_quantity_reinjected;
-        $quantity_to_reinject = $qty_cancel_product > $reinjectable_quantity ? $reinjectable_quantity : $qty_cancel_product;
-        // @since 1.5.0 : Advanced Stock Management
-        $product_to_inject = new Product(
-            $order_detail->product_id,
-            false,
-            (int) $languageId,
-            (int) $order_detail->id_shop
-        );
-        
+        $reinjectableQuantity = (int) $orderDetail->product_quantity -
+             (int) $orderDetail->product_quantity_reinjected;
+        $quantityToReinject = $qtyCancelProduct > $reinjectableQuantity ? $reinjectableQuantity : $qtyCancelProduct;
         $product = new Product(
-            $order_detail->product_id,
+            $orderDetail->product_id,
             false,
             (int) $languageId,
-            (int) $order_detail->id_shop
+            (int) $orderDetail->id_shop
         );
         
         if (Configuration::get('PS_ADVANCED_STOCK_MANAGEMENT') && $product->advanced_stock_management &&
-             $order_detail->id_warehouse != 0) {
+             $orderDetail->id_warehouse != 0) {
             $manager = StockManagerFactory::getManager();
             $movements = StockMvt::getNegativeStockMvts(
-                $order_detail->id_order,
-                $order_detail->product_id,
-                $order_detail->product_attribute_id,
-                $quantity_to_reinject
+                $orderDetail->id_order,
+                $orderDetail->product_id,
+                $orderDetail->product_attribute_id,
+                $quantityToReinject
             );
-            $left_to_reinject = $quantity_to_reinject;
+            $leftToReinject = $quantityToReinject;
             foreach ($movements as $movement) {
-                if ($left_to_reinject > $movement['physical_quantity']) {
-                    $quantity_to_reinject = $movement['physical_quantity'];
+                if ($leftToReinject > $movement['physical_quantity']) {
+                    $quantityToReinject = $movement['physical_quantity'];
                 }
                 
-                $left_to_reinject -= $quantity_to_reinject;
+                $leftToReinject -= $quantityToReinject;
                 if (Pack::isPack((int) $product->id)) {
                     // Gets items
                     if ($product->pack_stock_type == 1 || $product->pack_stock_type == 2 || ($product->pack_stock_type ==
                          3 && Configuration::get('PS_PACK_STOCK_TYPE') > 0)) {
-                        $products_pack = Pack::getItems(
+                        $productsPack = Pack::getItems(
                             (int) $product->id,
                             (int) Configuration::get('PS_LANG_DEFAULT')
                         );
                         // Foreach item
-                        foreach ($products_pack as $product_pack) {
-                            if ($product_pack->advanced_stock_management == 1) {
+                        foreach ($productsPack as $productPack) {
+                            if ($productPack->advanced_stock_management == 1) {
                                 $manager->addProduct(
-                                    $product_pack->id,
-                                    $product_pack->id_pack_product_attribute,
+                                    $productPack->id,
+                                    $productPack->id_pack_product_attribute,
                                     new Warehouse($movement['id_warehouse']),
-                                    $product_pack->pack_quantity * $quantity_to_reinject,
+                                    $productPack->pack_quantity * $quantityToReinject,
                                     null,
                                     $movement['price_te'],
                                     true
@@ -1062,10 +1053,10 @@ class PostFinanceCheckout_Backend_DefaultStrategy implements PostFinanceCheckout
                          3 && (Configuration::get('PS_PACK_STOCK_TYPE') == 0 ||
                          Configuration::get('PS_PACK_STOCK_TYPE') == 2))) {
                         $manager->addProduct(
-                            $order_detail->product_id,
-                            $order_detail->product_attribute_id,
+                            $orderDetail->product_id,
+                            $orderDetail->product_attribute_id,
                             new Warehouse($movement['id_warehouse']),
-                            $quantity_to_reinject,
+                            $quantityToReinject,
                             null,
                             $movement['price_te'],
                             true
@@ -1073,31 +1064,31 @@ class PostFinanceCheckout_Backend_DefaultStrategy implements PostFinanceCheckout
                     }
                 } else {
                     $manager->addProduct(
-                        $order_detail->product_id,
-                        $order_detail->product_attribute_id,
+                        $orderDetail->product_id,
+                        $orderDetail->product_attribute_id,
                         new Warehouse($movement['id_warehouse']),
-                        $quantity_to_reinject,
+                        $quantityToReinject,
                         null,
                         $movement['price_te'],
                         true
                     );
                 }
             }
-            $id_product = $order_detail->product_id;
+            $idProduct = $orderDetail->product_id;
             if ($delete) {
-                $order_detail->delete();
+                $orderDetail->delete();
             }
-            StockAvailable::synchronize($id_product);
-        } elseif ($order_detail->id_warehouse == 0) {
+            StockAvailable::synchronize($idProduct);
+        } elseif ($orderDetail->id_warehouse == 0) {
             StockAvailable::updateQuantity(
-                $order_detail->product_id,
-                $order_detail->product_attribute_id,
-                $quantity_to_reinject,
-                $order_detail->id_shop
+                $orderDetail->product_id,
+                $orderDetail->product_attribute_id,
+                $quantityToReinject,
+                $orderDetail->id_shop
             );
             
             if ($delete) {
-                $order_detail->delete();
+                $orderDetail->delete();
             }
         }
     }

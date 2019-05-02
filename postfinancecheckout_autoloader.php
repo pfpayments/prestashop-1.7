@@ -13,10 +13,10 @@ spl_autoload_register(function ($class) {
     
     $prefix = 'PostFinanceCheckout_';
     
-    // base directory for the namespace prefix
+    // base directory for the prefix
     $baseDir = __DIR__ . '/inc/';
     
-    // does the class use the namespace prefix?
+    // does the class use the prefix?
     $len = Tools::strlen($prefix);
     if (strncmp($prefix, $class, $len) !== 0) {
         // no, move to the next registered autoloader

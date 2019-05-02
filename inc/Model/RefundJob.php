@@ -184,7 +184,7 @@ class PostFinanceCheckout_Model_RefundJob extends ObjectModel
     public function getRefundParameters()
     {
         $decoded =  base64_decode($this->refund_parameters, true);
-        if($decoded === false){
+        if ($decoded === false) {
             $decoded = $this->refund_parameters;
         }
         return unserialize($decoded);
@@ -203,7 +203,7 @@ class PostFinanceCheckout_Model_RefundJob extends ObjectModel
     public function getFailureReason()
     {
         $decoded =  base64_decode($this->failure_reason, true);
-        if($decoded === false){
+        if ($decoded === false) {
             $decoded = $this->failure_reason;
         }
         return unserialize($decoded);

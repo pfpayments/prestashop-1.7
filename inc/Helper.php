@@ -260,7 +260,7 @@ class PostFinanceCheckout_Helper
         );
         if ($value !== false) {
             $decoded =  base64_decode($value, true);
-            if($decoded === false){
+            if ($decoded === false) {
                 $decoded = $value;
             }
             return unserialize($decoded);
@@ -353,7 +353,7 @@ class PostFinanceCheckout_Helper
     public static function calculateCartHash(Cart $cart)
     {
         $toHash = $cart->getOrderTotal(true, Cart::BOTH) . ';';
-        $summary = $cart->getSummaryDetails();
+        $summary = $cart->getSummaryDetails(null, true);
         foreach ($summary['products'] as $productItem) {
             $toHash .= ((float) $productItem['total_wt']) . '-' . $productItem['reference'] . '-' .
                  $productItem['quantity'] . ';';

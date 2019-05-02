@@ -233,7 +233,6 @@ class PostFinanceCheckout_Service_Transaction extends PostFinanceCheckout_Servic
                 $info->setFailureReason($transaction->getFailureReason()->getDescription());
             }
             $info->setUserFailureMessage($transaction->getUserFailureMessage());
-            
         }
         $info->save();
         return $info;
@@ -326,18 +325,18 @@ class PostFinanceCheckout_Service_Transaction extends PostFinanceCheckout_Servic
         if (! isset(self::$possiblePaymentMethodCache[$currentCartId]) ||
              self::$possiblePaymentMethodCache[$currentCartId] == null) {
             $transaction = $this->getTransactionFromCart($cart);
-            try{
+            try {
                 $paymentMethods = $this->getTransactionService()->fetchPossiblePaymentMethods(
                     $transaction->getLinkedSpaceId(),
                     $transaction->getId()
-                    );
-            } catch (\WhitelabelMachineName\Sdk\ApiException $e)  {
+                );
+            } catch (\WhitelabelMachineName\Sdk\ApiException $e) {
                 self::$possiblePaymentMethodCache[$currentCartId] = array();
                 throw $e;
-            } catch (PostFinanceCheckout_Exception_InvalidTransactionAmount $e)  {
+            } catch (PostFinanceCheckout_Exception_InvalidTransactionAmount $e) {
                 self::$possiblePaymentMethodCache[$currentCartId] = array();
                 throw $e;
-            }	
+            }
             $methodConfigurationService = PostFinanceCheckout_Service_MethodConfiguration::instance();
             foreach ($paymentMethods as $paymentMethod) {
                 $methodConfigurationService->updateData($paymentMethod);
@@ -546,7 +545,7 @@ class PostFinanceCheckout_Service_Transaction extends PostFinanceCheckout_Servic
                     $ids['spaceId'],
                     $ids['transactionId']
                 );
-                if ($transaction->getState() != \PostFinanceCheckout\Sdk\Model\TransactionState::PENDING) {
+                if ($transaction->getState() != \PostFinanceCheckout\Sdk\Model\TransactionState::PENDING || (!empty($transaction->getCustomerId()) && $transaction->getCustomerId() != $cart->id_customer)) {
                     return $this->createTransactionFromCart($cart);
                 }
                 $pendingTransaction = new \PostFinanceCheckout\Sdk\Model\TransactionPending();

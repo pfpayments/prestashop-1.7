@@ -62,6 +62,7 @@ class PostFinanceCheckout_Webhook_Refund extends PostFinanceCheckout_Webhook_Ord
                 break;
             case \PostFinanceCheckout\Sdk\Model\RefundState::SUCCESSFUL:
                 $this->refunded($refund, $order);
+                break;
             default:
                 // Nothing to do.
                 break;

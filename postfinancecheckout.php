@@ -30,7 +30,12 @@ class PostFinanceCheckout extends PostFinanceCheckout_AbstractModule
         $this->author = 'Customweb GmbH';
         $this->bootstrap = true;
         $this->need_instance = 0;
-        $this->version = '1.1.0';
+        $this->version = '1.1.2';
+        $this->displayName = 'PostFinance Checkout';
+        $this->description = sprintf(
+            $this->l('This PrestaShop module enables to process payments with %s.'),
+            'PostFinance Checkout'
+        );
         $this->ps_versions_compliancy = array('min' => '1.7', 'max' => _PS_VERSION_);
         parent::__construct();
     }
@@ -130,26 +135,32 @@ class PostFinanceCheckout extends PostFinanceCheckout_AbstractModule
             $possiblePaymentMethods = PostFinanceCheckout_Service_Transaction::instance()->getPossiblePaymentMethods(
                 $cart
             );
-        } catch(PostFinanceCheckout_Exception_InvalidTransactionAmount $e){
+        } catch (PostFinanceCheckout_Exception_InvalidTransactionAmount $e) {
             PrestaShopLogger::addLog(
                 $e->getMessage()." CartId: ".$cart->id,
                 2,
                 null,
                 'PostFinanceCheckout'
-                );
+            );
             $paymentOption = new PrestaShop\PrestaShop\Core\Payment\PaymentOption();
             $paymentOption->setCallToActionText($this->l('There is an issue with your cart, some payment methods are not available.'));
             $paymentOption->setAdditionalInformation(
                 $this->context->smarty->fetch(
                     'module:postfinancecheckout/views/templates/front/hook/amount_error.tpl'
-                    )
-                );
-            $paymentOption->setForm( $this->context->smarty->fetch(
+                )
+            );
+            $paymentOption->setForm($this->context->smarty->fetch(
                 'module:postfinancecheckout/views/templates/front/hook/amount_error_form.tpl'
-                ));
+            ));
             $paymentOption->setModuleName($this->name."-error");
             return array($paymentOption);
         } catch (Exception $e) {
+            PrestaShopLogger::addLog(
+                $e->getMessage()." CartId: ".$cart->id,
+                1,
+                null,
+                'PostFinanceCheckout'
+                );
             return array();
         }
         $shopId = $cart->id_shop;

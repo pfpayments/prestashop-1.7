@@ -2,6 +2,7 @@
 
 global $_MODULE;
 $_MODULE = array();
+$_MODULE['<{postfinancecheckout}prestashop>postfinancecheckout_86022adeda19dfad4cf8a6de364fddb1'] = 'Dieses PrestaShop-Modul ermöglicht die Verarbeitung von Zahlungen mit %s.';
 $_MODULE['<{postfinancecheckout}prestashop>postfinancecheckout_af01f8c298aa063d9c7490f00eddd2df'] = 'Zahlungsarten';
 $_MODULE['<{postfinancecheckout}prestashop>postfinancecheckout_f28128b38efbc6134dc40751ee21fd29'] = 'Dokumente';
 $_MODULE['<{postfinancecheckout}prestashop>postfinancecheckout_c4dcb7da043e8feef88ce236dd7ab5bd'] = 'Bestellübersicht';
@@ -59,7 +60,6 @@ $_MODULE['<{postfinancecheckout}prestashop>order_11e9c0a8b009804f5ef7bd6d92d3abd
 $_MODULE['<{postfinancecheckout}prestashop>order_59d444e311f27d372f3d63e645b542c5'] = 'Der Warenkorb wurde geändert. Bitte versuchen Sie es erneut.';
 $_MODULE['<{postfinancecheckout}prestashop>order_8d8106ce1393a7684218b538b21323b1'] = 'Ihre Sitzung ist abgelaufen, bitte versuchen Sie es erneut.';
 $_MODULE['<{postfinancecheckout}prestashop>order_9f56df591d9e299ca16e3ba11b3127a8'] = 'Es gab ein technisches Problem, bitte versuchen Sie es erneut.';
-$_MODULE['<{postfinancecheckout}prestashop>abstractmodule_86022adeda19dfad4cf8a6de364fddb1'] = 'Dieses PrestaShop-Modul ermöglicht die Verarbeitung von Zahlungen mit %s.';
 $_MODULE['<{postfinancecheckout}prestashop>abstractmodule_2d44cfb0186c8f8b0357c3c2d396e466'] = 'Möchten Sie das %s Modul wirklich deinstallieren?';
 $_MODULE['<{postfinancecheckout}prestashop>abstractmodule_b70bf5fa76522765603bce3c0a791cc9'] = 'Das Modul \"Mail Hook\" ist nicht aktiv.';
 $_MODULE['<{postfinancecheckout}prestashop>abstractmodule_0cdc43452bb4b61800c2502afda340cc'] = 'Dieses Module ist für die Abwicklung der Shopemails empfohlen. Andernfalls können Emails zu einem unpassenden Zaitpunkt versendet werden.';
@@ -172,9 +172,11 @@ $_MODULE['<{postfinancecheckout}prestashop>defaultstrategy_d9588967b547cb91b1876
 $_MODULE['<{postfinancecheckout}prestashop>defaultstrategy_80e0b4ed3a3af0721427cf683ee5ab42'] = 'Die Line Items können nicht mehr verändert werden.';
 $_MODULE['<{postfinancecheckout}prestashop>defaultstrategy_0da1c0afe7d3d89a53a5d00998bb4295'] = 'Sie können diese Einkaufskorb Preisregel nicht bearbeiten.';
 $_MODULE['<{postfinancecheckout}prestashop>defaultstrategy_8beb04a673a7d9fd7ee8e491a4522022'] = 'Sie können dieser Bestellung keinen Rabatt hinzufügen.';
+$_MODULE['<{postfinancecheckout}prestashop>lineitem_deb10517653c255364175796ace3553f'] = 'Produkt';
 $_MODULE['<{postfinancecheckout}prestashop>lineitem_ea9cf7e47ff33b2be14e6dd07cbcefc6'] = 'Versand';
 $_MODULE['<{postfinancecheckout}prestashop>lineitem_4b78ac8eb158840e9638a3aeb26c4a9d'] = 'Steuer';
 $_MODULE['<{postfinancecheckout}prestashop>lineitem_ff65aee349dbc76dd62e6dc68563d34f'] = 'Verpackungsgebühr';
+$_MODULE['<{postfinancecheckout}prestashop>lineitem_104d9898c04874d0fbac36e125fa1369'] = 'Rabatt';
 $_MODULE['<{postfinancecheckout}prestashop>lineitem_2905d5875dabb8223cd181ba9f2e6888'] = 'Versand Rabatt';
 $_MODULE['<{postfinancecheckout}prestashop>refund_35710a8f0b27e6d588d70ae5eb080992'] = 'Die zugehörige Transaktion konnte nicht geladen werden.';
 $_MODULE['<{postfinancecheckout}prestashop>refund_da0e5f3a7a81b3b0e163b25317cd8a0e'] = 'Die Transaktion befindet sich nicht in einem Status, in welchem keine Rückerstattungen erstellt werden können.';

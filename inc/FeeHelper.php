@@ -71,7 +71,7 @@ class PostFinanceCheckout_FeeHelper
         $feeProduct = new Product($feeProductId, false, Configuration::get('PS_LANG_DEFAULT'), $cart->id_shop);
         
         if (Validate::isLoadedObject($feeProduct)) {
-            $defaultAttributeId = Product::getDefaultAttribute($feeProductId);            
+            $defaultAttributeId = Product::getDefaultAttribute($feeProductId);
             $feeValues = self::getFeeValues($cart, $methodConfiguration);
             
             if ($feeValues['fee_total'] > 0) {
@@ -99,103 +99,105 @@ class PostFinanceCheckout_FeeHelper
     }
     
     
-    public static function getSurchargeValues(Cart $cart) {
-            $surchargeProductId = Configuration::get(PostFinanceCheckout::CK_SURCHARGE_ITEM);
-            $surchargeProduct = new Product($surchargeProductId, false, Configuration::get('PS_LANG_DEFAULT'), $cart->id_shop);
-            if (!Validate::isLoadedObject($surchargeProduct)) {
-                return array(
-                    'surcharge_total' => 0,
-                    'surcharge_total_wt' => 0
-                );
-            }            
-            $configuration = PostFinanceCheckout_VersionAdapter::getConfigurationInterface();
-            
-            $amount = (float) Configuration::get(PostFinanceCheckout::CK_SURCHARGE_AMOUNT);
-            
-            $amountConverted = Tools::convertPrice(
-                $amount,
-                Currency::getCurrencyInstance((int) $cart->id_currency)
-                );
-            
-            $surchargeBaseType = Configuration::get(PostFinanceCheckout::CK_SURCHARGE_BASE);
-            
-            switch ($surchargeBaseType) {
-                case PostFinanceCheckout::TOTAL_MODE_BOTH_INC:
-                    $taxes = true;
-                    $surchargeType = Cart::BOTH;
-                    break;
-                case PostFinanceCheckout::TOTAL_MODE_BOTH_EXC:
-                    $taxes = false;
-                    $surchargeType = Cart::BOTH;
-                    break;
-                case PostFinanceCheckout::TOTAL_MODE_WITHOUT_SHIPPING_INC:
-                    $taxes = true;
-                    $surchargeType = Cart::BOTH_WITHOUT_SHIPPING;
-                    break;
-                case PostFinanceCheckout::TOTAL_MODE_WITHOUT_SHIPPING_EXC:
-                    $taxes = false;
-                    $surchargeType = Cart::BOTH_WITHOUT_SHIPPING;
-                    break;
-                case PostFinanceCheckout::TOTAL_MODE_PRODUCTS_INC:
-                    $taxes = true;
-                    $surchargeType = Cart::ONLY_PRODUCTS;
-                    break;
-                case PostFinanceCheckout::TOTAL_MODE_PRODUCTS_EXC:
-                    $taxes = false;
-                    $surchargeType = Cart::ONLY_PRODUCTS;
-                    break;
-            }
-            
-            $total = $cart->getOrderTotal($taxes, $surchargeType);
-            $surchargeBase = (float) Configuration::get(PostFinanceCheckout::CK_SURCHARGE_TOTAL);
-            $surchargeBaseConverted = Tools::convertPrice(
-                $surchargeBase,
-                Currency::getCurrencyInstance((int) $cart->id_currency)
-                );
-            
-            $computePrecision = $configuration->get('_PS_PRICE_COMPUTE_PRECISION_');
-            
-            if(Tools::ps_round($total, $computePrecision)  >= Tools::ps_round($surchargeBaseConverted, $computePrecision) ){
-                return array(
-                    'surcharge_total' => 0,
-                    'surcharge_total_wt' => 0
-                );
-            }          
-             
-            $product = new Product($surchargeProductId);
-            $taxGroup = $product->getIdTaxRulesGroup();
-            $result = array(
-                'surcharge_total' => Tools::ps_round($amountConverted, $computePrecision),
-                'surcharge_total_wt' => Tools::ps_round($amountConverted, $computePrecision)
+    public static function getSurchargeValues(Cart $cart)
+    {
+        $surchargeProductId = Configuration::get(PostFinanceCheckout::CK_SURCHARGE_ITEM);
+        $surchargeProduct = new Product($surchargeProductId, false, Configuration::get('PS_LANG_DEFAULT'), $cart->id_shop);
+        if (!Validate::isLoadedObject($surchargeProduct)) {
+             return array(
+                 'surcharge_total' => 0,
+                 'surcharge_total_wt' => 0
+             );
+        }
+        $configuration = PostFinanceCheckout_VersionAdapter::getConfigurationInterface();
+        
+        $amount = (float) Configuration::get(PostFinanceCheckout::CK_SURCHARGE_AMOUNT);
+        
+        $amountConverted = Tools::convertPrice(
+            $amount,
+            Currency::getCurrencyInstance((int) $cart->id_currency)
+        );
+        
+        $surchargeBaseType = Configuration::get(PostFinanceCheckout::CK_SURCHARGE_BASE);
+        
+        switch ($surchargeBaseType) {
+            case PostFinanceCheckout::TOTAL_MODE_BOTH_INC:
+                $taxes = true;
+                $surchargeType = Cart::BOTH;
+                break;
+            case PostFinanceCheckout::TOTAL_MODE_BOTH_EXC:
+                $taxes = false;
+                $surchargeType = Cart::BOTH;
+                break;
+            case PostFinanceCheckout::TOTAL_MODE_WITHOUT_SHIPPING_INC:
+                $taxes = true;
+                $surchargeType = Cart::BOTH_WITHOUT_SHIPPING;
+                break;
+            case PostFinanceCheckout::TOTAL_MODE_WITHOUT_SHIPPING_EXC:
+                $taxes = false;
+                $surchargeType = Cart::BOTH_WITHOUT_SHIPPING;
+                break;
+            case PostFinanceCheckout::TOTAL_MODE_PRODUCTS_INC:
+                $taxes = true;
+                $surchargeType = Cart::ONLY_PRODUCTS;
+                break;
+            case PostFinanceCheckout::TOTAL_MODE_PRODUCTS_EXC:
+                $taxes = false;
+                $surchargeType = Cart::ONLY_PRODUCTS;
+                break;
+        }
+        
+        $total = $cart->getOrderTotal($taxes, $surchargeType);
+        $surchargeBase = (float) Configuration::get(PostFinanceCheckout::CK_SURCHARGE_TOTAL);
+        $surchargeBaseConverted = Tools::convertPrice(
+            $surchargeBase,
+            Currency::getCurrencyInstance((int) $cart->id_currency)
+        );
+        
+        $computePrecision = $configuration->get('_PS_PRICE_COMPUTE_PRECISION_');
+        
+        if (Tools::ps_round($total, $computePrecision)  >= Tools::ps_round($surchargeBaseConverted, $computePrecision)) {
+            return array(
+                'surcharge_total' => 0,
+                'surcharge_total_wt' => 0
             );
-            
-            if ($taxGroup != 0) {
-                $addressFactory = PostFinanceCheckout_VersionAdapter::getAddressFactory();
-                $taxAddressType = Configuration::get('PS_TAX_ADDRESS_TYPE');
-                if ($taxAddressType == 'id_address_invoice') {
-                    $idAddress = (int) $cart->id_address_invoice;
-                } else {
-                    $idAddress = (int) $cart->id_address_delivery;
-                }
-                $address = $addressFactory->findOrCreate($idAddress, true);
-                $taxCalculator = TaxManagerFactory::getManager($address, $taxGroup)->getTaxCalculator();
-                
-                if ((int) Configuration::get(PostFinanceCheckout::CK_SURCHARGE_TAX)) {
-                    $result['surcharge_total_wt'] = Tools::ps_round(
-                        $taxCalculator->addTaxes($amountConverted),
-                        $computePrecision
-                        );
-                } else {
-                    $result['surcharge_total'] = Tools::ps_round(
-                        $taxCalculator->removeTaxes($amountConverted),
-                        $computePrecision
-                        );
-                }
+        }
+         
+        $product = new Product($surchargeProductId);
+        $taxGroup = $product->getIdTaxRulesGroup();
+        $result = array(
+            'surcharge_total' => Tools::ps_round($amountConverted, $computePrecision),
+            'surcharge_total_wt' => Tools::ps_round($amountConverted, $computePrecision)
+        );
+        
+        if ($taxGroup != 0) {
+            $addressFactory = PostFinanceCheckout_VersionAdapter::getAddressFactory();
+            $taxAddressType = Configuration::get('PS_TAX_ADDRESS_TYPE');
+            if ($taxAddressType == 'id_address_invoice') {
+                $idAddress = (int) $cart->id_address_invoice;
+            } else {
+                $idAddress = (int) $cart->id_address_delivery;
             }
-            return $result;
+            $address = $addressFactory->findOrCreate($idAddress, true);
+            $taxCalculator = TaxManagerFactory::getManager($address, $taxGroup)->getTaxCalculator();
+            
+            if ((int) Configuration::get(PostFinanceCheckout::CK_SURCHARGE_TAX)) {
+                $result['surcharge_total_wt'] = Tools::ps_round(
+                    $taxCalculator->addTaxes($amountConverted),
+                    $computePrecision
+                );
+            } else {
+                $result['surcharge_total'] = Tools::ps_round(
+                    $taxCalculator->removeTaxes($amountConverted),
+                    $computePrecision
+                );
+            }
+        }
+        return $result;
     }
     
-    public static function getFeeValues(Cart $cart, PostFinanceCheckout_Model_MethodConfiguration $methodConfiguration) {
+    public static function getFeeValues(Cart $cart, PostFinanceCheckout_Model_MethodConfiguration $methodConfiguration)
+    {
         $feeProductId = Configuration::get(PostFinanceCheckout::CK_FEE_ITEM);
         $feeProduct = new Product($feeProductId, false, Configuration::get('PS_LANG_DEFAULT'), $cart->id_shop);
         if (!Validate::isLoadedObject($feeProduct)) {

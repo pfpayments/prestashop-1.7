@@ -224,7 +224,7 @@ class PostFinanceCheckout_Model_MethodConfiguration extends ObjectModel
     public function getTitle()
     {
         $decoded =  base64_decode($this->title, true);
-        if($decoded === false){
+        if ($decoded === false) {
             $decoded = $this->title;
         }
         return unserialize($decoded);
@@ -238,7 +238,7 @@ class PostFinanceCheckout_Model_MethodConfiguration extends ObjectModel
     public function getDescription()
     {
         $decoded =  base64_decode($this->description, true);
-        if($decoded === false){
+        if ($decoded === false) {
             $decoded = $this->description;
         }
         return unserialize($decoded);

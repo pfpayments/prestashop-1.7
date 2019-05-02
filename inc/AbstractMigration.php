@@ -15,7 +15,8 @@ abstract class PostFinanceCheckout_AbstractMigration
     const CK_DB_VERSION = 'PFC_DB_VERSION';
 
     //This method should be abstract, but PHP < 7.0 throws a strict warning for an abstract static method.
-    protected static function getMigrations(){
+    protected static function getMigrations()
+    {
         return array();
     }
     
@@ -280,11 +281,11 @@ abstract class PostFinanceCheckout_AbstractMigration
         if (empty($exists)) {
             $result = $instance->execute(
                 "ALTER TABLE `" . _DB_PREFIX_ . "pfc_method_configuration` ADD COLUMN `image_base` varchar(2047) COLLATE utf8_unicode_ci NULL DEFAULT NULL AFTER image;"
-                );
+            );
             if ($result === false) {
                 throw new Exception($instance->getMsgError());
             }
-        }       
+        }
         
         $exists = $instance->executeS("SHOW COLUMNS FROM `" . _DB_PREFIX_ . "pfc_transaction_info` LIKE 'image_base'");
         if (empty($exists)) {
@@ -304,11 +305,10 @@ abstract class PostFinanceCheckout_AbstractMigration
         if (empty($exists)) {
             $result = $instance->execute(
                 "ALTER TABLE `" . _DB_PREFIX_ . "pfc_transaction_info` ADD COLUMN `user_failure_message` VARCHAR(2047)  COLLATE utf8_unicode_ci NULL DEFAULT NULL AFTER image;"
-                );
+            );
             if ($result === false) {
                 throw new Exception($instance->getMsgError());
             }
-        }       
+        }
     }
-    
 }

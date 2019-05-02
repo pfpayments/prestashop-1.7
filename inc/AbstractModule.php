@@ -1,6 +1,4 @@
 <?php
-use PostFinanceCheckout\Sdk\Model\PaymentMethod;
-
 /**
  * PostFinance Checkout Prestashop
  *
@@ -86,12 +84,6 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
     public function __construct()
     {
         parent::__construct();
-        
-        $this->displayName = 'PostFinance Checkout';
-        $this->description = sprintf(
-            $this->l('This PrestaShop module enables to process payments with %s.', 'abstractmodule'),
-            'PostFinance Checkout'
-        );
         $this->confirmUninstall = sprintf(
             $this->l('Are you sure you want to uninstall the %s module?', 'abstractmodule'),
             'PostFinance Checkout'
@@ -445,23 +437,23 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
                     Configuration::updateValue(
                         self::CK_SURCHARGE_ITEM,
                         Tools::getValue(self::CK_SURCHARGE_ITEM)
-                        );
+                    );
                     Configuration::updateValue(
                         self::CK_SURCHARGE_TAX,
                         Tools::getValue(self::CK_SURCHARGE_TAX)
-                        );
+                    );
                     Configuration::updateValue(
                         self::CK_SURCHARGE_AMOUNT,
                         Tools::getValue(self::CK_SURCHARGE_AMOUNT)
-                        );
+                    );
                     Configuration::updateValue(
                         self::CK_SURCHARGE_TOTAL,
                         Tools::getValue(self::CK_SURCHARGE_TOTAL)
-                        );
+                    );
                     Configuration::updateValue(
                         self::CK_SURCHARGE_BASE,
                         Tools::getValue(self::CK_SURCHARGE_BASE)
-                        );
+                    );
                     $output .= $this->displayConfirmation($this->l('Settings updated', 'abstractmodule'));
             } else {
                 $output .= $this->displayError(
@@ -831,7 +823,7 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
                 'desc' => sprintf(
                     $this->l('The amount has to be entered in the shops default currency. Current default currency: %s', 'abstractmodule'),
                     $defaultCurrency['iso_code']
-                    ),
+                ),
                 'name' => self::CK_SURCHARGE_AMOUNT,
                 'col' => 3
             ),
@@ -841,7 +833,7 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
                 'desc' => sprintf(
                     $this->l('The surcharge is added, if the order total is below this amount. The total has to be entered in the shops default currency. Current default currency: %s', 'abstractmodule'),
                     $defaultCurrency['iso_code']
-                    ),
+                ),
                 'name' => self::CK_SURCHARGE_TOTAL,
                 'col' => 3
             ),
@@ -881,7 +873,7 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
                     'name' => 'name'
                 )
             )
-        );        
+        );
                 
         return array(
             'legend' => array(
@@ -1271,8 +1263,7 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
             $methodConfiguration->getDescription(),
             $language
         );
-        if (! empty($description) && $methodConfiguration->isShowDescription()) {
-            
+        if (!empty($description) && $methodConfiguration->isShowDescription()) {
             $description = preg_replace('/((<a (?!.*target="_blank").*?)>)/', '$2 target="_blank">', $description);
             $parameters['description'] = $description;
         }
@@ -2155,4 +2146,3 @@ abstract class PostFinanceCheckout_AbstractModule extends PaymentModule
         }
     }
 }
-

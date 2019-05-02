@@ -249,7 +249,7 @@ class PostFinanceCheckout_Model_TransactionInfo extends ObjectModel
     public function getLabels()
     {
         $decoded =  base64_decode($this->labels, true);
-        if($decoded === false){
+        if ($decoded === false) {
             $decoded = $this->labels;
         }
         return unserialize($decoded);
@@ -293,7 +293,7 @@ class PostFinanceCheckout_Model_TransactionInfo extends ObjectModel
     public function getFailureReason()
     {
         $decoded =  base64_decode($this->failure_reason, true);
-        if($decoded === false){
+        if ($decoded === false) {
             $decoded = $this->failure_reason;
         }
         return unserialize($decoded);
@@ -306,12 +306,12 @@ class PostFinanceCheckout_Model_TransactionInfo extends ObjectModel
     
     public function getUserFailureMessage()
     {
-    	return $this->user_failure_message;
+        return $this->user_failure_message;
     }
     
     public function setUserFailureMessage($message)
     {
-    	$this->user_failure_message = $message;
+        $this->user_failure_message = $message;
     }
     
     /**

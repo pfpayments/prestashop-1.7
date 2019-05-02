@@ -1,6 +1,4 @@
 <?php
-
-
 /**
  * PostFinance Checkout Prestashop
  *
@@ -27,7 +25,7 @@ class PostFinanceCheckout_Service_LineItem extends PostFinanceCheckout_Service_A
     {
         $currencyCode = PostFinanceCheckout_Helper::convertCurrencyIdToCode($cart->id_currency);
         $items = array();
-        $summary = $cart->getSummaryDetails();
+        $summary = $cart->getSummaryDetails(null, true);
         $taxAddress = new Address((int) $cart->{Configuration::get('PS_TAX_ADDRESS_TYPE')});
         
         // Needed for discounts;
@@ -38,9 +36,10 @@ class PostFinanceCheckout_Service_LineItem extends PostFinanceCheckout_Service_A
         foreach ($summary['products'] as $productItem) {
             $item = new \PostFinanceCheckout\Sdk\Model\LineItemCreate();
             $totalAmount = $this->roundAmount((float) $productItem['total_wt'], $currencyCode);
-            $totalAmountE = (float) $productItem['total'];
             $item->setAmountIncludingTax($totalAmount);
-            $item->setName($productItem['name']);
+            $name = empty($productItem['name']) ? PostFinanceCheckout_Helper::getModuleInstance()->l('Product', 'lineitem').' '.$productItem['id_product'] . '-' .
+                $productItem['id_product_attribute'] : $productItem['name'];
+            $item->setName($name);
             $item->setQuantity($productItem['quantity']);
             $item->setShippingRequired($productItem['is_virtual'] != '1');
             if (! empty($productItem['reference'])) {
@@ -198,7 +197,8 @@ class PostFinanceCheckout_Service_LineItem extends PostFinanceCheckout_Service_A
         if (count($summary['discounts']) > 0) {
             $productTotalExc = $cart->getOrderTotal(false, Cart::ONLY_PRODUCTS);
             foreach ($summary['discounts'] as $discount) {
-                $discountItems = $this->getDiscountItems($discount['description'], 'discount-' . $discount['id_cart_rule'], 'cart-' . $cart->id . '-discount-' . $discount['id_cart_rule'], (float) $discount['value_real'], (float) $discount['value_tax_exc'], new CartRule($discount['id_cart_rule']), $usedTaxes, $cheapestProduct, $productTotalExc, $cart->id, $currencyCode, 'cart-' . $cart->id . '-item-', $items);
+                $nameBase = empty($discount['description']) ? PostFinanceCheckout_Helper::getModuleInstance()->l('Discount', 'lineitem') : $discount['description'];
+                $discountItems = $this->getDiscountItems($nameBase, 'discount-' . $discount['id_cart_rule'], 'cart-' . $cart->id . '-discount-' . $discount['id_cart_rule'], (float) $discount['value_real'], (float) $discount['value_tax_exc'], new CartRule($discount['id_cart_rule']), $usedTaxes, $cheapestProduct, $productTotalExc, $cart->id, $currencyCode, 'cart-' . $cart->id . '-item-', $items);
                 $items = array_merge($items, $discountItems);
             }
         }
@@ -266,7 +266,9 @@ class PostFinanceCheckout_Service_LineItem extends PostFinanceCheckout_Service_A
                 }
                 $item = new \PostFinanceCheckout\Sdk\Model\LineItemCreate();
                 $item->setAmountIncludingTax($this->roundAmount($itemCosts, $currencyCode));
-                $item->setName($orderItem['product_name']);
+                $name = empty($orderItem['product_name']) ? PostFinanceCheckout_Helper::getModuleInstance()->l('Product', 'lineitem').' '.$orderItem['product_id'] . '-' .
+                    $orderItem['product_attribute_id'] : $orderItem['product_name'];
+                $item->setName($name);
                 $item->setQuantity($orderItem['product_quantity']);
                 $item->setShippingRequired($orderItem['is_virtual'] != '1');
                 $item->setSku($sku);
@@ -318,8 +320,7 @@ class PostFinanceCheckout_Service_LineItem extends PostFinanceCheckout_Service_A
                 $uniqueId = 'order-' . $order->id . '-shipping';
                 
                 $item = new \PostFinanceCheckout\Sdk\Model\LineItemCreate();
-                $name = PostFinanceCheckout_Helper::getModuleInstance()->l('Shipping', 'lineitem');
-                $item->setName($name);
+                $name = '';
                 $item->setQuantity(1);
                 $item->setShippingRequired(false);
                 $item->setSku('shipping');
@@ -327,7 +328,7 @@ class PostFinanceCheckout_Service_LineItem extends PostFinanceCheckout_Service_A
                 
                 $carrier = new Carrier($order->id_carrier);
                 if ($carrier->id && $taxAddress->id) {
-                    $item->setName($carrier->name);
+                    $name = $carrier->name;
                     $shippingTaxCalculator = $carrier->getTaxCalculator($taxAddress);
                     $psTaxes = $shippingTaxCalculator->getTaxesAmount($itemCostsE);
                     $taxes = array();
@@ -357,7 +358,8 @@ class PostFinanceCheckout_Service_LineItem extends PostFinanceCheckout_Service_A
                         );
                     }
                 }
-                    
+                $name = empty($name) ? PostFinanceCheckout_Helper::getModuleInstance()->l('Shipping', 'lineitem') : $name;
+                $item->setName($name);
                 $item->setType(\PostFinanceCheckout\Sdk\Model\LineItemType::SHIPPING);
                 $item->setUniqueId($uniqueId);
                 $shippingItem = $this->cleanLineItem($item);
@@ -410,8 +412,9 @@ class PostFinanceCheckout_Service_LineItem extends PostFinanceCheckout_Service_A
             
             foreach ($order->getCartRules() as $orderCartRule) {
                 $cartRuleObj = new CartRule($orderCartRule['id_cart_rule']);
+                $nameBase = empty($orderCartRule['name']) ? PostFinanceCheckout_Helper::getModuleInstance()->l('Discount', 'lineitem') : $orderCartRule['name'];
                 $discountItems = $this->getDiscountItems(
-                    $orderCartRule['name'],
+                    $nameBase,
                     'discount-' . $orderCartRule['id_order_cart_rule'],
                     'order-' . $order->id . '-discount-' . $orderCartRule['id_order_cart_rule'],
                     (float) $orderCartRule['value'],
@@ -427,14 +430,12 @@ class PostFinanceCheckout_Service_LineItem extends PostFinanceCheckout_Service_A
                 );
                 $items = array_merge($items, $discountItems);
             }
-            //We do not collapse the refunds with the equal tax rates as one. This would cause issues during refunds of orders
-            
+            //We do not collapse the refunds with the equal tax rates as one. This would cause issues during refunds of orders.
             $discountOnly =$this->isFreeShippingDiscountOnly($order);
             if ($discountOnly && $shippingItem != null) {
                 $itemFreeShipping = new \PostFinanceCheckout\Sdk\Model\LineItemCreate();
-                $name = PostFinanceCheckout_Helper::getModuleInstance()->l('Shipping Discount', 'lineitem');
-                
-                $itemFreeShipping->setName($discountOnly['name']);
+                $name = empty($discountOnly['name']) ? PostFinanceCheckout_Helper::getModuleInstance()->l('Shipping Discount', 'lineitem') : $discountOnly['name'];
+                $itemFreeShipping->setName($name);
                 $itemFreeShipping->setQuantity(1);
                 $itemFreeShipping->setShippingRequired(false);
                 $itemFreeShipping->setSku('discount-' . $discountOnly['id_order_cart_rule']);
@@ -467,7 +468,8 @@ class PostFinanceCheckout_Service_LineItem extends PostFinanceCheckout_Service_A
         return $shippingOnly;
     }
         
-    private function getDiscountItems($nameBase, $skuBase, $uniqueIdBase, $discountWithTax, $discountWithoutTax, CartRule $cartRule, array $usedTaxes, $cheapestProductId, $productTotalWithoutTax, $cartIdUsed, $currencyCode, $itemUniqueIdBase, $existingLineItems){
+    private function getDiscountItems($nameBase, $skuBase, $uniqueIdBase, $discountWithTax, $discountWithoutTax, CartRule $cartRule, array $usedTaxes, $cheapestProductId, $productTotalWithoutTax, $cartIdUsed, $currencyCode, $itemUniqueIdBase, $existingLineItems)
+    {
         
         $reductionPercent = $cartRule->reduction_percent;
         $reductionAmount = $cartRule->reduction_amount;
@@ -478,9 +480,9 @@ class PostFinanceCheckout_Service_LineItem extends PostFinanceCheckout_Service_A
                 
         $overallDiscounts = array();
         
-        if($cartRule->gift_product != 0){
-            foreach($existingLineItems as $exisitingLineItem){
-                if($exisitingLineItem->getUniqueId() ==  $itemUniqueIdBase.$cartRule->gift_product.'-'.$cartRule->gift_product_attribute){
+        if ($cartRule->gift_product != 0) {
+            foreach ($existingLineItems as $exisitingLineItem) {
+                if ($exisitingLineItem->getUniqueId() ==  $itemUniqueIdBase.$cartRule->gift_product.'-'.$cartRule->gift_product_attribute) {
                     $freeGiftDiscount = $exisitingLineItem->getAmountIncludingTax()/$exisitingLineItem->getQuantity()*-1;
                     $item = new \PostFinanceCheckout\Sdk\Model\LineItemCreate();
                     $item->setAmountIncludingTax($freeGiftDiscount);
@@ -664,11 +666,10 @@ class PostFinanceCheckout_Service_LineItem extends PostFinanceCheckout_Service_A
                         $modify = end($discountItems);
                         $modify->setAmountIncludingTax($this->roundAmount($modify->getAmountIncludingTax() + $diff, $currencyCode));
                     }
-                    $overallDiscounts = array_merge( $overallDiscounts, $discountItems);
+                    $overallDiscounts = array_merge($overallDiscounts, $discountItems);
                 }
             } else {
-                // the other two cases ($reductionProduct == -1 or -2)  are not available for fixed amount discounts
-               
+                // the other two cases ($reductionProduct == -1 or -2)  are not available for fixed amount discounts.
             }
         }
         //Free Shipping Only Discounts are not processed here
