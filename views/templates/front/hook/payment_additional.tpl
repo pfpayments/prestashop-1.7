@@ -18,7 +18,7 @@
 			{if $priceDisplayTax}
 				{Tools::displayPrice($surchargeValues.surcharge_total)} {l s='(tax excl.)' mod='postfinancecheckout'}
 	        {else}
-	        	{Tools::displayPrice($surchargeValues.surcharge_total_wt)} {l s='(tax excl.)' mod='postfinancecheckout'}
+	        	{Tools::displayPrice($surchargeValues.surcharge_total_wt)} {l s='(tax incl.)' mod='postfinancecheckout'}
 	        {/if}
        </span>
    </span>
