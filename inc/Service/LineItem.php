@@ -94,6 +94,7 @@ class PostFinanceCheckout_Service_LineItem extends PostFinanceCheckout_Service_A
         }
         
         // Add shipping costs
+        $shippingItem = null;
         $shippingCosts = (float) $summary['total_shipping'];
         $shippingCostExcl = (float) $summary['total_shipping_tax_exc'];
         if ($shippingCosts > 0) {
@@ -138,7 +139,8 @@ class PostFinanceCheckout_Service_LineItem extends PostFinanceCheckout_Service_A
             }
             $item->setType(\PostFinanceCheckout\Sdk\Model\LineItemType::SHIPPING);
             $item->setUniqueId('cart-' . $cart->id . '-shipping');
-            $items[] = $this->cleanLineItem($item);
+            $shippingItem = $this->cleanLineItem($item);
+            $items[] = $shippingItem;
         }
         
         // Add wrapping costs
@@ -203,6 +205,23 @@ class PostFinanceCheckout_Service_LineItem extends PostFinanceCheckout_Service_A
             }
         }
         
+        //We do not collapse the refunds with the equal tax rates as one. This would cause issues during refunds of orders.
+        $discountOnly =$this->isFreeShippingDiscountOnlyCart($summary['discounts']);
+        if ($discountOnly && $shippingItem != null) {
+            $itemFreeShipping = new \PostFinanceCheckout\Sdk\Model\LineItemCreate();
+            $name = empty($discountOnly['name']) ? PostFinanceCheckout_Helper::getModuleInstance()->l('Shipping Discount', 'lineitem') : $discountOnly['name'];
+            $itemFreeShipping->setName($name);
+            $itemFreeShipping->setQuantity(1);
+            $itemFreeShipping->setShippingRequired(false);
+            $itemFreeShipping->setSku('discount-' . $discountOnly['id_cart_rule']);
+            $itemFreeShipping->setAmountIncludingTax($shippingItem->getAmountIncludingTax()*-1);
+            $itemFreeShipping->setTaxes($shippingItem->getTaxes());
+            $itemFreeShipping->setType(\PostFinanceCheckout\Sdk\Model\LineItemType::DISCOUNT);
+            $itemFreeShipping->setUniqueId('cart-' . $cart->id  . '-discount-' . $discountOnly['id_cart_rule']);
+            $items[] = $this->cleanLineItem($itemFreeShipping);
+        }
+        
+        
         $cleaned = PostFinanceCheckout_Helper::cleanupLineItems(
             $items,
             $cart->getOrderTotal(true, Cart::BOTH),
@@ -211,6 +230,24 @@ class PostFinanceCheckout_Service_LineItem extends PostFinanceCheckout_Service_A
         return $cleaned;
     }
 
+    private function isFreeShippingDiscountOnlyCart($discounts)
+    {
+        $shippingOnly = false;
+        foreach ($discounts as $discount) {
+            $cartRuleObj =  new CartRule($discount['id_cart_rule']);
+            if ($cartRuleObj->free_shipping) {
+                if ($cartRuleObj->reduction_percent == 0 && $cartRuleObj->reduction_amount==0) {
+                    $shippingOnly = $discount;
+                } else {
+                    //If there is a cart rule, that has free shipping and an amount value, the amount of the shipping
+                    //fee is included in the total amount of the discount. So we do not need an extra line item for the shipping discount.
+                    return false;
+                }
+            }
+        }
+        return $shippingOnly;
+    }
+    
     /**
      * Returns the line items from the given cart
      *
@@ -312,8 +349,8 @@ class PostFinanceCheckout_Service_LineItem extends PostFinanceCheckout_Service_A
                 $items[] = $this->cleanLineItem($item);
             }
             $taxAddress = new Address((int) $order->{Configuration::get('PS_TAX_ADDRESS_TYPE')});
-            $shippingItem = null;
             // Add shipping costs
+            $shippingItem = null;
             $shippingCosts = (float) $order->total_shipping;
             $shippingCostExcl = (float) $order->total_shipping_tax_excl;
             if ($shippingCosts > 0) {
@@ -431,7 +468,7 @@ class PostFinanceCheckout_Service_LineItem extends PostFinanceCheckout_Service_A
                 $items = array_merge($items, $discountItems);
             }
             //We do not collapse the refunds with the equal tax rates as one. This would cause issues during refunds of orders.
-            $discountOnly =$this->isFreeShippingDiscountOnly($order);
+            $discountOnly =$this->isFreeShippingDiscountOnlyOrder($order);
             if ($discountOnly && $shippingItem != null) {
                 $itemFreeShipping = new \PostFinanceCheckout\Sdk\Model\LineItemCreate();
                 $name = empty($discountOnly['name']) ? PostFinanceCheckout_Helper::getModuleInstance()->l('Shipping Discount', 'lineitem') : $discountOnly['name'];
@@ -450,7 +487,7 @@ class PostFinanceCheckout_Service_LineItem extends PostFinanceCheckout_Service_A
     }
     
     
-    private function isFreeShippingDiscountOnly($order)
+    private function isFreeShippingDiscountOnlyOrder($order)
     {
         $shippingOnly = false;
         foreach ($order->getCartRules() as $orderCartRule) {
