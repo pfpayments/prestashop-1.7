@@ -511,9 +511,11 @@ class PostFinanceCheckout_Service_Transaction extends PostFinanceCheckout_Servic
         );
         $createTransaction->setAutoConfirmationEnabled(false);
         $createTransaction->setDeviceSessionIdentifier(Context::getContext()->cookie->pfc_device_id);
-        $createTransaction->setSpaceViewId(
-            Configuration::get(PostFinanceCheckout::CK_SPACE_VIEW_ID, null, null, $cart->id_shop)
-        );
+        
+        $spaceViewId = Configuration::get(PostFinanceCheckout::CK_SPACE_VIEW_ID, null, null, $cart->id_shop);
+        if(!empty($spaceViewId)){
+            $createTransaction->setSpaceViewId($spaceViewId);
+        }
         $this->assembleCartTransactionData($cart, $createTransaction);
         $transaction = $this->getTransactionService()->create($spaceId, $createTransaction);
         PostFinanceCheckout_Helper::updateCartMeta(
