@@ -82,10 +82,10 @@ class PostFinanceCheckout_Service_LineItem extends PostFinanceCheckout_Service_A
             }
             $item->setTaxes($taxes);
             $item->setType(\PostFinanceCheckout\Sdk\Model\LineItemType::PRODUCT);
-            if ($productItem['id_product'] == Configuration::get(PostFinanceCheckout::CK_FEE_ITEM)) {
+            if ($productItem['id_product'] == Configuration::get(PostFinanceCheckout::CK_FEE_ITEM) || $productItem['id_product'] == Configuration::get(PostFinanceCheckout::CK_SURCHARGE_ITEM)) {
                 $item->setType(\PostFinanceCheckout\Sdk\Model\LineItemType::FEE);
                 $item->setShippingRequired(false);
-            }
+            }            
             $item->setUniqueId(
                 'cart-' . $cart->id . '-item-' . $productItem['id_product'] . '-' .
                 $productItem['id_product_attribute']
@@ -340,8 +340,9 @@ class PostFinanceCheckout_Service_LineItem extends PostFinanceCheckout_Service_A
                     $item->setTaxes($taxes);
                 }
                 $item->setType(\PostFinanceCheckout\Sdk\Model\LineItemType::PRODUCT);
-                if ($orderItem['product_id'] ==
-                     Configuration::get(PostFinanceCheckout::CK_FEE_ITEM)) {
+                
+                
+                if ($orderItem['product_id'] == Configuration::get(PostFinanceCheckout::CK_FEE_ITEM) || $orderItem['product_id'] == Configuration::get(PostFinanceCheckout::CK_SURCHARGE_ITEM)) {
                     $item->setType(\PostFinanceCheckout\Sdk\Model\LineItemType::FEE);
                     $item->setShippingRequired(false);
                 }
@@ -620,7 +621,19 @@ class PostFinanceCheckout_Service_LineItem extends PostFinanceCheckout_Service_A
                         $id);
                     $discountItems[] = $this->cleanLineItem($item);
                 }
-                if (count($discountItems) == 1) {
+                if(count($discountItems) == 0){
+                    //we have no taxes
+                    $item = new \PostFinanceCheckout\Sdk\Model\LineItemCreate();
+                    $item->setAmountIncludingTax($remainingDiscount);
+                    $item->setName($nameBase);
+                    $item->setQuantity(1);
+                    $item->setShippingRequired(false);
+                    $item->setSku($skuBase);
+                    $item->setType(\PostFinanceCheckout\Sdk\Model\LineItemType::DISCOUNT);
+                    $item->setUniqueId($uniqueIdBase);
+                    $discountItem = $this->cleanLineItem($item);
+                    $overallDiscounts[] = $discountItem;
+                } else if (count($discountItems) == 1) {
                     // We had multiple taxes in the cart, but all products the discount was applied to have the same tax.
                     // So we set the value to the given amount by prestashop to avoid any further issues.
                     $discountItem = end($discountItems);
@@ -689,8 +702,19 @@ class PostFinanceCheckout_Service_LineItem extends PostFinanceCheckout_Service_A
                         $id);
                     $discountItems[] = $this->cleanLineItem($item);
                 }
-                
-                if (count($discountItems) == 1) {
+                if (count($discountItems) == 0) {
+                    //we have no taxes
+                    $item = new \PostFinanceCheckout\Sdk\Model\LineItemCreate();
+                    $item->setAmountIncludingTax($remainingDiscount);
+                    $item->setName($nameBase);
+                    $item->setQuantity(1);
+                    $item->setShippingRequired(false);
+                    $item->setSku($skuBase);
+                    $item->setType(\PostFinanceCheckout\Sdk\Model\LineItemType::DISCOUNT);
+                    $item->setUniqueId($uniqueIdBase);
+                    $discountItem = $this->cleanLineItem($item);
+                    $overallDiscounts[] = $discountItem;                    
+                } else if (count($discountItems) == 1) {
                     // We had multiple taxes in the cart, but all products the discount was applied to have the same tax.
                     // So we set the value to the given amount by prestashop to avoid further issues.
                     $discountItem = end($discountItems);

@@ -478,10 +478,16 @@ class PostFinanceCheckout_Service_Transaction extends PostFinanceCheckout_Servic
     public function getTransactionFromCart(Cart $cart)
     {
         $currentCartId = $cart->id;
+        $spaceId = Configuration::get(
+            PostFinanceCheckout::CK_SPACE_ID,
+            null,
+            $cart->id_shop_group,
+            $cart->id_shop
+            );
         if (! isset(self::$transactionCache[$currentCartId]) ||
              self::$transactionCache[$currentCartId] == null) {
             $ids = PostFinanceCheckout_Helper::getCartMeta($cart, 'mappingIds');
-            if (empty($ids)) {
+            if (empty($ids) || !isset($ids['spaceId']) || $ids['spaceId'] != $spaceId) {
                 $transaction = $this->createTransactionFromCart($cart);
             } else {
                 $transaction = $this->loadAndUpdateTransactionFromCart($cart);
