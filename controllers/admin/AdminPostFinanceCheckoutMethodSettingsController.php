@@ -2,7 +2,7 @@
 /**
  * PostFinance Checkout Prestashop
  *
- * This Prestashop module enables to process payments with PostFinance Checkout (https://www.postfinance.ch).
+ * This Prestashop module enables to process payments with PostFinance Checkout (https://www.postfinance.ch/checkout).
  *
  * @author customweb GmbH (http://www.customweb.com/)
  * @copyright 2017 - 2019 customweb GmbH
@@ -11,8 +11,6 @@
 
 class AdminPostFinanceCheckoutMethodSettingsController extends ModuleAdminController
 {
-    
-
     public function __construct()
     {
         parent::__construct();
@@ -27,29 +25,40 @@ class AdminPostFinanceCheckoutMethodSettingsController extends ModuleAdminContro
             $shopContext = (! Shop::isFeatureActive() || Shop::getContext() == Shop::CONTEXT_SHOP);
             if (! $shopContext) {
                 $this->displayWarning(
-                    $this->module->l('You can only save the settings in a shop context.', 'adminpostfinancecheckoutmethodsettingscontroller')
+                    $this->module->l(
+                        'You can only save the settings in a shop context.',
+                        'adminpostfinancecheckoutmethodsettingscontroller'
+                    )
                 );
                 return;
             }
-            $spaceId = Configuration::get(PostFinanceCheckout::CK_SPACE_ID);
+            $spaceId = Configuration::get(PostFinanceCheckoutBasemodule::CK_SPACE_ID);
             if ($spaceId === false) {
                 $this->displayWarning(
-                    $this->module->l('You have to configure a Space Id for the current shop.', 'adminpostfinancecheckoutmethodsettingscontroller')
+                    $this->module->l(
+                        'You have to configure a Space Id for the current shop.',
+                        'adminpostfinancecheckoutmethodsettingscontroller'
+                    )
                 );
                 return;
             }
             $methodId = Tools::getValue('method_id', null);
             if ($methodId === null || ! ctype_digit($methodId)) {
-                $this->displayWarning($this->module->l('No valid method provided.', 'adminpostfinancecheckoutmethodsettingscontroller'));
+                $this->displayWarning(
+                    $this->module->l('No valid method provided.', 'adminpostfinancecheckoutmethodsettingscontroller')
+                );
                 return;
             }
-            $method = PostFinanceCheckout_Model_MethodConfiguration::loadByIdWithChecks(
+            $method = PostFinanceCheckoutModelMethodconfiguration::loadByIdWithChecks(
                 $methodId,
                 Context::getContext()->shop->id
             );
             if ($method === false) {
                 $this->displayWarning(
-                    $this->module->l('This method is not configurable in this shop context.', 'adminpostfinancecheckoutmethodsettingscontroller')
+                    $this->module->l(
+                        'This method is not configurable in this shop context.',
+                        'adminpostfinancecheckoutmethodsettingscontroller'
+                    )
                 );
                 return;
             }
@@ -65,7 +74,9 @@ class AdminPostFinanceCheckoutMethodSettingsController extends ModuleAdminContro
                 $method->setFeeAddTax((int) Tools::getValue('fee_add_tax'));
             }
             $method->update();
-            $this->setRedirectAfter(self::$currentIndex.'&token='.$this->token.'&method_id='.(int)Tools::getValue('method_id'));
+            $this->setRedirectAfter(
+                self::$currentIndex . '&token=' . $this->token . '&method_id=' . (int) Tools::getValue('method_id')
+            );
         }
     }
 
@@ -83,35 +94,49 @@ class AdminPostFinanceCheckoutMethodSettingsController extends ModuleAdminContro
     private function handleList()
     {
         $this->display = 'list';
-        $this->context->smarty->assign('title', 'PostFinance Checkout '. $this->module->l('Payment Methods', 'adminpostfinancecheckoutmethodsettingscontroller'));
-        
+        $this->context->smarty->assign(
+            'title',
+            'PostFinance Checkout ' .
+            $this->module->l('Payment Methods', 'adminpostfinancecheckoutmethodsettingscontroller')
+        );
+
         $shopContext = (! Shop::isFeatureActive() || Shop::getContext() == Shop::CONTEXT_SHOP);
         if (! $shopContext) {
             $this->displayWarning(
-                $this->module->l('You have more than one shop and must select one to configure the payment methods.', 'adminpostfinancecheckoutmethodsettingscontroller')
+                $this->module->l(
+                    'You have more than one shop and must select one to configure the payment methods.',
+                    'adminpostfinancecheckoutmethodsettingscontroller'
+                )
             );
             return;
         }
-        $spaceId = Configuration::get(PostFinanceCheckout::CK_SPACE_ID);
+        $spaceId = Configuration::get(PostFinanceCheckoutBasemodule::CK_SPACE_ID);
         if ($spaceId === false) {
             $this->displayWarning(
-                $this->module->l('You have to configure a Space Id for the current shop.', 'adminpostfinancecheckoutmethodsettingscontroller')
+                $this->module->l(
+                    'You have to configure a Space Id for the current shop.',
+                    'adminpostfinancecheckoutmethodsettingscontroller'
+                )
             );
             return;
         }
         $methodConfigurations = array();
-        $methods = PostFinanceCheckout_Model_MethodConfiguration::loadValidForShop(
-            Context::getContext()->shop->id
-        );
-        $spaceViewId = Configuration::get(PostFinanceCheckout::CK_SPACE_VIEW_ID);
+        $methods = PostFinanceCheckoutModelMethodconfiguration::loadValidForShop(Context::getContext()->shop->id);
+        $spaceViewId = Configuration::get(PostFinanceCheckoutBasemodule::CK_SPACE_VIEW_ID);
         foreach ($methods as $method) {
             $methodConfigurations[] = array(
                 'id' => $method->getId(),
                 'configurationName' => $method->getConfigurationName(),
-                'imageUrl' => PostFinanceCheckout_Helper::getResourceUrl($method->getImageBase(), $method->getImage(), PostFinanceCheckout_Helper::convertLanguageIdToIETF($this->context->language->id), $spaceId, $spaceViewId)
+                'imageUrl' => PostFinanceCheckoutHelper::getResourceUrl(
+                    $method->getImageBase(),
+                    $method->getImage(),
+                    PostFinanceCheckoutHelper::convertLanguageIdToIETF($this->context->language->id),
+                    $spaceId,
+                    $spaceViewId
+                )
             );
         }
-        
+
         $this->context->smarty->assign('methodConfigurations', $methodConfigurations);
     }
 
@@ -120,31 +145,48 @@ class AdminPostFinanceCheckoutMethodSettingsController extends ModuleAdminContro
         $shopContext = (! Shop::isFeatureActive() || Shop::getContext() == Shop::CONTEXT_SHOP);
         if (! $shopContext) {
             $this->displayWarning(
-                $this->module->l('You can only edit the settings in a shop context.', 'adminpostfinancecheckoutmethodsettingscontroller')
+                $this->module->l(
+                    'You can only edit the settings in a shop context.',
+                    'adminpostfinancecheckoutmethodsettingscontroller'
+                )
             );
             return;
         }
-        $spaceId = Configuration::get(PostFinanceCheckout::CK_SPACE_ID);
+        $spaceId = Configuration::get(PostFinanceCheckoutBasemodule::CK_SPACE_ID);
         if ($spaceId === false) {
             $this->displayWarning(
-                $this->module->l('You have to configure a Space Id for the current shop.', 'adminpostfinancecheckoutmethodsettingscontroller')
+                $this->module->l(
+                    'You have to configure a Space Id for the current shop.',
+                    'adminpostfinancecheckoutmethodsettingscontroller'
+                )
             );
             return;
         }
-        $method = PostFinanceCheckout_Model_MethodConfiguration::loadByIdWithChecks(
+        $method = PostFinanceCheckoutModelMethodconfiguration::loadByIdWithChecks(
             $methodId,
             Context::getContext()->shop->id
         );
         if ($method === false) {
             $this->displayWarning(
-                $this->module->l('This method is not available in this shop context.', 'adminpostfinancecheckoutmethodsettingscontroller')
+                $this->module->l(
+                    'This method is not available in this shop context.',
+                    'adminpostfinancecheckoutmethodsettingscontroller'
+                )
             );
             return;
         }
         $this->display = 'edit';
-        
+
         $form = $this->displayConfig($method);
         $this->toolbar_title = $method->getConfigurationName();
+        $this->context->smarty->registerPlugin(
+            'function',
+            'postfinancecheckout_output_method_form',
+            array(
+                'PostFinanceCheckoutSmartyfunctions',
+                'outputMethodForm'
+            )
+        );
         $this->context->smarty->assign('formHtml', $form);
     }
 
@@ -157,10 +199,11 @@ class AdminPostFinanceCheckoutMethodSettingsController extends ModuleAdminContro
         $helper->allow_employee_form_lang = Configuration::get('PS_BO_ALLOW_EMPLOYEE_FORM_LANG') ? Configuration::get(
             'PS_BO_ALLOW_EMPLOYEE_FORM_LANG'
         ) : 0;
-        
+
         $helper->identifier = $this->identifier;
-        $helper->title = 'PostFinance Checkout '.$this->module->l('Payment Methods', 'adminpostfinancecheckoutmethodsettingscontroller');
-        
+        $helper->title = 'PostFinance Checkout ' .
+            $this->module->l('Payment Methods', 'adminpostfinancecheckoutmethodsettingscontroller');
+
         $helper->module = $this->module;
         $helper->name_controller = 'AdminPostFinanceCheckoutMethodSettings';
         $helper->token = Tools::getAdminTokenLite('AdminPostFinanceCheckoutMethodSettings');
@@ -171,7 +214,7 @@ class AdminPostFinanceCheckoutMethodSettingsController extends ModuleAdminContro
         return $helper;
     }
 
-    private function displayConfig(PostFinanceCheckout_Model_MethodConfiguration $method)
+    private function displayConfig(PostFinanceCheckoutModelMethodconfiguration $method)
     {
         $configuration = array(
             array(
@@ -211,7 +254,10 @@ class AdminPostFinanceCheckoutMethodSettingsController extends ModuleAdminContro
             ),
             array(
                 'type' => 'switch',
-                'label' => $this->module->l('Display method description', 'adminpostfinancecheckoutmethodsettingscontroller'),
+                'label' => $this->module->l(
+                    'Display method description',
+                    'adminpostfinancecheckoutmethodsettingscontroller'
+                ),
                 'name' => 'show_description',
                 'is_bool' => true,
                 'values' => array(
@@ -230,7 +276,10 @@ class AdminPostFinanceCheckoutMethodSettingsController extends ModuleAdminContro
             ),
             array(
                 'type' => 'switch',
-                'label' => $this->module->l('Display method image', 'adminpostfinancecheckoutmethodsettingscontroller'),
+                'label' => $this->module->l(
+                    'Display method image',
+                    'adminpostfinancecheckoutmethodsettingscontroller'
+                ),
                 'name' => 'show_image',
                 'is_bool' => true,
                 'values' => array(
@@ -248,14 +297,17 @@ class AdminPostFinanceCheckoutMethodSettingsController extends ModuleAdminContro
                 'lang' => false
             )
         );
-        
+
         $defaultCurrency = Currency::getCurrency(Configuration::get('PS_CURRENCY_DEFAULT'));
         $fees = array(
             array(
                 'type' => 'switch',
                 'label' => $this->module->l('Add tax', 'adminpostfinancecheckoutmethodsettingscontroller'),
                 'name' => 'fee_add_tax',
-                'desc' => $this->module->l('Should the tax amount be added after the computation or should the tax be included in the computed fee.', 'adminpostfinancecheckoutmethodsettingscontroller'),
+                'desc' => $this->module->l(
+                    'Should the tax amount be added after the computation or should the tax be included in the computed fee.',
+                    'adminpostfinancecheckoutmethodsettingscontroller'
+                ),
                 'is_bool' => true,
                 'values' => array(
                     array(
@@ -275,7 +327,10 @@ class AdminPostFinanceCheckoutMethodSettingsController extends ModuleAdminContro
                 'type' => 'text',
                 'label' => $this->module->l('Fee Fixed', 'adminpostfinancecheckoutmethodsettingscontroller'),
                 'desc' => sprintf(
-                    $this->module->l('The fee has to be entered in the shops default currency. Current default currency: %s', 'adminpostfinancecheckoutmethodsettingscontroller'),
+                    $this->module->l(
+                        'The fee has to be entered in the shops default currency. Current default currency: %s',
+                        'adminpostfinancecheckoutmethodsettingscontroller'
+                    ),
                     $defaultCurrency['iso_code']
                 ),
                 'name' => 'fee_fixed',
@@ -284,41 +339,64 @@ class AdminPostFinanceCheckoutMethodSettingsController extends ModuleAdminContro
             array(
                 'type' => 'text',
                 'label' => $this->module->l('Fee Rate', 'adminpostfinancecheckoutmethodsettingscontroller'),
-                'desc' => $this->module->l('The rate in percent.', 'adminpostfinancecheckoutmethodsettingscontroller'),
+                'desc' => $this->module->l(
+                    'The rate in percent.',
+                    'adminpostfinancecheckoutmethodsettingscontroller'
+                ),
                 'name' => 'fee_rate',
                 'col' => 3
             ),
             array(
                 'type' => 'select',
-                'label' => $this->module->l('Fee is calculated based on:', 'adminpostfinancecheckoutmethodsettingscontroller'),
+                'label' => $this->module->l(
+                    'Fee is calculated based on:',
+                    'adminpostfinancecheckoutmethodsettingscontroller'
+                ),
                 'name' => 'fee_base',
                 'options' => array(
                     'query' => array(
                         array(
-                            'name' => $this->module->l('Total (inc Tax)', 'adminpostfinancecheckoutmethodsettingscontroller'),
-                            'type' => PostFinanceCheckout::TOTAL_MODE_BOTH_INC
+                            'name' => $this->module->l(
+                                'Total (inc Tax)',
+                                'adminpostfinancecheckoutmethodsettingscontroller'
+                            ),
+                            'type' => PostFinanceCheckoutBasemodule::TOTAL_MODE_BOTH_INC
                         ),
                         array(
-                            'name' => $this->module->l('Total (exc Tax)', 'adminpostfinancecheckoutmethodsettingscontroller'),
-                            'type' => PostFinanceCheckout::TOTAL_MODE_BOTH_EXC
+                            'name' => $this->module->l(
+                                'Total (exc Tax)',
+                                'adminpostfinancecheckoutmethodsettingscontroller'
+                            ),
+                            'type' => PostFinanceCheckoutBasemodule::TOTAL_MODE_BOTH_EXC
                         ),
                         array(
-                            'name' => $this->module->l('Total without shipping (inc Tax)', 'adminpostfinancecheckoutmethodsettingscontroller'),
-                            'type' => PostFinanceCheckout::TOTAL_MODE_WITHOUT_SHIPPING_INC
+                            'name' => $this->module->l(
+                                'Total without shipping (inc Tax)',
+                                'adminpostfinancecheckoutmethodsettingscontroller'
+                            ),
+                            'type' => PostFinanceCheckoutBasemodule::TOTAL_MODE_WITHOUT_SHIPPING_INC
                         ),
                         array(
-                            'name' => $this->module->l('Total without shipping (exc Tax)', 'adminpostfinancecheckoutmethodsettingscontroller'),
-                            'type' => PostFinanceCheckout::TOTAL_MODE_WITHOUT_SHIPPING_EXC
+                            'name' => $this->module->l(
+                                'Total without shipping (exc Tax)',
+                                'adminpostfinancecheckoutmethodsettingscontroller'
+                            ),
+                            'type' => PostFinanceCheckoutBasemodule::TOTAL_MODE_WITHOUT_SHIPPING_EXC
                         ),
                         array(
-                            'name' => $this->module->l('Products only (inc Tax)', 'adminpostfinancecheckoutmethodsettingscontroller'),
-                            'type' => PostFinanceCheckout::TOTAL_MODE_PRODUCTS_INC
+                            'name' => $this->module->l(
+                                'Products only (inc Tax)',
+                                'adminpostfinancecheckoutmethodsettingscontroller'
+                            ),
+                            'type' => PostFinanceCheckoutBasemodule::TOTAL_MODE_PRODUCTS_INC
                         ),
                         array(
-                            'name' => $this->module->l('Products only (exc Tax)', 'adminpostfinancecheckoutmethodsettingscontroller'),
-                            'type' => PostFinanceCheckout::TOTAL_MODE_PRODUCTS_EXC
+                            'name' => $this->module->l(
+                                'Products only (exc Tax)',
+                                'adminpostfinancecheckoutmethodsettingscontroller'
+                            ),
+                            'type' => PostFinanceCheckoutBasemodule::TOTAL_MODE_PRODUCTS_EXC
                         )
-                        
                     ),
                     'id' => 'type',
                     'name' => 'name'
@@ -334,14 +412,14 @@ class AdminPostFinanceCheckoutMethodSettingsController extends ModuleAdminContro
             'input' => $configuration,
             'buttons' => array(
                 array(
-                    'title' =>$this->module->l('Save All', 'adminpostfinancecheckoutmethodsettingscontroller'),
+                    'title' => $this->module->l('Save All', 'adminpostfinancecheckoutmethodsettingscontroller'),
                     'class' => 'pull-right',
                     'type' => 'input',
                     'icon' => 'process-icon-save',
                     'name' => 'save_all'
                 ),
                 array(
-                    'title' =>$this->module->l('Save', 'adminpostfinancecheckoutmethodsettingscontroller'),
+                    'title' => $this->module->l('Save', 'adminpostfinancecheckoutmethodsettingscontroller'),
                     'class' => 'pull-right',
                     'type' => 'input',
                     'icon' => 'process-icon-save',
@@ -356,14 +434,14 @@ class AdminPostFinanceCheckoutMethodSettingsController extends ModuleAdminContro
             'input' => $fees,
             'buttons' => array(
                 array(
-                    'title' =>$this->module->l('Save All', 'adminpostfinancecheckoutmethodsettingscontroller'),
+                    'title' => $this->module->l('Save All', 'adminpostfinancecheckoutmethodsettingscontroller'),
                     'class' => 'pull-right',
                     'type' => 'input',
                     'icon' => 'process-icon-save',
                     'name' => 'save_all'
                 ),
                 array(
-                    'title' =>$this->module->l('Save', 'adminpostfinancecheckoutmethodsettingscontroller'),
+                    'title' => $this->module->l('Save', 'adminpostfinancecheckoutmethodsettingscontroller'),
                     'class' => 'pull-right',
                     'type' => 'input',
                     'icon' => 'process-icon-save',
@@ -376,7 +454,7 @@ class AdminPostFinanceCheckoutMethodSettingsController extends ModuleAdminContro
         return $helper->generateForm($fieldsForm);
     }
 
-    private function getBaseValues(PostFinanceCheckout_Model_MethodConfiguration $method)
+    private function getBaseValues(PostFinanceCheckoutModelMethodconfiguration $method)
     {
         $result = array();
         $result['active'] = $method->isActive();
@@ -385,11 +463,11 @@ class AdminPostFinanceCheckoutMethodSettingsController extends ModuleAdminContro
         $title = array();
         $description = array();
         foreach ($this->context->controller->getLanguages() as $language) {
-            $title[$language['id_lang']] = PostFinanceCheckout_Helper::translate(
+            $title[$language['id_lang']] = PostFinanceCheckoutHelper::translate(
                 $method->getTitle(),
                 $language['id_lang']
             );
-            $description[$language['id_lang']] = PostFinanceCheckout_Helper::translate(
+            $description[$language['id_lang']] = PostFinanceCheckoutHelper::translate(
                 $method->getDescription(),
                 $language['id_lang']
             );
@@ -399,7 +477,7 @@ class AdminPostFinanceCheckoutMethodSettingsController extends ModuleAdminContro
         return $result;
     }
 
-    private function displayFeeConfig(PostFinanceCheckout_Model_MethodConfiguration $method)
+    private function displayFeeConfig(PostFinanceCheckoutModelMethodconfiguration $method)
     {
         $submit = array(
             'title' => $this->module->l('Save', 'adminpostfinancecheckoutmethodsettingscontroller'),
@@ -412,7 +490,10 @@ class AdminPostFinanceCheckoutMethodSettingsController extends ModuleAdminContro
                 'type' => 'switch',
                 'label' => $this->module->l('Add tax', 'adminpostfinancecheckoutmethodsettingscontroller'),
                 'name' => 'fee_add_tax',
-                'desc' => $this->module->l('Should the tax amount be added after the computation or should the tax be included in the computed fee.', 'adminpostfinancecheckoutmethodsettingscontroller'),
+                'desc' => $this->module->l(
+                    'Should the tax amount be added after the computation or should the tax be included in the computed fee.',
+                    'adminpostfinancecheckoutmethodsettingscontroller'
+                ),
                 'is_bool' => true,
                 'values' => array(
                     array(
@@ -432,7 +513,10 @@ class AdminPostFinanceCheckoutMethodSettingsController extends ModuleAdminContro
                 'type' => 'text',
                 'label' => $this->module->l('Fee Fixed', 'adminpostfinancecheckoutmethodsettingscontroller'),
                 'desc' => sprintf(
-                    $this->module->l('The fee has to be entered in the shops default currency. Current default currency: %s', 'adminpostfinancecheckoutmethodsettingscontroller'),
+                    $this->module->l(
+                        'The fee has to be entered in the shops default currency. Current default currency: %s',
+                        'adminpostfinancecheckoutmethodsettingscontroller'
+                    ),
                     $defaultCurrency['iso_code']
                 ),
                 'name' => 'fee_fixed',
@@ -441,48 +525,71 @@ class AdminPostFinanceCheckoutMethodSettingsController extends ModuleAdminContro
             array(
                 'type' => 'text',
                 'label' => $this->module->l('Fee Rate', 'adminpostfinancecheckoutmethodsettingscontroller'),
-                'desc' => $this->module->l('The rate in percent.', 'adminpostfinancecheckoutmethodsettingscontroller'),
+                'desc' => $this->module->l(
+                    'The rate in percent.',
+                    'adminpostfinancecheckoutmethodsettingscontroller'
+                ),
                 'name' => 'fee_rate',
                 'col' => 3
             ),
             array(
                 'type' => 'select',
-                'label' => $this->module->l('Fee is calculated based on:', 'adminpostfinancecheckoutmethodsettingscontroller'),
+                'label' => $this->module->l(
+                    'Fee is calculated based on:',
+                    'adminpostfinancecheckoutmethodsettingscontroller'
+                ),
                 'name' => 'fee_base',
                 'options' => array(
                     'query' => array(
                         array(
-                            'name' => $this->module->l('Total (inc Tax)', 'adminpostfinancecheckoutmethodsettingscontroller'),
-                            'type' => PostFinanceCheckout::TOTAL_MODE_BOTH_INC
+                            'name' => $this->module->l(
+                                'Total (inc Tax)',
+                                'adminpostfinancecheckoutmethodsettingscontroller'
+                            ),
+                            'type' => PostFinanceCheckoutBasemodule::TOTAL_MODE_BOTH_INC
                         ),
                         array(
-                            'name' => $this->module->l('Total (exc Tax)', 'adminpostfinancecheckoutmethodsettingscontroller'),
-                            'type' => PostFinanceCheckout::TOTAL_MODE_BOTH_EXC
+                            'name' => $this->module->l(
+                                'Total (exc Tax)',
+                                'adminpostfinancecheckoutmethodsettingscontroller'
+                            ),
+                            'type' => PostFinanceCheckoutBasemodule::TOTAL_MODE_BOTH_EXC
                         ),
                         array(
-                            'name' => $this->module->l('Total without shipping (inc Tax)', 'adminpostfinancecheckoutmethodsettingscontroller'),
-                            'type' => PostFinanceCheckout::TOTAL_MODE_WITHOUT_SHIPPING_INC
+                            'name' => $this->module->l(
+                                'Total without shipping (inc Tax)',
+                                'adminpostfinancecheckoutmethodsettingscontroller'
+                            ),
+                            'type' => PostFinanceCheckoutBasemodule::TOTAL_MODE_WITHOUT_SHIPPING_INC
                         ),
                         array(
-                            'name' => $this->module->l('Total without shipping (exc Tax)', 'adminpostfinancecheckoutmethodsettingscontroller'),
-                            'type' => PostFinanceCheckout::TOTAL_MODE_WITHOUT_SHIPPING_EXC
+                            'name' => $this->module->l(
+                                'Total without shipping (exc Tax)',
+                                'adminpostfinancecheckoutmethodsettingscontroller'
+                            ),
+                            'type' => PostFinanceCheckoutBasemodule::TOTAL_MODE_WITHOUT_SHIPPING_EXC
                         ),
                         array(
-                            'name' => $this->module->l('Products only (inc Tax)', 'adminpostfinancecheckoutmethodsettingscontroller'),
-                            'type' => PostFinanceCheckout::TOTAL_MODE_PRODUCTS_INC
+                            'name' => $this->module->l(
+                                'Products only (inc Tax)',
+                                'adminpostfinancecheckoutmethodsettingscontroller'
+                            ),
+                            'type' => PostFinanceCheckoutBasemodule::TOTAL_MODE_PRODUCTS_INC
                         ),
                         array(
-                            'name' => $this->module->l('Products only (exc Tax)', 'adminpostfinancecheckoutmethodsettingscontroller'),
-                            'type' => PostFinanceCheckout::TOTAL_MODE_PRODUCTS_EXC
+                            'name' => $this->module->l(
+                                'Products only (exc Tax)',
+                                'adminpostfinancecheckoutmethodsettingscontroller'
+                            ),
+                            'type' => PostFinanceCheckoutBasemodule::TOTAL_MODE_PRODUCTS_EXC
                         )
-                    
                     ),
                     'id' => 'type',
                     'name' => 'name'
                 )
             )
         );
-        
+
         $fieldsForm[]['form'] = array(
             'legend' => array(
                 'title' => $this->module->l('Payment Fee', 'adminpostfinancecheckoutmethodsettingscontroller')
@@ -496,7 +603,7 @@ class AdminPostFinanceCheckoutMethodSettingsController extends ModuleAdminContro
         return $helper->generateForm($fieldsForm);
     }
 
-    private function getFeeValues(PostFinanceCheckout_Model_MethodConfiguration $method)
+    private function getFeeValues(PostFinanceCheckoutModelMethodconfiguration $method)
     {
         $result = array();
         $result['fee_rate'] = $method->getFeeRate();

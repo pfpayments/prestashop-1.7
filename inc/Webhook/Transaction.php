@@ -2,7 +2,7 @@
 /**
  * PostFinance Checkout Prestashop
  *
- * This Prestashop module enables to process payments with PostFinance Checkout (https://www.postfinance.ch).
+ * This Prestashop module enables to process payments with PostFinance Checkout (https://www.postfinance.ch/checkout).
  *
  * @author customweb GmbH (http://www.customweb.com/)
  * @copyright 2017 - 2019 customweb GmbH
@@ -12,17 +12,19 @@
 /**
  * Webhook processor to handle transaction state transitions.
  */
-class PostFinanceCheckout_Webhook_Transaction extends PostFinanceCheckout_Webhook_OrderRelatedAbstract
+class PostFinanceCheckoutWebhookTransaction extends PostFinanceCheckoutWebhookOrderrelatedabstract
 {
 
     /**
      *
-     * @see PostFinanceCheckout_Webhook_OrderRelatedAbstract::loadEntity()
+     * @see PostFinanceCheckoutWebhookOrderrelatedabstract::loadEntity()
      * @return \PostFinanceCheckout\Sdk\Model\Transaction
      */
-    protected function loadEntity(PostFinanceCheckout_Webhook_Request $request)
+    protected function loadEntity(PostFinanceCheckoutWebhookRequest $request)
     {
-        $transactionService = new \PostFinanceCheckout\Sdk\Service\TransactionService(PostFinanceCheckout_Helper::getApiClient());
+        $transactionService = new \PostFinanceCheckout\Sdk\Service\TransactionService(
+            PostFinanceCheckoutHelper::getApiClient()
+        );
         return $transactionService->read($request->getSpaceId(), $request->getEntityId());
     }
 
@@ -41,7 +43,7 @@ class PostFinanceCheckout_Webhook_Transaction extends PostFinanceCheckout_Webhoo
     protected function processOrderRelatedInner(Order $order, $transaction)
     {
         /* @var \PostFinanceCheckout\Sdk\Model\Transaction $transaction */
-        $transactionInfo = PostFinanceCheckout_Model_TransactionInfo::loadByOrderId($order->id);
+        $transactionInfo = PostFinanceCheckoutModelTransactioninfo::loadByOrderId($order->id);
         if ($transaction->getState() != $transactionInfo->getState()) {
             switch ($transaction->getState()) {
                 case \PostFinanceCheckout\Sdk\Model\TransactionState::AUTHORIZED:
@@ -70,26 +72,25 @@ class PostFinanceCheckout_Webhook_Transaction extends PostFinanceCheckout_Webhoo
         }
     }
 
-
     protected function authorize(\PostFinanceCheckout\Sdk\Model\Transaction $transaction, Order $sourceOrder)
     {
-        if (PostFinanceCheckout_Helper::getOrderMeta($sourceOrder, 'authorized')) {
+        if (PostFinanceCheckoutHelper::getOrderMeta($sourceOrder, 'authorized')) {
             return;
         }
-        //Do not send emails for this status update
-        PostFinanceCheckout::startRecordingMailMessages();
-        PostFinanceCheckout_Helper::updateOrderMeta($sourceOrder, 'authorized', true);
-        $authorizedStatusId = Configuration::get(PostFinanceCheckout::CK_STATUS_AUTHORIZED);
+        // Do not send emails for this status update
+        PostFinanceCheckoutBasemodule::startRecordingMailMessages();
+        PostFinanceCheckoutHelper::updateOrderMeta($sourceOrder, 'authorized', true);
+        $authorizedStatusId = Configuration::get(PostFinanceCheckoutBasemodule::CK_STATUS_AUTHORIZED);
         $orders = $sourceOrder->getBrother();
         $orders[] = $sourceOrder;
         foreach ($orders as $order) {
             $order->setCurrentState($authorizedStatusId);
             $order->save();
         }
-        PostFinanceCheckout::stopRecordingMailMessages();
-        if (Configuration::get(PostFinanceCheckout::CK_MAIL, null, null, $sourceOrder->id_shop)) {
-           //Send stored messages
-            $messages = PostFinanceCheckout_Helper::getOrderEmails($sourceOrder);
+        PostFinanceCheckoutBasemodule::stopRecordingMailMessages();
+        if (Configuration::get(PostFinanceCheckoutBasemodule::CK_MAIL, null, null, $sourceOrder->id_shop)) {
+            // Send stored messages
+            $messages = PostFinanceCheckoutHelper::getOrderEmails($sourceOrder);
             if (count($messages) > 0) {
                 if (method_exists('Mail', 'sendMailMessageWithoutHook')) {
                     foreach ($messages as $message) {
@@ -98,21 +99,21 @@ class PostFinanceCheckout_Webhook_Transaction extends PostFinanceCheckout_Webhoo
                 }
             }
         }
-        PostFinanceCheckout_Helper::deleteOrderEmails($order);
-        //Cleanup carts
-        $originalCartId = PostFinanceCheckout_Helper::getOrderMeta($order, 'originalCart');
-        if (!empty($originalCartId)) {
+        PostFinanceCheckoutHelper::deleteOrderEmails($order);
+        // Cleanup carts
+        $originalCartId = PostFinanceCheckoutHelper::getOrderMeta($order, 'originalCart');
+        if (! empty($originalCartId)) {
             $cart = new Cart($originalCartId);
             $cart->delete();
         }
-        PostFinanceCheckout_Service_Transaction::instance()->updateTransactionInfo($transaction, $sourceOrder);
+        PostFinanceCheckoutServiceTransaction::instance()->updateTransactionInfo($transaction, $sourceOrder);
     }
 
     protected function waiting(\PostFinanceCheckout\Sdk\Model\Transaction $transaction, Order $sourceOrder)
     {
-        PostFinanceCheckout::startRecordingMailMessages();
-        $waitingStatusId = Configuration::get(PostFinanceCheckout::CK_STATUS_COMPLETED);
-        if (! PostFinanceCheckout_Helper::getOrderMeta($sourceOrder, 'manual_check')) {
+        PostFinanceCheckoutBasemodule::startRecordingMailMessages();
+        $waitingStatusId = Configuration::get(PostFinanceCheckoutBasemodule::CK_STATUS_COMPLETED);
+        if (! PostFinanceCheckoutHelper::getOrderMeta($sourceOrder, 'manual_check')) {
             $orders = $sourceOrder->getBrother();
             $orders[] = $sourceOrder;
             foreach ($orders as $order) {
@@ -120,79 +121,79 @@ class PostFinanceCheckout_Webhook_Transaction extends PostFinanceCheckout_Webhoo
                 $order->save();
             }
         }
-        PostFinanceCheckout::stopRecordingMailMessages();
-        PostFinanceCheckout_Service_Transaction::instance()->updateTransactionInfo($transaction, $sourceOrder);
+        PostFinanceCheckoutBasemodule::stopRecordingMailMessages();
+        PostFinanceCheckoutServiceTransaction::instance()->updateTransactionInfo($transaction, $sourceOrder);
     }
 
     protected function decline(\PostFinanceCheckout\Sdk\Model\Transaction $transaction, Order $sourceOrder)
     {
-        if (!Configuration::get(PostFinanceCheckout::CK_MAIL, null, null, $sourceOrder->id_shop)) {
-            //Do not send email
-            PostFinanceCheckout::startRecordingMailMessages();
+        if (! Configuration::get(PostFinanceCheckoutBasemodule::CK_MAIL, null, null, $sourceOrder->id_shop)) {
+            // Do not send email
+            PostFinanceCheckoutBasemodule::startRecordingMailMessages();
         }
-        
-        $canceledStatusId = Configuration::get(PostFinanceCheckout::CK_STATUS_DECLINED);
+
+        $canceledStatusId = Configuration::get(PostFinanceCheckoutBasemodule::CK_STATUS_DECLINED);
         $orders = $sourceOrder->getBrother();
         $orders[] = $sourceOrder;
         foreach ($orders as $order) {
             $order->setCurrentState($canceledStatusId);
             $order->save();
         }
-        PostFinanceCheckout::stopRecordingMailMessages();
-        PostFinanceCheckout_Service_Transaction::instance()->updateTransactionInfo($transaction, $sourceOrder);
+        PostFinanceCheckoutBasemodule::stopRecordingMailMessages();
+        PostFinanceCheckoutServiceTransaction::instance()->updateTransactionInfo($transaction, $sourceOrder);
     }
 
     protected function failed(\PostFinanceCheckout\Sdk\Model\Transaction $transaction, Order $sourceOrder)
     {
-        //Do not send email
-        PostFinanceCheckout::startRecordingMailMessages();
-        $errorStatusId = Configuration::get(PostFinanceCheckout::CK_STATUS_FAILED);
+        // Do not send email
+        PostFinanceCheckoutBasemodule::startRecordingMailMessages();
+        $errorStatusId = Configuration::get(PostFinanceCheckoutBasemodule::CK_STATUS_FAILED);
         $orders = $sourceOrder->getBrother();
         $orders[] = $sourceOrder;
         foreach ($orders as $order) {
             $order->setCurrentState($errorStatusId);
             $order->save();
         }
-        PostFinanceCheckout::stopRecordingMailMessages();
-        PostFinanceCheckout_Helper::deleteOrderEmails($sourceOrder);
-        PostFinanceCheckout_Service_Transaction::instance()->updateTransactionInfo($transaction, $sourceOrder);
+        PostFinanceCheckoutBasemodule::stopRecordingMailMessages();
+        PostFinanceCheckoutHelper::deleteOrderEmails($sourceOrder);
+        PostFinanceCheckoutServiceTransaction::instance()->updateTransactionInfo($transaction, $sourceOrder);
     }
 
     protected function fulfill(\PostFinanceCheckout\Sdk\Model\Transaction $transaction, Order $sourceOrder)
     {
-        if (!Configuration::get(PostFinanceCheckout::CK_MAIL, null, null, $sourceOrder->id_shop)) {
-            //Do not send email
-            PostFinanceCheckout::startRecordingMailMessages();
+        if (! Configuration::get(PostFinanceCheckoutBasemodule::CK_MAIL, null, null, $sourceOrder->id_shop)) {
+            // Do not send email
+            PostFinanceCheckoutBasemodule::startRecordingMailMessages();
         }
-        $payedStatusId = Configuration::get(PostFinanceCheckout::CK_STATUS_FULFILL);
+        $payedStatusId = Configuration::get(PostFinanceCheckoutBasemodule::CK_STATUS_FULFILL);
         $orders = $sourceOrder->getBrother();
         $orders[] = $sourceOrder;
         foreach ($orders as $order) {
             $order->setCurrentState($payedStatusId);
             if (empty($order->invoice_date) || $order->invoice_date == '0000-00-00 00:00:00') {
-                //Make sure invoice date is set, otherwise prestashop ignores the order in the statistics
+                // Make sure invoice date is set, otherwise prestashop ignores the order in the statistics
                 $order->invoice_date = date('Y-m-d H:i:s');
             }
             $order->save();
         }
-        PostFinanceCheckout::stopRecordingMailMessages();
-        PostFinanceCheckout_Service_Transaction::instance()->updateTransactionInfo($transaction, $sourceOrder);
+        PostFinanceCheckoutBasemodule::stopRecordingMailMessages();
+        PostFinanceCheckoutServiceTransaction::instance()->updateTransactionInfo($transaction, $sourceOrder);
     }
 
     protected function voided(\PostFinanceCheckout\Sdk\Model\Transaction $transaction, Order $sourceOrder)
     {
-        if (!Configuration::get(PostFinanceCheckout::CK_MAIL, null, null, $sourceOrder->id_shop)) {
-            //Do not send email
-            PostFinanceCheckout::startRecordingMailMessages();
+        if (! Configuration::get(PostFinanceCheckoutBasemodule::CK_MAIL, null, null, $sourceOrder->id_shop)) {
+            // Do not send email
+            PostFinanceCheckoutBasemodule::startRecordingMailMessages();
         }
-        $canceledStatusId = Configuration::get(PostFinanceCheckout::CK_STATUS_VOIDED);
+        $canceledStatusId = Configuration::get(PostFinanceCheckoutBasemodule::CK_STATUS_VOIDED);
         $orders = $sourceOrder->getBrother();
         $orders[] = $sourceOrder;
         foreach ($orders as $order) {
             $order->setCurrentState($canceledStatusId);
             $order->save();
         }
-        PostFinanceCheckout::stopRecordingMailMessages();
-        PostFinanceCheckout_Service_Transaction::instance()->updateTransactionInfo($transaction, $sourceOrder);
+        PostFinanceCheckoutBasemodule::stopRecordingMailMessages();
+        PostFinanceCheckoutServiceTransaction::instance()->updateTransactionInfo($transaction, $sourceOrder);
     }
 }

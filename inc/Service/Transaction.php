@@ -2,7 +2,7 @@
 /**
  * PostFinance Checkout Prestashop
  *
- * This Prestashop module enables to process payments with PostFinance Checkout (https://www.postfinance.ch).
+ * This Prestashop module enables to process payments with PostFinance Checkout (https://www.postfinance.ch/checkout).
  *
  * @author customweb GmbH (http://www.customweb.com/)
  * @copyright 2017 - 2019 customweb GmbH
@@ -12,7 +12,7 @@
 /**
  * This service provides functions to deal with PostFinance Checkout transactions.
  */
-class PostFinanceCheckout_Service_Transaction extends PostFinanceCheckout_Service_Abstract
+class PostFinanceCheckoutServiceTransaction extends PostFinanceCheckoutServiceAbstract
 {
 
     /**
@@ -52,7 +52,7 @@ class PostFinanceCheckout_Service_Transaction extends PostFinanceCheckout_Servic
     {
         if ($this->transactionService === null) {
             $this->transactionService = new \PostFinanceCheckout\Sdk\Service\TransactionService(
-                PostFinanceCheckout_Helper::getApiClient()
+                PostFinanceCheckoutHelper::getApiClient()
             );
         }
         return $this->transactionService;
@@ -67,7 +67,7 @@ class PostFinanceCheckout_Service_Transaction extends PostFinanceCheckout_Servic
     {
         if ($this->chargeAttemptService === null) {
             $this->chargeAttemptService = new \PostFinanceCheckout\Sdk\Service\ChargeAttemptService(
-                PostFinanceCheckout_Helper::getApiClient()
+                PostFinanceCheckoutHelper::getApiClient()
             );
         }
         return $this->chargeAttemptService;
@@ -85,11 +85,11 @@ class PostFinanceCheckout_Service_Transaction extends PostFinanceCheckout_Servic
     {
         $startTime = microtime(true);
         while (true) {
-            $transactionInfo = PostFinanceCheckout_Model_TransactionInfo::loadByOrderId($order->id);
+            $transactionInfo = PostFinanceCheckoutModelTransactioninfo::loadByOrderId($order->id);
             if (in_array($transactionInfo->getState(), $states)) {
                 return true;
             }
-            
+
             if (microtime(true) - $startTime >= $maxWaitTime) {
                 return false;
             }
@@ -112,7 +112,6 @@ class PostFinanceCheckout_Service_Transaction extends PostFinanceCheckout_Servic
         );
     }
 
-    
     /**
      * Returns the URL to PostFinance Checkout's payment page.
      *
@@ -123,6 +122,7 @@ class PostFinanceCheckout_Service_Transaction extends PostFinanceCheckout_Servic
     {
         return $this->getTransactionService()->buildPaymentPageUrl($spaceId, $transactionId);
     }
+
     /**
      * Returns the transaction with the given id.
      *
@@ -188,11 +188,11 @@ class PostFinanceCheckout_Service_Transaction extends PostFinanceCheckout_Servic
      *
      * @param \PostFinanceCheckout\Sdk\Model\Transaction $transaction
      * @param Order $order
-     * @return PostFinanceCheckout_Model_TransactionInfo
+     * @return PostFinanceCheckoutModelTransactioninfo
      */
     public function updateTransactionInfo(\PostFinanceCheckout\Sdk\Model\Transaction $transaction, Order $order)
     {
-        $info = PostFinanceCheckout_Model_TransactionInfo::loadByTransaction(
+        $info = PostFinanceCheckoutModelTransactioninfo::loadByTransaction(
             $transaction->getLinkedSpaceId(),
             $transaction->getId()
         );
@@ -206,31 +206,26 @@ class PostFinanceCheckout_Service_Transaction extends PostFinanceCheckout_Servic
         $info->setCurrency($transaction->getCurrency());
         $info->setConnectorId(
             $transaction->getPaymentConnectorConfiguration() != null ? $transaction->getPaymentConnectorConfiguration()
-            ->getConnector() : null
+                ->getConnector() : null
         );
         $info->setPaymentMethodId(
-            $transaction->getPaymentConnectorConfiguration() != null &&
-                 $transaction->getPaymentConnectorConfiguration()
-                    ->getPaymentMethodConfiguration() != null ? $transaction->getPaymentConnectorConfiguration()
-                    ->getPaymentMethodConfiguration()
-            ->getPaymentMethod() : null
+            $transaction->getPaymentConnectorConfiguration() != null && $transaction->getPaymentConnectorConfiguration()
+                ->getPaymentMethodConfiguration() != null ? $transaction->getPaymentConnectorConfiguration()
+                ->getPaymentMethodConfiguration()
+                ->getPaymentMethod() : null
         );
         $info->setImage($this->getResourcePath($this->getPaymentMethodImage($transaction, $order)));
         $info->setImageBase($this->getResourceBase($this->getPaymentMethodImage($transaction, $order)));
         $info->setLabels($this->getTransactionLabels($transaction));
         if ($transaction->getState() == \PostFinanceCheckout\Sdk\Model\TransactionState::FAILED ||
-             $transaction->getState() == \PostFinanceCheckout\Sdk\Model\TransactionState::DECLINE) {
-            $failedChargeAttempt = $this->getFailedChargeAttempt(
-                $transaction->getLinkedSpaceId(),
-                $transaction->getId()
-            );
+            $transaction->getState() == \PostFinanceCheckout\Sdk\Model\TransactionState::DECLINE) {
+            $failedChargeAttempt = $this->getFailedChargeAttempt($transaction->getLinkedSpaceId(), $transaction->getId());
             if ($failedChargeAttempt != null && $failedChargeAttempt->getFailureReason() != null) {
-                $info->setFailureReason(
-                    $failedChargeAttempt->getFailureReason()
-                    ->getDescription()
-                );
+                $info->setFailureReason($failedChargeAttempt->getFailureReason()
+                    ->getDescription());
             } elseif ($transaction->getFailureReason() != null) {
-                $info->setFailureReason($transaction->getFailureReason()->getDescription());
+                $info->setFailureReason($transaction->getFailureReason()
+                    ->getDescription());
             }
             $info->setUserFailureMessage($transaction->getUserFailureMessage());
         }
@@ -298,16 +293,19 @@ class PostFinanceCheckout_Service_Transaction extends PostFinanceCheckout_Servic
         if ($transaction->getPaymentConnectorConfiguration() == null) {
             $moduleName = $order->module;
             if ($moduleName == "postfinancecheckout") {
-                $id = PostFinanceCheckout_Helper::getOrderMeta($order, 'postFinanceCheckoutMethodId');
-                $methodConfiguration = new PostFinanceCheckout_Model_MethodConfiguration($id);
-                return PostFinanceCheckout_Helper::getResourceUrl($methodConfiguration->getImageBase(), $methodConfiguration->getImage());
+                $id = PostFinanceCheckoutHelper::getOrderMeta($order, 'postFinanceCheckoutMethodId');
+                $methodConfiguration = new PostFinanceCheckoutModelMethodconfiguration($id);
+                return PostFinanceCheckoutHelper::getResourceUrl(
+                    $methodConfiguration->getImageBase(),
+                    $methodConfiguration->getImage()
+                );
             }
             return null;
         }
-        if ($transaction->getPaymentConnectorConfiguration()->getPaymentMethodConfiguration() !=
-             null) {
+        if ($transaction->getPaymentConnectorConfiguration()->getPaymentMethodConfiguration() != null) {
             return $transaction->getPaymentConnectorConfiguration()
-                ->getPaymentMethodConfiguration()->getResolvedImageUrl();
+                ->getPaymentMethodConfiguration()
+                ->getResolvedImageUrl();
         }
         return null;
     }
@@ -321,9 +319,9 @@ class PostFinanceCheckout_Service_Transaction extends PostFinanceCheckout_Servic
     public function getPossiblePaymentMethods(Cart $cart)
     {
         $currentCartId = $cart->id;
-        
+
         if (! isset(self::$possiblePaymentMethodCache[$currentCartId]) ||
-             self::$possiblePaymentMethodCache[$currentCartId] == null) {
+            self::$possiblePaymentMethodCache[$currentCartId] == null) {
             $transaction = $this->getTransactionFromCart($cart);
             try {
                 $paymentMethods = $this->getTransactionService()->fetchPossiblePaymentMethods(
@@ -333,11 +331,11 @@ class PostFinanceCheckout_Service_Transaction extends PostFinanceCheckout_Servic
             } catch (\WhitelabelMachineName\Sdk\ApiException $e) {
                 self::$possiblePaymentMethodCache[$currentCartId] = array();
                 throw $e;
-            } catch (PostFinanceCheckout_Exception_InvalidTransactionAmount $e) {
+            } catch (PostFinanceCheckoutExceptionInvalidtransactionamount $e) {
                 self::$possiblePaymentMethodCache[$currentCartId] = array();
                 throw $e;
             }
-            $methodConfigurationService = PostFinanceCheckout_Service_MethodConfiguration::instance();
+            $methodConfigurationService = PostFinanceCheckoutServiceMethodconfiguration::instance();
             foreach ($paymentMethods as $paymentMethod) {
                 $methodConfigurationService->updateData($paymentMethod);
             }
@@ -346,13 +344,17 @@ class PostFinanceCheckout_Service_Transaction extends PostFinanceCheckout_Servic
         return self::$possiblePaymentMethodCache[$currentCartId];
     }
 
-    
     public function checkTransactionPending(Cart $cart)
     {
-        $ids = PostFinanceCheckout_Helper::getCartMeta($cart, 'mappingIds');
+        $ids = PostFinanceCheckoutHelper::getCartMeta($cart, 'mappingIds');
         $transaction = $this->getTransaction($ids['spaceId'], $ids['transactionId']);
         if ($transaction->getState() != \PostFinanceCheckout\Sdk\Model\TransactionState::PENDING) {
-            throw new Exception(PostFinanceCheckout_Helper::getModuleInstance()->l('The transaction timed out, please try again.', 'transaction'));
+            throw new Exception(
+                PostFinanceCheckoutHelper::getModuleInstance()->l(
+                    'The transaction timed out, please try again.',
+                    'transaction'
+                )
+            );
         }
     }
 
@@ -370,22 +372,24 @@ class PostFinanceCheckout_Service_Transaction extends PostFinanceCheckout_Servic
         $last = new Exception('Unexpected Error');
         for ($i = 0; $i < 5; $i ++) {
             try {
-                $ids = PostFinanceCheckout_Helper::getOrderMeta($dataSource, 'mappingIds');
+                $ids = PostFinanceCheckoutHelper::getOrderMeta($dataSource, 'mappingIds');
                 $spaceId = $ids['spaceId'];
-                $transaction = $this->getTransactionService()->read(
-                    $ids['spaceId'],
-                    $ids['transactionId']
-                );
-                
+                $transaction = $this->getTransactionService()->read($ids['spaceId'], $ids['transactionId']);
+
                 if ($transaction->getState() != \PostFinanceCheckout\Sdk\Model\TransactionState::PENDING) {
-                    throw new Exception(PostFinanceCheckout_Helper::getModuleInstance()->l('The checkout expired, please try again.', 'transaction'));
+                    throw new Exception(
+                        PostFinanceCheckoutHelper::getModuleInstance()->l(
+                            'The checkout expired, please try again.',
+                            'transaction'
+                        )
+                    );
                 }
                 $pendingTransaction = new \PostFinanceCheckout\Sdk\Model\TransactionPending();
                 $pendingTransaction->setId($transaction->getId());
                 $pendingTransaction->setVersion($transaction->getVersion());
                 $this->assembleOrderTransactionData($dataSource, $orders, $pendingTransaction);
                 $result = $this->getTransactionService()->confirm($spaceId, $pendingTransaction);
-                PostFinanceCheckout_Helper::updateOrderMeta(
+                PostFinanceCheckoutHelper::updateOrderMeta(
                     $dataSource,
                     'mappingIds',
                     array(
@@ -401,7 +405,6 @@ class PostFinanceCheckout_Service_Transaction extends PostFinanceCheckout_Servic
         throw $last;
     }
 
-
     /**
      * Assemble the transaction data for the given orders.
      *
@@ -414,51 +417,49 @@ class PostFinanceCheckout_Service_Transaction extends PostFinanceCheckout_Servic
         array $orders,
         \PostFinanceCheckout\Sdk\Model\AbstractTransactionPending $transaction
     ) {
-        $transaction->setCurrency(PostFinanceCheckout_Helper::convertCurrencyIdToCode($dataSource->id_currency));
+        $transaction->setCurrency(PostFinanceCheckoutHelper::convertCurrencyIdToCode($dataSource->id_currency));
         $transaction->setBillingAddress($this->getAddress($dataSource->id_address_invoice));
         $transaction->setShippingAddress($this->getAddress($dataSource->id_address_delivery));
-        $transaction->setCustomerEmailAddress(
-            $this->getEmailAddressForCustomerId($dataSource->id_customer)
-        );
+        $transaction->setCustomerEmailAddress($this->getEmailAddressForCustomerId($dataSource->id_customer));
         $transaction->setCustomerId($dataSource->id_customer);
-        $transaction->setLanguage(PostFinanceCheckout_Helper::convertLanguageIdToIETF($dataSource->id_lang));
+        $transaction->setLanguage(PostFinanceCheckoutHelper::convertLanguageIdToIETF($dataSource->id_lang));
         $transaction->setShippingMethod(
             $this->fixLength($this->getShippingMethodNameForCarrierId($dataSource->id_carrier), 200)
         );
-        
-        $transaction->setLineItems(PostFinanceCheckout_Service_LineItem::instance()->getItemsFromOrders($orders));
-        
+
+        $transaction->setLineItems(PostFinanceCheckoutServiceLineitem::instance()->getItemsFromOrders($orders));
+
         $orderComment = $this->getOrderComment($orders);
-        if (!empty($orderComment)) {
-            $transaction->setMetaData(array('orderComment' => $orderComment));
+        if (! empty($orderComment)) {
+            $transaction->setMetaData(array(
+                'orderComment' => $orderComment
+            ));
         }
-        
+
         $transaction->setMerchantReference($dataSource->id);
-        $transaction->setInvoiceMerchantReference(
-            $this->fixLength($this->removeNonAscii($dataSource->reference), 100)
-        );
-        
+        $transaction->setInvoiceMerchantReference($this->fixLength($this->removeNonAscii($dataSource->reference), 100));
+
         $transaction->setSuccessUrl(
             Context::getContext()->link->getModuleLink(
                 'postfinancecheckout',
                 'return',
                 array(
                     'order_id' => $dataSource->id,
-                    'secret' => PostFinanceCheckout_Helper::computeOrderSecret($dataSource),
+                    'secret' => PostFinanceCheckoutHelper::computeOrderSecret($dataSource),
                     'action' => 'success',
                     'utm_nooverride' => '1'
                 ),
                 true
             )
         );
-        
+
         $transaction->setFailedUrl(
             Context::getContext()->link->getModuleLink(
                 'postfinancecheckout',
                 'return',
                 array(
                     'order_id' => $dataSource->id,
-                    'secret' => PostFinanceCheckout_Helper::computeOrderSecret($dataSource),
+                    'secret' => PostFinanceCheckoutHelper::computeOrderSecret($dataSource),
                     'action' => 'failure',
                     'utm_nooverride' => '1'
                 ),
@@ -478,16 +479,10 @@ class PostFinanceCheckout_Service_Transaction extends PostFinanceCheckout_Servic
     public function getTransactionFromCart(Cart $cart)
     {
         $currentCartId = $cart->id;
-        $spaceId = Configuration::get(
-            PostFinanceCheckout::CK_SPACE_ID,
-            null,
-            $cart->id_shop_group,
-            $cart->id_shop
-            );
-        if (! isset(self::$transactionCache[$currentCartId]) ||
-             self::$transactionCache[$currentCartId] == null) {
-            $ids = PostFinanceCheckout_Helper::getCartMeta($cart, 'mappingIds');
-            if (empty($ids) || !isset($ids['spaceId']) || $ids['spaceId'] != $spaceId) {
+        $spaceId = Configuration::get(PostFinanceCheckoutBasemodule::CK_SPACE_ID, null, $cart->id_shop_group, $cart->id_shop);
+        if (! isset(self::$transactionCache[$currentCartId]) || self::$transactionCache[$currentCartId] == null) {
+            $ids = PostFinanceCheckoutHelper::getCartMeta($cart, 'mappingIds');
+            if (empty($ids) || ! isset($ids['spaceId']) || $ids['spaceId'] != $spaceId) {
                 $transaction = $this->createTransactionFromCart($cart);
             } else {
                 $transaction = $this->loadAndUpdateTransactionFromCart($cart);
@@ -505,26 +500,19 @@ class PostFinanceCheckout_Service_Transaction extends PostFinanceCheckout_Servic
      */
     protected function createTransactionFromCart(Cart $cart)
     {
-        $spaceId = Configuration::get(
-            PostFinanceCheckout::CK_SPACE_ID,
-            null,
-            $cart->id_shop_group,
-            $cart->id_shop
-        );
+        $spaceId = Configuration::get(PostFinanceCheckoutBasemodule::CK_SPACE_ID, null, $cart->id_shop_group, $cart->id_shop);
         $createTransaction = new \PostFinanceCheckout\Sdk\Model\TransactionCreate();
-        $createTransaction->setCustomersPresence(
-            \PostFinanceCheckout\Sdk\Model\CustomersPresence::VIRTUAL_PRESENT
-        );
+        $createTransaction->setCustomersPresence(\PostFinanceCheckout\Sdk\Model\CustomersPresence::VIRTUAL_PRESENT);
         $createTransaction->setAutoConfirmationEnabled(false);
         $createTransaction->setDeviceSessionIdentifier(Context::getContext()->cookie->pfc_device_id);
-        
-        $spaceViewId = Configuration::get(PostFinanceCheckout::CK_SPACE_VIEW_ID, null, null, $cart->id_shop);
-        if(!empty($spaceViewId)){
+
+        $spaceViewId = Configuration::get(PostFinanceCheckoutBasemodule::CK_SPACE_VIEW_ID, null, null, $cart->id_shop);
+        if (! empty($spaceViewId)) {
             $createTransaction->setSpaceViewId($spaceViewId);
         }
         $this->assembleCartTransactionData($cart, $createTransaction);
         $transaction = $this->getTransactionService()->create($spaceId, $createTransaction);
-        PostFinanceCheckout_Helper::updateCartMeta(
+        PostFinanceCheckoutHelper::updateCartMeta(
             $cart,
             'mappingIds',
             array(
@@ -548,22 +536,17 @@ class PostFinanceCheckout_Service_Transaction extends PostFinanceCheckout_Servic
         $last = new Exception('Unexpected Error');
         for ($i = 0; $i < 5; $i ++) {
             try {
-                $ids = PostFinanceCheckout_Helper::getCartMeta($cart, 'mappingIds');
-                $transaction = $this->getTransaction(
-                    $ids['spaceId'],
-                    $ids['transactionId']
-                );
-                if ($transaction->getState() != \PostFinanceCheckout\Sdk\Model\TransactionState::PENDING || (!empty($transaction->getCustomerId()) && $transaction->getCustomerId() != $cart->id_customer)) {
+                $ids = PostFinanceCheckoutHelper::getCartMeta($cart, 'mappingIds');
+                $transaction = $this->getTransaction($ids['spaceId'], $ids['transactionId']);
+                if ($transaction->getState() != \PostFinanceCheckout\Sdk\Model\TransactionState::PENDING ||
+                    (! empty($transaction->getCustomerId()) && $transaction->getCustomerId() != $cart->id_customer)) {
                     return $this->createTransactionFromCart($cart);
                 }
                 $pendingTransaction = new \PostFinanceCheckout\Sdk\Model\TransactionPending();
                 $pendingTransaction->setId($transaction->getId());
                 $pendingTransaction->setVersion($transaction->getVersion());
                 $this->assembleCartTransactionData($cart, $pendingTransaction);
-                return $this->getTransactionService()->update(
-                    $ids['spaceId'],
-                    $pendingTransaction
-                );
+                return $this->getTransactionService()->update($ids['spaceId'], $pendingTransaction);
             } catch (\PostFinanceCheckout\Sdk\VersioningException $e) {
                 $last = $e;
             }
@@ -581,22 +564,20 @@ class PostFinanceCheckout_Service_Transaction extends PostFinanceCheckout_Servic
         Cart $cart,
         \PostFinanceCheckout\Sdk\Model\AbstractTransactionPending $transaction
     ) {
-        $transaction->setCurrency(PostFinanceCheckout_Helper::convertCurrencyIdToCode($cart->id_currency));
+        $transaction->setCurrency(PostFinanceCheckoutHelper::convertCurrencyIdToCode($cart->id_currency));
         $transaction->setBillingAddress($this->getAddress($cart->id_address_invoice));
         $transaction->setShippingAddress($this->getAddress($cart->id_address_delivery));
         if ($cart->id_customer != 0) {
-            $transaction->setCustomerEmailAddress(
-                $this->getEmailAddressForCustomerId($cart->id_customer)
-            );
+            $transaction->setCustomerEmailAddress($this->getEmailAddressForCustomerId($cart->id_customer));
             $transaction->setCustomerId($cart->id_customer);
         }
-        $transaction->setLanguage(PostFinanceCheckout_Helper::convertLanguageIdToIETF($cart->id_lang));
+        $transaction->setLanguage(PostFinanceCheckoutHelper::convertLanguageIdToIETF($cart->id_lang));
         $transaction->setShippingMethod(
             $this->fixLength($this->getShippingMethodNameForCarrierId($cart->id_carrier), 200)
         );
-        
-        $transaction->setLineItems(PostFinanceCheckout_Service_LineItem::instance()->getItemsFromCart($cart));
-        
+
+        $transaction->setLineItems(PostFinanceCheckoutServiceLineitem::instance()->getItemsFromCart($cart));
+
         $transaction->setAllowedPaymentMethodConfigurations(array());
     }
 
@@ -609,14 +590,14 @@ class PostFinanceCheckout_Service_Transaction extends PostFinanceCheckout_Servic
     protected function getAddress($addressId)
     {
         $prestaAddress = new Address($addressId);
-        
+
         $address = new \PostFinanceCheckout\Sdk\Model\AddressCreate();
         $address->setCity($this->fixLength($prestaAddress->city, 100));
         $address->setFamilyName($this->fixLength($prestaAddress->lastname, 100));
         $address->setGivenName($this->fixLength($prestaAddress->firstname, 100));
         $address->setOrganizationName($this->fixLength($prestaAddress->company, 100));
         $address->setPhoneNumber($prestaAddress->phone);
-        
+
         if ($prestaAddress->id_country != null) {
             $country = new Country((int) $prestaAddress->id_country);
             $address->setCountry($country->iso_code);
@@ -629,9 +610,7 @@ class PostFinanceCheckout_Service_Transaction extends PostFinanceCheckout_Servic
             }
         }
         $address->setPostCode($this->fixLength($prestaAddress->postcode, 40));
-        $address->setStreet(
-            $this->fixLength(trim($prestaAddress->address1 . "\n" . $prestaAddress->address2), 300)
-        );
+        $address->setStreet($this->fixLength(trim($prestaAddress->address1 . "\n" . $prestaAddress->address2), 300));
         $address->setEmailAddress($this->getEmailAddressForCustomerId($prestaAddress->id_customer));
         $address->setDateOfBirth($this->getDateOfBirthForCustomerId($prestaAddress->id_customer));
         $address->setGender($this->getGenderForCustomerId($prestaAddress->id_customer));
@@ -651,7 +630,6 @@ class PostFinanceCheckout_Service_Transaction extends PostFinanceCheckout_Servic
         return $customer->email;
     }
 
-    
     /**
      * Returns the current customer's date of birth
      *
@@ -662,13 +640,13 @@ class PostFinanceCheckout_Service_Transaction extends PostFinanceCheckout_Servic
     protected function getDateOfBirthForCustomerId($id)
     {
         $customer = new Customer($id);
-        if (!empty($customer->birthday) && $customer->birthday != '0000-00-00' && Validate::isBirthDate($customer->birthday)) {
+        if (! empty($customer->birthday) && $customer->birthday != '0000-00-00' &&
+            Validate::isBirthDate($customer->birthday)) {
             return DateTime::createFromFormat("Y-m-d", $customer->birthday);
         }
         return null;
     }
-    
-    
+
     /**
      * Returns the current customer's gender.
      *
@@ -680,7 +658,7 @@ class PostFinanceCheckout_Service_Transaction extends PostFinanceCheckout_Servic
     {
         $customer = new Customer($id);
         $gender = new Gender($customer->id_gender);
-        if (!Validate::isLoadedObject($gender)) {
+        if (! Validate::isLoadedObject($gender)) {
             return null;
         }
         if ($gender->type == '0') {
@@ -690,8 +668,7 @@ class PostFinanceCheckout_Service_Transaction extends PostFinanceCheckout_Servic
         }
         return null;
     }
-    
-    
+
     /**
      * Returns the shipping name
      *
@@ -703,7 +680,7 @@ class PostFinanceCheckout_Service_Transaction extends PostFinanceCheckout_Servic
         $carrier = new Carrier($carrierId);
         return $carrier->name;
     }
-    
+
     /**
      *
      * @param Order[] $orders

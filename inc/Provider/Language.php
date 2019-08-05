@@ -2,7 +2,7 @@
 /**
  * PostFinance Checkout Prestashop
  *
- * This Prestashop module enables to process payments with PostFinance Checkout (https://www.postfinance.ch).
+ * This Prestashop module enables to process payments with PostFinance Checkout (https://www.postfinance.ch/checkout).
  *
  * @author customweb GmbH (http://www.customweb.com/)
  * @copyright 2017 - 2019 customweb GmbH
@@ -12,9 +12,8 @@
 /**
  * Provider of language information from the gateway.
  */
-class PostFinanceCheckout_Provider_Language extends PostFinanceCheckout_Provider_Abstract
+class PostFinanceCheckoutProviderLanguage extends PostFinanceCheckoutProviderAbstract
 {
-
     protected function __construct()
     {
         parent::__construct('postfinancecheckout_languages');
@@ -45,7 +44,7 @@ class PostFinanceCheckout_Provider_Language extends PostFinanceCheckout_Provider
                 return $language;
             }
         }
-        
+
         return false;
     }
 
@@ -61,7 +60,9 @@ class PostFinanceCheckout_Provider_Language extends PostFinanceCheckout_Provider
 
     protected function fetchData()
     {
-        $languageService = new \PostFinanceCheckout\Sdk\Service\LanguageService(PostFinanceCheckout_Helper::getApiClient());
+        $languageService = new \PostFinanceCheckout\Sdk\Service\LanguageService(
+            PostFinanceCheckoutHelper::getApiClient()
+        );
         return $languageService->all();
     }
 

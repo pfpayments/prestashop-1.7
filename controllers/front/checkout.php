@@ -2,7 +2,7 @@
 /**
  * PostFinance Checkout Prestashop
  *
- * This Prestashop module enables to process payments with PostFinance Checkout (https://www.postfinance.ch).
+ * This Prestashop module enables to process payments with PostFinance Checkout (https://www.postfinance.ch/checkout).
  *
  * @author customweb GmbH (http://www.customweb.com/)
  * @copyright 2017 - 2019 customweb GmbH
@@ -18,70 +18,69 @@ class PostFinanceCheckoutCheckoutModuleFrontController extends ModuleFrontContro
         $methodId = Tools::getValue('methodId', null);
         $cart = $this->context->cart;
         try {
-            PostFinanceCheckout_FeeHelper::removeFeeSurchargeProductsFromCart($cart);
+            PostFinanceCheckoutFeehelper::removeFeeSurchargeProductsFromCart($cart);
             if ($methodId !== null) {
-                PostFinanceCheckout_FeeHelper::addSurchargeProductToCart($cart);
-                $methodConfiguration = new PostFinanceCheckout_Model_MethodConfiguration($methodId);
-                PostFinanceCheckout_FeeHelper::addFeeProductToCart($methodConfiguration, $cart);
-                PostFinanceCheckout_Service_Transaction::instance()->getTransactionFromCart($cart);
+                PostFinanceCheckoutFeehelper::addSurchargeProductToCart($cart);
+                $methodConfiguration = new PostFinanceCheckoutModelMethodconfiguration($methodId);
+                PostFinanceCheckoutFeehelper::addFeeProductToCart($methodConfiguration, $cart);
+                PostFinanceCheckoutServiceTransaction::instance()->getTransactionFromCart($cart);
             }
-            $cartHash = PostFinanceCheckout_Helper::calculateCartHash($cart);
-            $presentedCart = $this->cart_presenter->present(
-                $cart
-            );
+            $cartHash = PostFinanceCheckoutHelper::calculateCartHash($cart);
+            $presentedCart = $this->cart_presenter->present($cart);
             $this->assignGeneralPurposeVariables();
             $reponse = array(
                 'result' => 'success',
                 'cartHash' => $cartHash,
-                'preview' => $this->render('checkout/_partials/cart-summary', array(
-                    'cart' => $presentedCart,
-                    'static_token' => Tools::getToken(false),
-                    
-                )));
-            
+                'preview' => $this->render(
+                    'checkout/_partials/cart-summary',
+                    array(
+                        'cart' => $presentedCart,
+                        'static_token' => Tools::getToken(false)
+                    )
+                )
+            );
+
             if (Configuration::get('PS_FINAL_SUMMARY_ENABLED')) {
-                $scope = $this->context->smarty->createData(
-                    $this->context->smarty
-                );
+                $scope = $this->context->smarty->createData($this->context->smarty);
                 $scope->assign(
                     array(
                         'show_final_summary' => Configuration::get('PS_FINAL_SUMMARY_ENABLED'),
-                        'cart' => $presentedCart,
-                        
+                        'cart' => $presentedCart
                     )
                 );
-                $tpl = $this->context->smarty->createTemplate(
-                    'checkout/_partials/steps/payment.tpl',
-                    $scope
-                );
+                $tpl = $this->context->smarty->createTemplate('checkout/_partials/steps/payment.tpl', $scope);
                 $reponse['summary'] = $tpl->fetch();
             }
-            
+
             ob_end_clean();
             header('Content-Type: application/json');
             $this->ajaxDie(Tools::jsonEncode($reponse));
         } catch (Exception $e) {
-            $this->context->cookie->pfc_error = $this->module->l('There was an issue during the checkout, please try again.', 'checkout');
-            $this->ajaxDie(Tools::jsonEncode(array('result' => 'failure')));
+            $this->context->cookie->pfc_error = $this->module->l(
+                'There was an issue during the checkout, please try again.',
+                'checkout'
+            );
+            $this->ajaxDie(Tools::jsonEncode(array(
+                'result' => 'failure'
+            )));
         }
     }
-    
-    
+
     public function setMedia()
     {
-        //We do not need styling here
+        // We do not need styling here
     }
-    
+
     protected function displayMaintenancePage()
     {
         // We want never to see here the maintenance page.
     }
-    
+
     protected function displayRestrictedCountryPage()
     {
         // We do not want to restrict the content by any country.
     }
-    
+
     protected function canonicalRedirection($canonical_url = '')
     {
         // We do not need any canonical redirect

@@ -2,7 +2,7 @@
 /**
  * PostFinance Checkout Prestashop
  *
- * This Prestashop module enables to process payments with PostFinance Checkout (https://www.postfinance.ch).
+ * This Prestashop module enables to process payments with PostFinance Checkout (https://www.postfinance.ch/checkout).
  *
  * @author customweb GmbH (http://www.customweb.com/)
  * @copyright 2017 - 2019 customweb GmbH
@@ -11,7 +11,6 @@
 
 class AdminPostFinanceCheckoutOrderController extends ModuleAdminController
 {
-
     public function postProcess()
     {
         parent::postProcess();
@@ -31,7 +30,10 @@ class AdminPostFinanceCheckoutOrderController extends ModuleAdminController
             echo Tools::jsonEncode(
                 array(
                     'success' => 'false',
-                    'message' => $this->module->l('You do not have permission to edit the order.', 'adminpostfinancecheckoutordercontroller')
+                    'message' => $this->module->l(
+                        'You do not have permission to edit the order.',
+                        'adminpostfinancecheckoutordercontroller'
+                    )
                 )
             );
             die();
@@ -43,19 +45,17 @@ class AdminPostFinanceCheckoutOrderController extends ModuleAdminController
         if (Tools::isSubmit('id_order')) {
             try {
                 $order = new Order(Tools::getValue('id_order'));
-                PostFinanceCheckout_Service_TransactionVoid::instance()->updateForOrder($order);
-                PostFinanceCheckout_Service_TransactionCompletion::instance()->updateForOrder($order);
+                PostFinanceCheckoutServiceTransactioncompletion::instance()->updateForOrder($order);
+                PostFinanceCheckoutServiceTransactioncompletion::instance()->updateForOrder($order);
                 echo Tools::jsonEncode(array(
                     'success' => 'true'
                 ));
                 die();
             } catch (Exception $e) {
-                echo Tools::jsonEncode(
-                    array(
-                        'success' => 'false',
-                        'message' => $e->getMessage()
-                    )
-                );
+                echo Tools::jsonEncode(array(
+                    'success' => 'false',
+                    'message' => $e->getMessage()
+                ));
                 die();
             }
         } else {
@@ -74,11 +74,14 @@ class AdminPostFinanceCheckoutOrderController extends ModuleAdminController
         if (Tools::isSubmit('id_order')) {
             try {
                 $order = new Order(Tools::getValue('id_order'));
-                PostFinanceCheckout_Service_TransactionVoid::instance()->executeVoid($order);
+                PostFinanceCheckoutServiceTransactionvoid::instance()->executeVoid($order);
                 echo Tools::jsonEncode(
                     array(
                         'success' => 'true',
-                        'message' => $this->module->l('The order is updated automatically once the void is processed.', 'adminpostfinancecheckoutordercontroller')
+                        'message' => $this->module->l(
+                            'The order is updated automatically once the void is processed.',
+                            'adminpostfinancecheckoutordercontroller'
+                        )
                     )
                 );
                 die();
@@ -86,7 +89,7 @@ class AdminPostFinanceCheckoutOrderController extends ModuleAdminController
                 echo Tools::jsonEncode(
                     array(
                         'success' => 'false',
-                        'message' => PostFinanceCheckout_Helper::cleanExceptionMessage($e->getMessage())
+                        'message' => PostFinanceCheckoutHelper::cleanExceptionMessage($e->getMessage())
                     )
                 );
                 die();
@@ -101,17 +104,20 @@ class AdminPostFinanceCheckoutOrderController extends ModuleAdminController
             die();
         }
     }
-    
+
     public function ajaxProcessCompleteOrder()
     {
         if (Tools::isSubmit('id_order')) {
             try {
                 $order = new Order(Tools::getValue('id_order'));
-                PostFinanceCheckout_Service_TransactionCompletion::instance()->executeCompletion($order);
+                PostFinanceCheckoutServiceTransactioncompletion::instance()->executeCompletion($order);
                 echo Tools::jsonEncode(
                     array(
                         'success' => 'true',
-                        'message' => $this->module->l('The order is updated automatically once the completion is processed.', 'adminpostfinancecheckoutordercontroller')
+                        'message' => $this->module->l(
+                            'The order is updated automatically once the completion is processed.',
+                            'adminpostfinancecheckoutordercontroller'
+                        )
                     )
                 );
                 die();
@@ -119,7 +125,7 @@ class AdminPostFinanceCheckoutOrderController extends ModuleAdminController
                 echo Tools::jsonEncode(
                     array(
                         'success' => 'false',
-                        'message' => PostFinanceCheckout_Helper::cleanExceptionMessage($e->getMessage())
+                        'message' => PostFinanceCheckoutHelper::cleanExceptionMessage($e->getMessage())
                     )
                 );
                 die();

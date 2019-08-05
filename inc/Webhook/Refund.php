@@ -2,7 +2,7 @@
 /**
  * PostFinance Checkout Prestashop
  *
- * This Prestashop module enables to process payments with PostFinance Checkout (https://www.postfinance.ch).
+ * This Prestashop module enables to process payments with PostFinance Checkout (https://www.postfinance.ch/checkout).
  *
  * @author customweb GmbH (http://www.customweb.com/)
  * @copyright 2017 - 2019 customweb GmbH
@@ -12,32 +12,37 @@
 /**
  * Webhook processor to handle refund state transitions.
  */
-class PostFinanceCheckout_Webhook_Refund extends PostFinanceCheckout_Webhook_OrderRelatedAbstract
+class PostFinanceCheckoutWebhookRefund extends PostFinanceCheckoutWebhookOrderrelatedabstract
 {
-       
+
     /**
-    * Processes the received order related webhook request.
-    *
-    * @param PostFinanceCheckout_Webhook_Request $request
-    */
-    public function process(PostFinanceCheckout_Webhook_Request $request)
+     * Processes the received order related webhook request.
+     *
+     * @param PostFinanceCheckoutWebhookRequest $request
+     */
+    public function process(PostFinanceCheckoutWebhookRequest $request)
     {
         parent::process($request);
         $refund = $this->loadEntity($request);
-        $refundJob = PostFinanceCheckout_Model_RefundJob::loadByExternalId($refund->getLinkedSpaceId(), $refund->getExternalId());
-        if ($refundJob->getState() == PostFinanceCheckout_Model_RefundJob::STATE_APPLY) {
-            PostFinanceCheckout_Service_Refund::instance()->applyRefundToShop($refundJob->getId());
+        $refundJob = PostFinanceCheckoutModelRefundjob::loadByExternalId(
+            $refund->getLinkedSpaceId(),
+            $refund->getExternalId()
+        );
+        if ($refundJob->getState() == PostFinanceCheckoutModelRefundjob::STATE_APPLY) {
+            PostFinanceCheckoutServiceRefund::instance()->applyRefundToShop($refundJob->getId());
         }
     }
 
     /**
      *
-     * @see PostFinanceCheckout_Webhook_OrderRelatedAbstract::loadEntity()
+     * @see PostFinanceCheckoutWebhookOrderrelatedabstract::loadEntity()
      * @return \PostFinanceCheckout\Sdk\Model\Refund
      */
-    protected function loadEntity(PostFinanceCheckout_Webhook_Request $request)
+    protected function loadEntity(PostFinanceCheckoutWebhookRequest $request)
     {
-        $refundService = new \PostFinanceCheckout\Sdk\Service\RefundService(PostFinanceCheckout_Helper::getApiClient());
+        $refundService = new \PostFinanceCheckout\Sdk\Service\RefundService(
+            PostFinanceCheckoutHelper::getApiClient()
+        );
         return $refundService->read($request->getSpaceId(), $request->getEntityId());
     }
 
@@ -71,12 +76,16 @@ class PostFinanceCheckout_Webhook_Refund extends PostFinanceCheckout_Webhook_Ord
 
     protected function failed(\PostFinanceCheckout\Sdk\Model\Refund $refund, Order $order)
     {
-        $refundJob = PostFinanceCheckout_Model_RefundJob::loadByExternalId($refund->getLinkedSpaceId(), $refund->getExternalId());
+        $refundJob = PostFinanceCheckoutModelRefundjob::loadByExternalId(
+            $refund->getLinkedSpaceId(),
+            $refund->getExternalId()
+        );
         if ($refundJob->getId()) {
-            $refundJob->setState(PostFinanceCheckout_Model_RefundJob::STATE_FAILURE);
+            $refundJob->setState(PostFinanceCheckoutModelRefundjob::STATE_FAILURE);
             $refundJob->setRefundId($refund->getId());
             if ($refund->getFailureReason() != null) {
-                $refundJob->setFailureReason($refund->getFailureReason()->getDescription());
+                $refundJob->setFailureReason($refund->getFailureReason()
+                    ->getDescription());
             }
             $refundJob->save();
         }
@@ -84,9 +93,12 @@ class PostFinanceCheckout_Webhook_Refund extends PostFinanceCheckout_Webhook_Ord
 
     protected function refunded(\PostFinanceCheckout\Sdk\Model\Refund $refund, Order $order)
     {
-        $refundJob = PostFinanceCheckout_Model_RefundJob::loadByExternalId($refund->getLinkedSpaceId(), $refund->getExternalId());
+        $refundJob = PostFinanceCheckoutModelRefundjob::loadByExternalId(
+            $refund->getLinkedSpaceId(),
+            $refund->getExternalId()
+        );
         if ($refundJob->getId()) {
-            $refundJob->setState(PostFinanceCheckout_Model_RefundJob::STATE_APPLY);
+            $refundJob->setState(PostFinanceCheckoutModelRefundjob::STATE_APPLY);
             $refundJob->setRefundId($refund->getId());
             $refundJob->save();
         }

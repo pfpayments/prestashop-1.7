@@ -21,7 +21,7 @@
 		</a>
 	</li>
 	<li>
-		<a href="https://github.com/pfpayments/prestashop-1.7/releases/tag/1.1.6/">
+		<a href="https://github.com/pfpayments/prestashop-1.7/releases/tag/1.1.7/">
 			Source
 		</a>
 	</li>
@@ -37,7 +37,7 @@
 	</div>
 	<div class="chapter-body">
 					<div class="paragraph">
-<p>If you don&#8217;t already have one, create a <a href="https://www.postfinance.ch/">PostFinance Checkout</a> account.</p>
+<p>If you don&#8217;t already have one, create a <a href="https://www.postfinance.ch/checkout/">PostFinance Checkout</a> account.</p>
 </div><div class="paragraph">
 <p>Install the PrestaShop Mailhook module found <a href="https://github.com/wallee-payment/prestashop-mailhook/releases">here</a>.</p>
 </div>					</div>
@@ -50,7 +50,7 @@
 					<div class="olist arabic">
 <ol class="arabic">
 <li>
-<p><a href="https://github.com/pfpayments/prestashop-1.7/releases/tag/1.1.6/">Download</a> the module.</p>
+<p><a href="https://github.com/pfpayments/prestashop-1.7/releases/tag/1.1.7/">Download</a> the module.</p>
 </li>
 <li>
 <p>Login to the backend of your PrestsShop store.</p>
@@ -178,6 +178,40 @@ can be found in the <a href="https://www.postfinance-checkout.ch/en-us/doc/payme
 <div class="content">
 <img src="resource/state_graph.svg" alt="state graph"/>
 </div>
+</div><div class="olist glossary">
+<ol class="glossary">
+<li>
+<p>When the transaction is marked as <code>authorized</code> in PostFinance Checkout the order within PrestaShop will be marked as <code>Authorized</code>. The amount is only reserved at this point. The order is not yet ready to be fulfilled.</p>
+</li>
+<li>
+<p>When the transaction fails during the authorization process the PrestaShop order is marked as <code>Payment error</code>.</p>
+</li>
+<li>
+<p>In case the delivery indication is pending, the order within PrestaShop will move into either <code>Waiting</code> (The transaction is completed but the delivery indication is not yet decided e.g. The money still needs to be cleared by the customer bank. Status will automatically update later on) or <code>Manual Decision</code> (in this case you have to decide the outcome of the delivery indication e.g. You have configured to manually check transactions without 3d Secure). See more details in <a href="#_on_hold_orders">On hold orders</a>.</p>
+</li>
+<li>
+<p>In case the decision about the fulfillment is negative, the order within PrestaShop will be marked as <code>canceled</code> and should not be fulfilled.</p>
+</li>
+<li>
+<p>If you decide to void an authorized transaction (in case for example the products ordered are no longer in stock), the order within PrestaShop will also be marked as <code>canceled</code>.</p>
+</li>
+<li>
+<p>When the transaction is marked in PostFinance Checkout as <code>fulfill</code> the order within PrestaShop will be be marked as <code>Payment accepted</code>. This is when you can start the fulfillment process. The plugin will in this case not change the status anymore.</p>
+</li>
+</ol>
+</div><div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+This describes the default state machine of PrestaShop orders, however you have the option in the PostFinance Checkout plugin configuration to define different order status.
+</td>
+</tr>
+</table>
+</div><div class="paragraph">
+<p>For information about deferred completion, see <a href="#_complete_capture_an_order">Complete (capture) an order</a></p>
 </div>					</div>
 </div>			</div>
 </div>	<div class="chapter" id="_transaction_management">

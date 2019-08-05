@@ -1,19 +1,19 @@
 /**
  * PostFinance Checkout Prestashop
  *
- * This Prestashop module enables to process payments with PostFinance Checkout (https://www.postfinance.ch).
+ * This Prestashop module enables to process payments with PostFinance Checkout (https://www.postfinance.ch/checkout).
  *
  * @author customweb GmbH (http://www.customweb.com/)
  * @copyright 2017 - 2019 customweb GmbH
  * @license http://www.apache.org/licenses/LICENSE-2.0 Apache Software License (ASL 2.0)
  */
-#postfinancecheckout_manual_notif_wrapper div{
-	margin-left: 20px;
+#postfinancecheckout_manual_notif_wrapper div {
+    margin-left: 20px;
     margin-right: 20px;
 }
 
-#postfinancecheckout_manual_notif .icon-bullhorn{
-	color: #6c868e;
+#postfinancecheckout_manual_notif .icon-bullhorn {
+    color: #6c868e;
     font-size: 22px;
     vertical-align: middle;
 }
@@ -25,39 +25,44 @@
     margin-right: .3125rem;
 }
 
-.postfinancecheckout-component > ul {
+.postfinancecheckout-component>ul {
     padding: 0;
     margin: 0;
 }
-.postfinancecheckout-component, .postfinancecheckout-component > ul, .postfinancecheckout-component > ul > li {
+
+.postfinancecheckout-component, .postfinancecheckout-component>ul,
+    .postfinancecheckout-component>ul>li {
     display: flex !important;
     align-items: stretch;
 }
 
-.postfinancecheckout-component > ul > li > a {
+.postfinancecheckout-component>ul>li>a {
     display: flex;
     align-items: center;
 }
 
 .postfinancecheckout-icon-bullhorn-svg {
-  display: none;
+    display: none;
 }
 
-.postfinancecheckout-component .postfinancecheckout-icon-bullhorn-svg {
-  display: block;
-  width: 18px;
-  height: 18px;
+.postfinancecheckout-component .postfinancecheckout-icon-bullhorn-svg
+    {
+    display: block;
+    width: 18px;
+    height: 18px;
 }
 
-.postfinancecheckout-component #postfinancecheckout_manual_notif .postfinancecheckout_manual_notif::after {
-  display: none;
+.postfinancecheckout-component #postfinancecheckout_manual_notif .postfinancecheckout_manual_notif::after
+    {
+    display: none;
 }
 
-.postfinancecheckout-component #postfinancecheckout_manual_notif_number_wrapper{
-	display:none;
+.postfinancecheckout-component #postfinancecheckout_manual_notif_number_wrapper
+    {
+    display: none;
 }
 
 .bootstrap #header_infos #postfinancecheckout_manual_notif .dropdown-menu {
-	transform: translate3d(-200px, 20px, 0px) !important;
+    transform: translate3d(-200px, 20px, 0px) !important;
     top: 20px !important;
 }

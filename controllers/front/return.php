@@ -2,7 +2,7 @@
 /**
  * PostFinance Checkout Prestashop
  *
- * This Prestashop module enables to process payments with PostFinance Checkout (https://www.postfinance.ch).
+ * This Prestashop module enables to process payments with PostFinance Checkout (https://www.postfinance.ch/checkout).
  *
  * @author customweb GmbH (http://www.customweb.com/)
  * @copyright 2017 - 2019 customweb GmbH
@@ -11,7 +11,6 @@
 
 class PostFinanceCheckoutReturnModuleFrontController extends ModuleFrontController
 {
-
     public $ssl = true;
 
     /**
@@ -23,21 +22,21 @@ class PostFinanceCheckoutReturnModuleFrontController extends ModuleFrontControll
         $orderId = Tools::getValue('order_id', null);
         $orderKey = Tools::getValue('secret', null);
         $action = Tools::getValue('action', null);
-        
+
         if ($orderId != null) {
             $order = new Order($orderId);
-            if ($orderKey == null || $orderKey != PostFinanceCheckout_Helper::computeOrderSecret($order)) {
+            if ($orderKey == null || $orderKey != PostFinanceCheckoutHelper::computeOrderSecret($order)) {
                 $error = Tools::displayError('Invalid Secret.');
                 die($error);
             }
             switch ($action) {
                 case 'success':
                     $this->processSuccess($order);
-                    
+
                     return;
                 case 'failure':
                     self::processFailure($order);
-                    
+
                     return;
                 default:
             }
@@ -48,7 +47,7 @@ class PostFinanceCheckoutReturnModuleFrontController extends ModuleFrontControll
 
     private function processSuccess(Order $order)
     {
-        $transactionService = PostFinanceCheckout_Service_Transaction::instance();
+        $transactionService = PostFinanceCheckoutServiceTransaction::instance();
         $transactionService->waitForTransactionState(
             $order,
             array(
@@ -60,7 +59,7 @@ class PostFinanceCheckoutReturnModuleFrontController extends ModuleFrontControll
         );
         $cartId = $order->id_cart;
         $customer = new Customer($order->id_customer);
-        
+
         $this->redirect_after = $this->context->link->getPageLink(
             'order-confirmation',
             true,
@@ -76,7 +75,7 @@ class PostFinanceCheckoutReturnModuleFrontController extends ModuleFrontControll
 
     private function processFailure(Order $order)
     {
-        $transactionService = PostFinanceCheckout_Service_Transaction::instance();
+        $transactionService = PostFinanceCheckoutServiceTransaction::instance();
         $transactionService->waitForTransactionState(
             $order,
             array(
@@ -84,27 +83,27 @@ class PostFinanceCheckoutReturnModuleFrontController extends ModuleFrontControll
             ),
             5
         );
-        $transaction = PostFinanceCheckout_Model_TransactionInfo::loadByOrderId($order->id);
-        
+        $transaction = PostFinanceCheckoutModelTransactioninfo::loadByOrderId($order->id);
+
         $userFailureMessage = $transaction->getUserFailureMessage();
-        
+
         if (empty($userFailureMessage)) {
             $failureReason = $transaction->getFailureReason();
-        
+
             if ($failureReason !== null) {
-                $userFailureMessage = PostFinanceCheckout_Helper::translate($failureReason);
+                $userFailureMessage = PostFinanceCheckoutHelper::translate($failureReason);
             }
         }
-        if (!empty($userFailureMessage)) {
+        if (! empty($userFailureMessage)) {
             $this->context->cookie->pfc_error = $userFailureMessage;
         }
-        
-        //Set cart to cookie
-        $originalCartId = PostFinanceCheckout_Helper::getOrderMeta($order, 'originalCart');
-        if (!empty($originalCartId)) {
-            $this->context->cookie->id_cart= $originalCartId;
+
+        // Set cart to cookie
+        $originalCartId = PostFinanceCheckoutHelper::getOrderMeta($order, 'originalCart');
+        if (! empty($originalCartId)) {
+            $this->context->cookie->id_cart = $originalCartId;
         }
-        
+
         $this->redirect_after = $this->context->link->getPageLink('order', true, null, "step=3");
     }
 
@@ -112,17 +111,17 @@ class PostFinanceCheckoutReturnModuleFrontController extends ModuleFrontControll
     {
         // We do not need styling here
     }
-    
+
     protected function displayMaintenancePage()
     {
         // We never display the maintenance page.
     }
-    
+
     protected function displayRestrictedCountryPage()
     {
         // We do not want to restrict the content by any country.
     }
-    
+
     protected function canonicalRedirection($canonical_url = '')
     {
         // We do not need any canonical redirect

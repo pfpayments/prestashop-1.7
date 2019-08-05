@@ -2,16 +2,15 @@
 /**
  * PostFinance Checkout Prestashop
  *
- * This Prestashop module enables to process payments with PostFinance Checkout (https://www.postfinance.ch).
+ * This Prestashop module enables to process payments with PostFinance Checkout (https://www.postfinance.ch/checkout).
  *
  * @author customweb GmbH (http://www.customweb.com/)
  * @copyright 2017 - 2019 customweb GmbH
  * @license http://www.apache.org/licenses/LICENSE-2.0 Apache Software License (ASL 2.0)
  */
 
-class PostFinanceCheckout_Helper
+class PostFinanceCheckoutHelper
 {
-
     private static $apiClient;
 
     /**
@@ -21,8 +20,8 @@ class PostFinanceCheckout_Helper
      */
     public static function getBaseGatewayUrl()
     {
-        $url = Configuration::getGlobalValue(PostFinanceCheckout::CK_BASE_URL);
-        
+        $url = Configuration::getGlobalValue(PostFinanceCheckoutBasemodule::CK_BASE_URL);
+
         if ($url) {
             return rtrim($url, '/');
         }
@@ -37,13 +36,13 @@ class PostFinanceCheckout_Helper
     public static function getApiClient()
     {
         if (self::$apiClient === null) {
-            $userId = Configuration::getGlobalValue(PostFinanceCheckout::CK_USER_ID);
-            $userKey = Configuration::getGlobalValue(PostFinanceCheckout::CK_APP_KEY);
+            $userId = Configuration::getGlobalValue(PostFinanceCheckoutBasemodule::CK_USER_ID);
+            $userKey = Configuration::getGlobalValue(PostFinanceCheckoutBasemodule::CK_APP_KEY);
             if (! empty($userId) && ! empty($userKey)) {
                 self::$apiClient = new \PostFinanceCheckout\Sdk\ApiClient($userId, $userKey);
                 self::$apiClient->setBasePath(self::getBaseGatewayUrl() . '/api');
             } else {
-                throw new PostFinanceCheckout_Exception_IncompleteConfig();
+                throw new PostFinanceCheckoutExceptionIncompleteconfig();
             }
         }
         return self::$apiClient;
@@ -54,7 +53,6 @@ class PostFinanceCheckout_Helper
         self::$apiClient = null;
     }
 
-    
     public static function startDBTransaction()
     {
         $dbLink = Db::getInstance()->getLink();
@@ -66,7 +64,7 @@ class PostFinanceCheckout_Helper
             throw new Exception('This module needs a PDO or MYSQLI link to use DB transactions');
         }
     }
-    
+
     public static function commitDBTransaction()
     {
         $dbLink = Db::getInstance()->getLink();
@@ -76,7 +74,7 @@ class PostFinanceCheckout_Helper
             $dbLink->commit();
         }
     }
-    
+
     public static function rollbackDBTransaction()
     {
         $dbLink = Db::getInstance()->getLink();
@@ -86,21 +84,21 @@ class PostFinanceCheckout_Helper
             $dbLink->rollBack();
         }
     }
-    
+
     /**
      * Create a lock to prevent concurrency.
      */
     public static function lockByTransactionId($spaceId, $transactionId)
     {
         Db::getInstance()->getLink()->query(
-            'SELECT locked_at FROM ' . _DB_PREFIX_ .
-            'pfc_transaction_info WHERE transaction_id = "' . pSQL($transactionId) .
-            '" AND space_id = "' . pSQL($spaceId) . '" FOR UPDATE;'
+            'SELECT locked_at FROM ' . _DB_PREFIX_ . 'pfc_transaction_info WHERE transaction_id = "' .
+            (int) $transactionId . '" AND space_id = "' . (int) $spaceId . '" FOR UPDATE;'
         );
-        
-        Db::getInstance()->getLink()->query('UPDATE ' . _DB_PREFIX_ .
-            'pfc_transaction_info SET locked_at = "'.pSQL(date('Y-m-d H:i:s')).'" WHERE transaction_id = "' . pSQL($transactionId) .
-            '" AND space_id = "' . pSQL($spaceId) . '";');
+
+        Db::getInstance()->getLink()->query(
+            'UPDATE ' . _DB_PREFIX_ . 'pfc_transaction_info SET locked_at = "' . pSQL(date('Y-m-d H:i:s')) .
+            '" WHERE transaction_id = "' . (int) $transactionId . '" AND space_id = "' . (int) $spaceId . '";'
+        );
     }
 
     /**
@@ -111,8 +109,8 @@ class PostFinanceCheckout_Helper
      */
     public static function getCurrencyFractionDigits($currencyCode)
     {
-        /* @var PostFinanceCheckout_Provider_Currency $currency_provider */
-        $currencyProvider = PostFinanceCheckout_Provider_Currency::instance();
+        /* @var PostFinanceCheckoutProviderCurrency $currency_provider */
+        $currencyProvider = PostFinanceCheckoutProviderCurrency::instance();
         $currency = $currencyProvider->find($currencyCode);
         if ($currency) {
             return $currency->getFractionDigits();
@@ -125,7 +123,6 @@ class PostFinanceCheckout_Helper
     {
         return round($amount, self::getCurrencyFractionDigits($currencyCode));
     }
-
 
     public static function convertCurrencyIdToCode($id)
     {
@@ -175,16 +172,13 @@ class PostFinanceCheckout_Helper
      */
     public static function cleanupLineItems(array $lineItems, $expectedSum, $currencyCode)
     {
-        $effectiveSum = self::roundAmount(
-            self::getTotalAmountIncludingTax($lineItems),
-            $currencyCode
-        );
+        $effectiveSum = self::roundAmount(self::getTotalAmountIncludingTax($lineItems), $currencyCode);
         $roundedExcpected = self::roundAmount($expectedSum, $currencyCode);
         $diff = $roundedExcpected - $effectiveSum;
         if ($diff != 0) {
-            throw new PostFinanceCheckout_Exception_InvalidTransactionAmount($effectiveSum, $roundedExcpected);
+            throw new PostFinanceCheckoutExceptionInvalidtransactionamount($effectiveSum, $roundedExcpected);
         }
-        
+
         return self::ensureUniqueIds($lineItems);
     }
 
@@ -235,31 +229,30 @@ class PostFinanceCheckout_Helper
             $lineItem = $lineItemMap[$reduction->getLineItemUniqueId()];
             $amount += $lineItem->getUnitPriceIncludingTax() * $reduction->getQuantityReduction();
             $amount += $reduction->getUnitPriceReduction() *
-                 ($lineItem->getQuantity() - $reduction->getQuantityReduction());
+                ($lineItem->getQuantity() - $reduction->getQuantityReduction());
         }
         return $amount;
     }
 
- 
     public static function updateCartMeta(Cart $cart, $key, $value)
     {
         Db::getInstance()->execute(
-            'INSERT INTO ' . _DB_PREFIX_ .
-            'pfc_cart_meta (cart_id, meta_key, meta_value) VALUES ("' . pSQL($cart->id) .
-            '", "' . pSQL($key) . '", "' . pSQL(base64_encode(serialize($value))) .
-            '") ON DUPLICATE KEY UPDATE meta_value = "' . pSQL(base64_encode(serialize($value))) . '";'
+            'INSERT INTO ' . _DB_PREFIX_ . 'pfc_cart_meta (cart_id, meta_key, meta_value) VALUES ("' . (int) $cart->id .
+            '", "' . pSQL($key) . '", "' . pSQL(PostFinanceCheckoutTools::base64Encode(serialize($value))) .
+            '") ON DUPLICATE KEY UPDATE meta_value = "' .
+            pSQL(PostFinanceCheckoutTools::base64Encode(serialize($value))) . '";'
         );
     }
-    
+
     public static function getCartMeta(Cart $cart, $key)
     {
         $value = Db::getInstance()->getValue(
-            'SELECT meta_value FROM ' . _DB_PREFIX_ . 'pfc_cart_meta WHERE cart_id = "' .
-            pSQL($cart->id) . '" AND meta_key = "' . pSQL($key) . '";',
+            'SELECT meta_value FROM ' . _DB_PREFIX_ . 'pfc_cart_meta WHERE cart_id = "' . (int) $cart->id .
+            '" AND meta_key = "' . pSQL($key) . '";',
             false
         );
         if ($value !== false) {
-            $decoded =  base64_decode($value, true);
+            $decoded = PostFinanceCheckoutTools::base64Decode($value, true);
             if ($decoded === false) {
                 $decoded = $value;
             }
@@ -267,12 +260,12 @@ class PostFinanceCheckout_Helper
         }
         return null;
     }
-    
+
     public static function clearCartMeta(Cart $cart, $key)
     {
         Db::getInstance()->execute(
-            'DELETE FROM ' . _DB_PREFIX_ . 'pfc_cart_meta WHERE cart_id = "' . pSQL($cart->id) .
-            '" AND meta_key = "' . pSQL($key) . '";',
+            'DELETE FROM ' . _DB_PREFIX_ . 'pfc_cart_meta WHERE cart_id = "' . (int) $cart->id . '" AND meta_key = "' .
+            pSQL($key) . '";',
             false
         );
     }
@@ -299,14 +292,14 @@ class PostFinanceCheckout_Helper
         } elseif (ctype_digit($language)) {
             $language = self::convertLanguageIdToIETF($language);
         }
-        
+
         $language = str_replace('_', '-', $language);
         if (isset($translatedString[$language])) {
             return $translatedString[$language];
         }
         try {
-            /* @var PostFinanceCheckout_Provider_Language $language_provider */
-            $languageProvider = PostFinanceCheckout_Provider_Language::instance();
+            /* @var PostFinanceCheckoutProviderLanguage $language_provider */
+            $languageProvider = PostFinanceCheckoutProviderLanguage::instance();
             $primaryLanguage = $languageProvider->findPrimary($language);
             if ($primaryLanguage && isset($translatedString[$primaryLanguage->getIetfCode()])) {
                 return $translatedString[$primaryLanguage->getIetfCode()];
@@ -316,8 +309,7 @@ class PostFinanceCheckout_Helper
         if (isset($translatedString['en-US'])) {
             return $translatedString['en-US'];
         }
-        
-        
+
         return null;
     }
 
@@ -356,24 +348,21 @@ class PostFinanceCheckout_Helper
         $summary = $cart->getSummaryDetails(null, true);
         foreach ($summary['products'] as $productItem) {
             $toHash .= ((float) $productItem['total_wt']) . '-' . $productItem['reference'] . '-' .
-                 $productItem['quantity'] . ';';
+                $productItem['quantity'] . ';';
         }
         // Add shipping costs
-        $toHash .= ((float) $summary['total_shipping']) . '-' .
-            ((float) $summary['total_shipping_tax_exc']) . ';';
+        $toHash .= ((float) $summary['total_shipping']) . '-' . ((float) $summary['total_shipping_tax_exc']) . ';';
         // Add wrapping costs
-            $toHash .= ((float) $summary['total_wrapping']) . '-' .
-                ((float) $summary['total_wrapping_tax_exc']) . ';';
+        $toHash .= ((float) $summary['total_wrapping']) . '-' . ((float) $summary['total_wrapping_tax_exc']) . ';';
         // Add discounts
         if (count($summary['discounts']) > 0) {
             foreach ($summary['discounts'] as $discount) {
                 $toHash .= ((float) $discount['value_real']) . '-' . $discount['id_cart_rule'] . ';';
             }
         }
-        
-        return hash_hmac('sha256', $toHash, $cart->secure_key);
+
+        return PostFinanceCheckoutTools::hashHmac('sha256', $toHash, $cart->secure_key);
     }
-    
 
     /**
      * Get the Module instance
@@ -386,9 +375,8 @@ class PostFinanceCheckout_Helper
     public static function updateOrderMeta(Order $order, $key, $value)
     {
         Db::getInstance()->execute(
-            'INSERT INTO ' . _DB_PREFIX_ .
-                 'pfc_order_meta (order_id, meta_key, meta_value) VALUES ("' . pSQL($order->id) .
-                 '", "' . pSQL($key) . '", "' . pSQL(serialize($value)) .
+            'INSERT INTO ' . _DB_PREFIX_ . 'pfc_order_meta (order_id, meta_key, meta_value) VALUES ("' . (int) $order->id .
+            '", "' . pSQL($key) . '", "' . pSQL(serialize($value)) .
             '") ON DUPLICATE KEY UPDATE meta_value = "' . pSQL(serialize($value)) . '";'
         );
     }
@@ -396,8 +384,8 @@ class PostFinanceCheckout_Helper
     public static function getOrderMeta(Order $order, $key)
     {
         $value = Db::getInstance()->getValue(
-            'SELECT meta_value FROM ' . _DB_PREFIX_ . 'pfc_order_meta WHERE order_id = "' .
-            pSQL($order->id) . '" AND meta_key = "' . pSQL($key) . '";',
+            'SELECT meta_value FROM ' . _DB_PREFIX_ . 'pfc_order_meta WHERE order_id = "' . (int) $order->id .
+            '" AND meta_key = "' . pSQL($key) . '";',
             false
         );
         if ($value !== false) {
@@ -409,36 +397,37 @@ class PostFinanceCheckout_Helper
     public static function clearOrderMeta(Order $order, $key)
     {
         Db::getInstance()->execute(
-            'DELETE FROM ' . _DB_PREFIX_ . 'pfc_order_meta WHERE order_id = "' . pSQL($order->id) .
-            '" AND meta_key = "' . pSQL($key) . '";',
+            'DELETE FROM ' . _DB_PREFIX_ . 'pfc_order_meta WHERE order_id = "' . (int) $order->id . '" AND meta_key = "' .
+            pSQL($key) . '";',
             false
         );
     }
-    
+
     public static function storeOrderEmails(Order $order, $mails)
     {
         Db::getInstance()->execute(
-            'INSERT INTO ' . _DB_PREFIX_ .
-            'pfc_order_meta (order_id, meta_key, meta_value) VALUES ("' . pSQL($order->id) .
-            '", "' . pSQL('mails') . '", "' . pSQL(base64_encode(serialize($mails))) .
-            '") ON DUPLICATE KEY UPDATE meta_value = "' . pSQL(base64_encode(serialize($mails))) . '";'
+            'INSERT INTO ' . _DB_PREFIX_ . 'pfc_order_meta (order_id, meta_key, meta_value) VALUES ("' . (int) $order->id .
+            '", "' . pSQL('mails') . '", "' .
+            pSQL(PostFinanceCheckoutTools::base64Encode(serialize($mails))) .
+            '") ON DUPLICATE KEY UPDATE meta_value = "' .
+            pSQL(PostFinanceCheckoutTools::base64Encode(serialize($mails))) . '";'
         );
     }
-    
+
     public static function getOrderEmails(Order $order)
     {
         class_exists('Mail');
         $value = Db::getInstance()->getValue(
-            'SELECT meta_value FROM ' . _DB_PREFIX_ . 'pfc_order_meta WHERE order_id = "' .
-            pSQL($order->id) . '" AND meta_key = "' . pSQL('mails') . '";',
+            'SELECT meta_value FROM ' . _DB_PREFIX_ . 'pfc_order_meta WHERE order_id = "' . (int) $order->id .
+            '" AND meta_key = "' . pSQL('mails') . '";',
             false
         );
         if ($value !== false) {
-            return unserialize(base64_decode($value));
+            return unserialize(PostFinanceCheckoutTools::base64Decode($value));
         }
         return array();
     }
-    
+
     public static function deleteOrderEmails(Order $order)
     {
         self::clearOrderMeta($order, 'mails');
@@ -452,33 +441,34 @@ class PostFinanceCheckout_Helper
      */
     public static function computeOrderSecret(Order $order)
     {
-        return hash_hmac('sha256', $order->id, $order->secure_key, false);
+        return PostFinanceCheckoutTools::hashHmac('sha256', $order->id, $order->secure_key, false);
     }
-    
-    
+
     /**
-     * Sorts an array of PostFinanceCheckout_Model_MethodConfiguration by their sort order
+     * Sorts an array of PostFinanceCheckoutModelMethodconfiguration by their sort order
      *
-     * @param PostFinanceCheckout_Model_MethodConfiguration[] $configurations
+     * @param PostFinanceCheckoutModelMethodconfiguration[] $configurations
      */
     public static function sortMethodConfiguration(array $configurations)
     {
-        usort($configurations, function ($a, $b) {
-            if ($a->getSortOrder() == $b->getSortOrder()) {
-                return $a->getConfigurationName() > $b->getConfigurationName();
+        usort(
+            $configurations,
+            function ($a, $b) {
+                if ($a->getSortOrder() == $b->getSortOrder()) {
+                    return $a->getConfigurationName() > $b->getConfigurationName();
+                }
+                return $a->getSortOrder() > $b->getSortOrder();
             }
-            return $a->getSortOrder() > $b->getSortOrder();
-        });
+        );
         return $configurations;
     }
-    
-    
+
     /**
      * Returns the translated name of the transaction's state.
      *
      * @return string
      */
-    public static function getTransactionState(PostFinanceCheckout_Model_TransactionInfo $info)
+    public static function getTransactionState(PostFinanceCheckoutModelTransactioninfo $info)
     {
         switch ($info->getState()) {
             case \PostFinanceCheckout\Sdk\Model\TransactionState::AUTHORIZED:
@@ -503,88 +493,90 @@ class PostFinanceCheckout_Helper
                 return self::getModuleInstance()->l('Unknown State', 'helper');
         }
     }
-    
+
     /**
      * Returns the URL to the transaction detail view in PostFinance Checkout.
      *
      * @return string
      */
-    public static function getTransactionUrl(PostFinanceCheckout_Model_TransactionInfo $info)
+    public static function getTransactionUrl(PostFinanceCheckoutModelTransactioninfo $info)
     {
         return self::getBaseGatewayUrl() . '/s/' . $info->getSpaceId() . '/payment/transaction/view/' .
             $info->getTransactionId();
     }
-    
+
     /**
      * Returns the URL to the refund detail view in PostFinance Checkout.
      *
      * @return string
      */
-    public static function getRefundUrl(PostFinanceCheckout_Model_RefundJob $refundJob)
+    public static function getRefundUrl(PostFinanceCheckoutModelRefundjob $refundJob)
     {
         return self::getBaseGatewayUrl() . '/s/' . $refundJob->getSpaceId() . '/payment/refund/view/' .
             $refundJob->getRefundId();
     }
-    
+
     /**
      * Returns the URL to the completion detail view in PostFinance Checkout.
      *
      * @return string
      */
-    public static function getCompletionUrl(PostFinanceCheckout_Model_CompletionJob $completion)
+    public static function getCompletionUrl(PostFinanceCheckoutModelCompletionjob $completion)
     {
         return self::getBaseGatewayUrl() . '/s/' . $completion->getSpaceId() . '/payment/completion/view/' .
             $completion->getCompletionId();
     }
-    
+
     /**
      * Returns the URL to the void detail view in PostFinance Checkout.
      *
      * @return string
      */
-    public static function getVoidUrl(PostFinanceCheckout_Model_VoidJob $void)
+    public static function getVoidUrl(PostFinanceCheckoutModelVoidjob $void)
     {
-        return self::getBaseGatewayUrl() . '/s/' . $void->getSpaceId() . '/payment/void/view/' .
-            $void->getVoidId();
+        return self::getBaseGatewayUrl() . '/s/' . $void->getSpaceId() . '/payment/void/view/' . $void->getVoidId();
     }
-    
-    
+
     /**
      * Returns the charge attempt's labels by their groups.
      *
      * @return \PostFinanceCheckout\Sdk\Model\Label[]
      */
-    public static function getGroupedChargeAttemptLabels(PostFinanceCheckout_Model_TransactionInfo $info)
+    public static function getGroupedChargeAttemptLabels(PostFinanceCheckoutModelTransactioninfo $info)
     {
         try {
-            $labelDescriptionProvider = PostFinanceCheckout_Provider_LabelDescription::instance();
-            $labelDescriptionGroupProvider = PostFinanceCheckout_Provider_LabelDescriptionGroup::instance();
-            
+            $labelDescriptionProvider = PostFinanceCheckoutProviderLabeldescription::instance();
+            $labelDescriptionGroupProvider = PostFinanceCheckoutProviderLabeldescription::instance();
+
             $labelsByGroupId = array();
             foreach ($info->getLabels() as $descriptorId => $value) {
                 $descriptor = $labelDescriptionProvider->find($descriptorId);
-                if ($descriptor && $descriptor->getCategory() == \PostFinanceCheckout\Sdk\Model\LabelDescriptorCategory::HUMAN) {
+                if ($descriptor &&
+                    $descriptor->getCategory() == \PostFinanceCheckout\Sdk\Model\LabelDescriptorCategory::HUMAN) {
                     $labelsByGroupId[$descriptor->getGroup()][] = array(
                         'descriptor' => $descriptor,
-                        'translatedName' => PostFinanceCheckout_Helper::translate($descriptor->getName()),
+                        'translatedName' => PostFinanceCheckoutHelper::translate($descriptor->getName()),
                         'value' => $value
                     );
                 }
             }
-            
+
             $labelsByGroup = array();
             foreach ($labelsByGroupId as $groupId => $labels) {
                 $group = $labelDescriptionGroupProvider->find($groupId);
                 if ($group) {
-                    usort($labels, function ($a, $b) {
-                        return $a['descriptor']->getWeight() - $b['descriptor']->getWeight();
-                    });
-                        $labelsByGroup[] = array(
-                            'group' => $group,
-                            'id' => $group->getId(),
-                            'translatedTitle' => PostFinanceCheckout_Helper::translate($group->getName()),
-                            'labels' => $labels
-                        );
+                    usort(
+                        $labels,
+                        function ($a, $b) {
+                            return $a['descriptor']->getWeight() - $b['descriptor']->getWeight();
+                        }
+                    );
+                    $labelsByGroup[] = array(
+                        'group' => $group,
+                        'id' => $group->getId(),
+                        'translatedTitle' => PostFinanceCheckoutHelper::translate($group->getName()),
+                        'labels' => $labels
+                    );
                 }
             }
             usort($labelsByGroup, function ($a, $b) {
@@ -595,12 +587,12 @@ class PostFinanceCheckout_Helper
             return array();
         }
     }
-    
+
     /**
      * Returns the transaction info for the given orderId.
      * If the order id is not associated with a PostFinance Checkout transaciton it returns null
      *
-     * @return PostFinanceCheckout_Model_TransactionInfo | null
+     * @return PostFinanceCheckoutModelTransactioninfo | null
      */
     public static function getTransactionInfoForOrder($order)
     {
@@ -608,29 +600,29 @@ class PostFinanceCheckout_Helper
             return null;
         }
         $searchId = $order->id;
-        
+
         $mainOrder = self::getOrderMeta($order, 'postFinanceCheckoutMainOrderId');
         if ($mainOrder !== null) {
             $searchId = $mainOrder;
         }
-        $info = PostFinanceCheckout_Model_TransactionInfo::loadByOrderId($searchId);
+        $info = PostFinanceCheckoutModelTransactioninfo::loadByOrderId($searchId);
         if ($info->getId() == null) {
             return null;
         }
         return $info;
     }
-    
+
     public static function cleanExceptionMessage($message)
     {
         return preg_replace("/^\[[A-Fa-f\d\-]+\] /", "", $message);
     }
-    
+
     public static function generateUUID()
     {
         $data = openssl_random_pseudo_bytes(16);
         $data[6] = chr(ord($data[6]) & 0x0f | 0x40); // set version to 0100
         $data[8] = chr(ord($data[8]) & 0x3f | 0x80); // set bits 6-7 to 10
-        
+
         return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
     }
 }

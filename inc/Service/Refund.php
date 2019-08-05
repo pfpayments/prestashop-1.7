@@ -2,7 +2,7 @@
 /**
  * PostFinance Checkout Prestashop
  *
- * This Prestashop module enables to process payments with PostFinance Checkout (https://www.postfinance.ch).
+ * This Prestashop module enables to process payments with PostFinance Checkout (https://www.postfinance.ch/checkout).
  *
  * @author customweb GmbH (http://www.customweb.com/)
  * @copyright 2017 - 2019 customweb GmbH
@@ -12,9 +12,8 @@
 /**
  * This service provides functions to deal with PostFinance Checkout refunds.
  */
-class PostFinanceCheckout_Service_Refund extends PostFinanceCheckout_Service_Abstract
+class PostFinanceCheckoutServiceRefund extends PostFinanceCheckoutServiceAbstract
 {
-
     private static $refundableStates = array(
         \PostFinanceCheckout\Sdk\Model\TransactionState::COMPLETED,
         \PostFinanceCheckout\Sdk\Model\TransactionState::DECLINE,
@@ -52,52 +51,61 @@ class PostFinanceCheckout_Service_Refund extends PostFinanceCheckout_Service_Abs
     {
         $currentRefundJob = null;
         try {
-            PostFinanceCheckout_Helper::startDBTransaction();
-            $transactionInfo = PostFinanceCheckout_Helper::getTransactionInfoForOrder($order);
+            PostFinanceCheckoutHelper::startDBTransaction();
+            $transactionInfo = PostFinanceCheckoutHelper::getTransactionInfoForOrder($order);
             if ($transactionInfo === null) {
                 throw new Exception(
-                    PostFinanceCheckout_Helper::getModuleInstance()->l('Could not load corresponding transaction', 'refund')
+                    PostFinanceCheckoutHelper::getModuleInstance()->l(
+                        'Could not load corresponding transaction',
+                        'refund'
+                    )
                 );
             }
-            
-            PostFinanceCheckout_Helper::lockByTransactionId(
+
+            PostFinanceCheckoutHelper::lockByTransactionId(
                 $transactionInfo->getSpaceId(),
                 $transactionInfo->getTransactionId()
             );
             // Reload after locking
-            $transactionInfo = PostFinanceCheckout_Model_TransactionInfo::loadByTransaction(
+            $transactionInfo = PostFinanceCheckoutModelTransactioninfo::loadByTransaction(
                 $transactionInfo->getSpaceId(),
                 $transactionInfo->getTransactionId()
             );
             $spaceId = $transactionInfo->getSpaceId();
             $transactionId = $transactionInfo->getTransactionId();
-            
+
             if (! in_array($transactionInfo->getState(), self::$refundableStates)) {
                 throw new Exception(
-                    PostFinanceCheckout_Helper::getModuleInstance()->l('The transaction is not in a state to be refunded.', 'refund')
+                    PostFinanceCheckoutHelper::getModuleInstance()->l(
+                        'The transaction is not in a state to be refunded.',
+                        'refund'
+                    )
                 );
             }
-            
-            if (PostFinanceCheckout_Model_RefundJob::isRefundRunningForTransaction($spaceId, $transactionId)) {
+
+            if (PostFinanceCheckoutModelRefundjob::isRefundRunningForTransaction($spaceId, $transactionId)) {
                 throw new Exception(
-                    PostFinanceCheckout_Helper::getModuleInstance()->l('Please wait until the existing refund is processed.', 'refund')
+                    PostFinanceCheckoutHelper::getModuleInstance()->l(
+                        'Please wait until the existing refund is processed.',
+                        'refund'
+                    )
                 );
             }
-            
-            $refundJob = new PostFinanceCheckout_Model_RefundJob();
-            $refundJob->setState(PostFinanceCheckout_Model_RefundJob::STATE_CREATED);
+
+            $refundJob = new PostFinanceCheckoutModelRefundjob();
+            $refundJob->setState(PostFinanceCheckoutModelRefundjob::STATE_CREATED);
             $refundJob->setOrderId($order->id);
             $refundJob->setSpaceId($transactionInfo->getSpaceId());
             $refundJob->setTransactionId($transactionInfo->getTransactionId());
             $refundJob->setExternalId(uniqid($order->id . '-'));
             $refundJob->setRefundParameters($parsedParameters);
             $refundJob->save();
-            //validate Refund Job
+            // validate Refund Job
             $this->createRefundObject($refundJob);
             $currentRefundJob = $refundJob->getId();
-            PostFinanceCheckout_Helper::commitDBTransaction();
+            PostFinanceCheckoutHelper::commitDBTransaction();
         } catch (Exception $e) {
-            PostFinanceCheckout_Helper::rollbackDBTransaction();
+            PostFinanceCheckoutHelper::rollbackDBTransaction();
             throw $e;
         }
         $this->sendRefund($currentRefundJob);
@@ -105,172 +113,170 @@ class PostFinanceCheckout_Service_Refund extends PostFinanceCheckout_Service_Abs
 
     protected function sendRefund($refundJobId)
     {
-        $refundJob = new PostFinanceCheckout_Model_RefundJob($refundJobId);
-        PostFinanceCheckout_Helper::startDBTransaction();
-        PostFinanceCheckout_Helper::lockByTransactionId($refundJob->getSpaceId(), $refundJob->getTransactionId());
+        $refundJob = new PostFinanceCheckoutModelRefundjob($refundJobId);
+        PostFinanceCheckoutHelper::startDBTransaction();
+        PostFinanceCheckoutHelper::lockByTransactionId($refundJob->getSpaceId(), $refundJob->getTransactionId());
         // Reload refund job;
-        $refundJob = new PostFinanceCheckout_Model_RefundJob($refundJobId);
-        if ($refundJob->getState() != PostFinanceCheckout_Model_RefundJob::STATE_CREATED) {
+        $refundJob = new PostFinanceCheckoutModelRefundjob($refundJobId);
+        if ($refundJob->getState() != PostFinanceCheckoutModelRefundjob::STATE_CREATED) {
             // Already sent in the meantime
-            PostFinanceCheckout_Helper::rollbackDBTransaction();
+            PostFinanceCheckoutHelper::rollbackDBTransaction();
             return;
         }
         try {
-            $refundService = PostFinanceCheckout_Service_Refund::instance();
-            $executedRefund = $refundService->refund(
-                $refundJob->getSpaceId(),
-                $this->createRefundObject($refundJob)
-            );
-            $refundJob->setState(PostFinanceCheckout_Model_RefundJob::STATE_SENT);
+            $executedRefund = $this->refund($refundJob->getSpaceId(), $this->createRefundObject($refundJob));
+            $refundJob->setState(PostFinanceCheckoutModelRefundjob::STATE_SENT);
             $refundJob->setRefundId($executedRefund->getId());
-            
+
             if ($executedRefund->getState() == \PostFinanceCheckout\Sdk\Model\RefundState::PENDING) {
-                $refundJob->setState(PostFinanceCheckout_Model_RefundJob::STATE_PENDING);
+                $refundJob->setState(PostFinanceCheckoutModelRefundjob::STATE_PENDING);
             }
             $refundJob->save();
-            PostFinanceCheckout_Helper::commitDBTransaction();
+            PostFinanceCheckoutHelper::commitDBTransaction();
         } catch (\PostFinanceCheckout\Sdk\ApiException $e) {
             if ($e->getResponseObject() instanceof \PostFinanceCheckout\Sdk\Model\ClientError) {
                 $refundJob->setFailureReason(
                     array(
                         'en-US' => sprintf(
-                            PostFinanceCheckout_Helper::getModuleInstance()->l('Could not send the refund to %s. Error: %s', 'refund'),
+                            PostFinanceCheckoutHelper::getModuleInstance()->l(
+                                'Could not send the refund to %s. Error: %s',
+                                'refund'
+                            ),
                             'PostFinance Checkout',
-                            PostFinanceCheckout_Helper::cleanExceptionMessage($e->getMessage())
+                            PostFinanceCheckoutHelper::cleanExceptionMessage($e->getMessage())
                         )
                     )
                 );
-                $refundJob->setState(PostFinanceCheckout_Model_RefundJob::STATE_FAILURE);
+                $refundJob->setState(PostFinanceCheckoutModelRefundjob::STATE_FAILURE);
                 $refundJob->save();
-                PostFinanceCheckout_Helper::commitDBTransaction();
+                PostFinanceCheckoutHelper::commitDBTransaction();
             } else {
                 $refundJob->save();
-                PostFinanceCheckout_Helper::commitDBTransaction();
+                PostFinanceCheckoutHelper::commitDBTransaction();
                 $message = sprintf(
-                    PostFinanceCheckout_Helper::getModuleInstance()->l('Error sending refund job with id %d: %s', 'refund'),
+                    PostFinanceCheckoutHelper::getModuleInstance()->l(
+                        'Error sending refund job with id %d: %s',
+                        'refund'
+                    ),
                     $refundJobId,
                     $e->getMessage()
                 );
-                PrestaShopLogger::addLog($message, 3, null, 'PostFinanceCheckout_Model_RefundJob');
+                PrestaShopLogger::addLog($message, 3, null, 'PostFinanceCheckoutModelRefundjob');
                 throw $e;
             }
         } catch (Exception $e) {
             $refundJob->save();
-            PostFinanceCheckout_Helper::commitDBTransaction();
+            PostFinanceCheckoutHelper::commitDBTransaction();
             $message = sprintf(
-                PostFinanceCheckout_Helper::getModuleInstance()->l('Error sending refund job with id %d: %s', 'refund'),
+                PostFinanceCheckoutHelper::getModuleInstance()->l('Error sending refund job with id %d: %s', 'refund'),
                 $refundJobId,
                 $e->getMessage()
             );
-            PrestaShopLogger::addLog($message, 3, null, 'PostFinanceCheckout_Model_RefundJob');
+            PrestaShopLogger::addLog($message, 3, null, 'PostFinanceCheckoutModelRefundjob');
             throw $e;
         }
     }
 
     public function applyRefundToShop($refundJobId)
     {
-        $refundJob = new PostFinanceCheckout_Model_RefundJob($refundJobId);
-        PostFinanceCheckout_Helper::startDBTransaction();
-        PostFinanceCheckout_Helper::lockByTransactionId($refundJob->getSpaceId(), $refundJob->getTransactionId());
+        $refundJob = new PostFinanceCheckoutModelRefundjob($refundJobId);
+        PostFinanceCheckoutHelper::startDBTransaction();
+        PostFinanceCheckoutHelper::lockByTransactionId($refundJob->getSpaceId(), $refundJob->getTransactionId());
         // Reload refund job;
-        $refundJob = new PostFinanceCheckout_Model_RefundJob($refundJobId);
-        if ($refundJob->getState() != PostFinanceCheckout_Model_RefundJob::STATE_APPLY) {
+        $refundJob = new PostFinanceCheckoutModelRefundjob($refundJobId);
+        if ($refundJob->getState() != PostFinanceCheckoutModelRefundjob::STATE_APPLY) {
             // Already processed in the meantime
-            PostFinanceCheckout_Helper::rollbackDBTransaction();
+            PostFinanceCheckoutHelper::rollbackDBTransaction();
             return;
         }
         try {
             $order = new Order($refundJob->getOrderId());
-            $strategy = PostFinanceCheckout_Backend_StrategyProvider::getStrategy();
+            $strategy = PostFinanceCheckoutBackendStrategyprovider::getStrategy();
             $appliedData = $strategy->applyRefund($order, $refundJob->getRefundParameters());
-            $refundJob->setState(PostFinanceCheckout_Model_RefundJob::STATE_SUCCESS);
+            $refundJob->setState(PostFinanceCheckoutModelRefundjob::STATE_SUCCESS);
             $refundJob->save();
-            PostFinanceCheckout_Helper::commitDBTransaction();
+            PostFinanceCheckoutHelper::commitDBTransaction();
             try {
                 $strategy->afterApplyRefundActions($order, $refundJob->getRefundParameters(), $appliedData);
             } catch (Exception $e) {
                 // We ignore errors in the after apply actions
             }
         } catch (Exception $e) {
-            PostFinanceCheckout_Helper::rollbackDBTransaction();
-            PostFinanceCheckout_Helper::startDBTransaction();
-            PostFinanceCheckout_Helper::lockByTransactionId(
-                $refundJob->getSpaceId(),
-                $refundJob->getTransactionId()
-            );
-            $refundJob = new PostFinanceCheckout_Model_RefundJob($refundJobId);
+            PostFinanceCheckoutHelper::rollbackDBTransaction();
+            PostFinanceCheckoutHelper::startDBTransaction();
+            PostFinanceCheckoutHelper::lockByTransactionId($refundJob->getSpaceId(), $refundJob->getTransactionId());
+            $refundJob = new PostFinanceCheckoutModelRefundjob($refundJobId);
             $refundJob->increaseApplyTries();
             if ($refundJob->getApplyTries() > 3) {
-                $refundJob->setState(PostFinanceCheckout_Model_RefundJob::STATE_FAILURE);
-                $refundJob->setFailureReason(
-                    array(
-                        'en-US' => sprintf(
-                            $e->getMessage()
-                        )
-                    )
-                );
+                $refundJob->setState(PostFinanceCheckoutModelRefundjob::STATE_FAILURE);
+                $refundJob->setFailureReason(array(
+                    'en-US' => sprintf($e->getMessage())
+                ));
             }
             $refundJob->save();
-            PostFinanceCheckout_Helper::commitDBTransaction();
+            PostFinanceCheckoutHelper::commitDBTransaction();
         }
     }
 
     public function updateForOrder($order)
     {
-        $transactionInfo = PostFinanceCheckout_Helper::getTransactionInfoForOrder($order);
+        $transactionInfo = PostFinanceCheckoutHelper::getTransactionInfoForOrder($order);
         $spaceId = $transactionInfo->getSpaceId();
         $transactionId = $transactionInfo->getTransactionId();
-        $refundJob = PostFinanceCheckout_Model_RefundJob::loadRunningRefundForTransaction(
-            $spaceId,
-            $transactionId
-        );
-        if ($refundJob->getState() == PostFinanceCheckout_Model_RefundJob::STATE_CREATED) {
+        $refundJob = PostFinanceCheckoutModelRefundjob::loadRunningRefundForTransaction($spaceId, $transactionId);
+        if ($refundJob->getState() == PostFinanceCheckoutModelRefundjob::STATE_CREATED) {
             $this->sendRefund($refundJob->getId());
-        } elseif ($refundJob->getState() == PostFinanceCheckout_Model_RefundJob::STATE_APPLY) {
+        } elseif ($refundJob->getState() == PostFinanceCheckoutModelRefundjob::STATE_APPLY) {
             $this->applyRefundToShop($refundJob->getId());
         }
     }
 
     public function updateRefunds($endTime = null)
     {
-        $toSend = PostFinanceCheckout_Model_RefundJob::loadNotSentJobIds();
+        $toSend = PostFinanceCheckoutModelRefundjob::loadNotSentJobIds();
         foreach ($toSend as $id) {
-            if ($endTime!== null && time() + 15 > $endTime) {
+            if ($endTime !== null && time() + 15 > $endTime) {
                 return;
             }
             try {
                 $this->sendRefund($id);
             } catch (Exception $e) {
                 $message = sprintf(
-                    PostFinanceCheckout_Helper::getModuleInstance()->l('Error updating refund job with id %d: %s', 'refund'),
+                    PostFinanceCheckoutHelper::getModuleInstance()->l(
+                        'Error updating refund job with id %d: %s',
+                        'refund'
+                    ),
                     $id,
                     $e->getMessage()
                 );
-                PrestaShopLogger::addLog($message, 3, null, 'PostFinanceCheckout_Model_RefundJob');
+                PrestaShopLogger::addLog($message, 3, null, 'PostFinanceCheckoutModelRefundjob');
             }
         }
-        $toApply = PostFinanceCheckout_Model_RefundJob::loadNotAppliedJobIds();
+        $toApply = PostFinanceCheckoutModelRefundjob::loadNotAppliedJobIds();
         foreach ($toApply as $id) {
-            if ($endTime!== null && time() + 15 > $endTime) {
+            if ($endTime !== null && time() + 15 > $endTime) {
                 return;
             }
             try {
                 $this->applyRefundToShop($id);
             } catch (Exception $e) {
                 $message = sprintf(
-                    PostFinanceCheckout_Helper::getModuleInstance()->l('Error applying refund job with id %d: %s', 'refund'),
+                    PostFinanceCheckoutHelper::getModuleInstance()->l(
+                        'Error applying refund job with id %d: %s',
+                        'refund'
+                    ),
                     $id,
                     $e->getMessage()
                 );
-                PrestaShopLogger::addLog($message, 3, null, 'PostFinanceCheckout_Model_RefundJob');
+                PrestaShopLogger::addLog($message, 3, null, 'PostFinanceCheckoutModelRefundjob');
             }
         }
     }
 
     public function hasPendingRefunds()
     {
-        $toSend = PostFinanceCheckout_Model_RefundJob::loadNotSentJobIds();
-        $toApply = PostFinanceCheckout_Model_RefundJob::loadNotAppliedJobIds();
+        $toSend = PostFinanceCheckoutModelRefundjob::loadNotSentJobIds();
+        $toApply = PostFinanceCheckoutModelRefundjob::loadNotAppliedJobIds();
         return ! empty($toSend) || ! empty($toApply);
     }
 
@@ -282,35 +288,36 @@ class PostFinanceCheckout_Service_Refund extends PostFinanceCheckout_Service_Abs
      *            Refund data to be determined
      * @return \PostFinanceCheckout\Sdk\Model\RefundCreate
      */
-    protected function createRefundObject(PostFinanceCheckout_Model_RefundJob $refundJob)
+    protected function createRefundObject(PostFinanceCheckoutModelRefundjob $refundJob)
     {
         $order = new Order($refundJob->getOrderId());
-        
-        $strategy = PostFinanceCheckout_Backend_StrategyProvider::getStrategy();
-        
+
+        $strategy = PostFinanceCheckoutBackendStrategyprovider::getStrategy();
+
         $spaceId = $refundJob->getSpaceId();
         $transactionId = $refundJob->getTransactionId();
         $externalRefundId = $refundJob->getExternalId();
         $parsedData = $refundJob->getRefundParameters();
         $amount = $strategy->getRefundTotal($parsedData);
         $type = $strategy->getPostFinanceCheckoutRefundType($parsedData);
-        
+
         $reductions = $strategy->createReductions($order, $parsedData);
         $reductions = $this->fixReductions($amount, $spaceId, $transactionId, $reductions);
-                
+
         $remoteRefund = new \PostFinanceCheckout\Sdk\Model\RefundCreate();
         $remoteRefund->setExternalId($externalRefundId);
         $remoteRefund->setReductions($reductions);
         $remoteRefund->setTransaction($transactionId);
         $remoteRefund->setType($type);
-        
+
         return $remoteRefund;
     }
 
     /**
      * Returns the fixed line item reductions for the refund.
      *
-     * If the amount of the given reductions does not match the refund's grand total, the amount to refund is distributed equally to the line items.
+     * If the amount of the given reductions does not match the refund's grand total, the amount to refund is
+     * distributed equally to the line items.
      *
      * @param float $refundTotal
      * @param int $spaceId
@@ -321,15 +328,14 @@ class PostFinanceCheckout_Service_Refund extends PostFinanceCheckout_Service_Abs
     protected function fixReductions($refundTotal, $spaceId, $transactionId, array $reductions)
     {
         $baseLineItems = $this->getBaseLineItems($spaceId, $transactionId);
-        $reductionAmount = PostFinanceCheckout_Helper::getReductionAmount($baseLineItems, $reductions);
-        
-        $configuration = PostFinanceCheckout_VersionAdapter::getConfigurationInterface();
+        $reductionAmount = PostFinanceCheckoutHelper::getReductionAmount($baseLineItems, $reductions);
+
+        $configuration = PostFinanceCheckoutVersionadapter::getConfigurationInterface();
         $computePrecision = $configuration->get('_PS_PRICE_COMPUTE_PRECISION_');
-        
-        if (Tools::ps_round($refundTotal, $computePrecision) !=
-            Tools::ps_round($reductionAmount, $computePrecision)) {
+
+        if (Tools::ps_round($refundTotal, $computePrecision) != Tools::ps_round($reductionAmount, $computePrecision)) {
             $fixedReductions = array();
-            $baseAmount = PostFinanceCheckout_Helper::getTotalAmountIncludingTax($baseLineItems);
+            $baseAmount = PostFinanceCheckoutHelper::getTotalAmountIncludingTax($baseLineItems);
             $rate = $refundTotal / $baseAmount;
             foreach ($baseLineItems as $lineItem) {
                 $reduction = new \PostFinanceCheckout\Sdk\Model\LineItemReductionCreate();
@@ -340,7 +346,7 @@ class PostFinanceCheckout_Service_Refund extends PostFinanceCheckout_Service_Abs
                 );
                 $fixedReductions[] = $reduction;
             }
-            
+
             return $fixedReductions;
         } else {
             return $reductions;
@@ -369,11 +375,8 @@ class PostFinanceCheckout_Service_Refund extends PostFinanceCheckout_Service_Abs
      * @param \PostFinanceCheckout\Sdk\Model\Refund $refund
      * @return \PostFinanceCheckout\Sdk\Model\LineItem[]
      */
-    protected function getBaseLineItems(
-        $spaceId,
-        $transactionId,
-        \PostFinanceCheckout\Sdk\Model\Refund $refund = null
-    ) {
+    protected function getBaseLineItems($spaceId, $transactionId, \PostFinanceCheckout\Sdk\Model\Refund $refund = null)
+    {
         $lastSuccessfulRefund = $this->getLastSuccessfulRefund($spaceId, $transactionId, $refund);
         if ($lastSuccessfulRefund) {
             return $lastSuccessfulRefund->getReducedLineItems();
@@ -393,7 +396,7 @@ class PostFinanceCheckout_Service_Refund extends PostFinanceCheckout_Service_Abs
     protected function getTransactionInvoice($spaceId, $transactionId)
     {
         $query = new \PostFinanceCheckout\Sdk\Model\EntityQuery();
-        
+
         $filter = new \PostFinanceCheckout\Sdk\Model\EntityQueryFilter();
         $filter->setType(\PostFinanceCheckout\Sdk\Model\EntityQueryFilterType::_AND);
         $filter->setChildren(
@@ -403,16 +406,13 @@ class PostFinanceCheckout_Service_Refund extends PostFinanceCheckout_Service_Abs
                     \PostFinanceCheckout\Sdk\Model\TransactionInvoiceState::CANCELED,
                     \PostFinanceCheckout\Sdk\Model\CriteriaOperator::NOT_EQUALS
                 ),
-                $this->createEntityFilter(
-                    'completion.lineItemVersion.transaction.id',
-                    $transactionId
-                )
+                $this->createEntityFilter('completion.lineItemVersion.transaction.id', $transactionId)
             )
         );
         $query->setFilter($filter);
         $query->setNumberOfEntities(1);
         $invoiceService = new \PostFinanceCheckout\Sdk\Service\TransactionInvoiceService(
-            PostFinanceCheckout_Helper::getApiClient()
+            PostFinanceCheckoutHelper::getApiClient()
         );
         $result = $invoiceService->search($spaceId, $query);
         if (! empty($result)) {
@@ -436,7 +436,7 @@ class PostFinanceCheckout_Service_Refund extends PostFinanceCheckout_Service_Abs
         \PostFinanceCheckout\Sdk\Model\Refund $refund = null
     ) {
         $query = new \PostFinanceCheckout\Sdk\Model\EntityQuery();
-        
+
         $filter = new \PostFinanceCheckout\Sdk\Model\EntityQueryFilter();
         $filter->setType(\PostFinanceCheckout\Sdk\Model\EntityQueryFilterType::_AND);
         $filters = array(
@@ -450,20 +450,17 @@ class PostFinanceCheckout_Service_Refund extends PostFinanceCheckout_Service_Abs
                 \PostFinanceCheckout\Sdk\Model\CriteriaOperator::NOT_EQUALS
             );
         }
-        
+
         $filter->setChildren($filters);
         $query->setFilter($filter);
-        
+
         $query->setOrderBys(
             array(
-                $this->createEntityOrderBy(
-                    'createdOn',
-                    \PostFinanceCheckout\Sdk\Model\EntityQueryOrderByType::DESC
-                )
+                $this->createEntityOrderBy('createdOn', \PostFinanceCheckout\Sdk\Model\EntityQueryOrderByType::DESC)
             )
         );
         $query->setNumberOfEntities(1);
-        
+
         $result = $this->getRefundService()->search($spaceId, $query);
         if (! empty($result)) {
             return $result[0];
@@ -481,10 +478,10 @@ class PostFinanceCheckout_Service_Refund extends PostFinanceCheckout_Service_Abs
     {
         if ($this->refundService == null) {
             $this->refundService = new \PostFinanceCheckout\Sdk\Service\RefundService(
-                PostFinanceCheckout_Helper::getApiClient()
+                PostFinanceCheckoutHelper::getApiClient()
             );
         }
-        
+
         return $this->refundService;
     }
 }

@@ -1,7 +1,7 @@
 {*
  * PostFinance Checkout Prestashop
  *
- * This Prestashop module enables to process payments with PostFinance Checkout (https://www.postfinance.ch).
+ * This Prestashop module enables to process payments with PostFinance Checkout (https://www.postfinance.ch/checkout).
  *
  * @author customweb GmbH (http://www.customweb.com/)
  * @copyright 2017 - 2019 customweb GmbH
@@ -19,7 +19,7 @@
 			</p>
 			<dl class="well list-detail">
 				<dt>{l s='Payment Method' mod='postfinancecheckout'}</dt>
-				<dd>{$configurationName}
+				<dd>{$configurationName|escape:'html':'UTF-8'}
 			{if !empty($methodImage)} 
 			 	<br /><img
 						src="{$methodImage|escape:'html'}"
@@ -27,10 +27,10 @@
 			{/if}
 				</dd>
 				<dt>{l s='Transaction State' mod='postfinancecheckout'}</dt>
-				<dd>{$transactionState}</dd>
+				<dd>{$transactionState|escape:'html':'UTF-8'}</dd>
 			{if !empty($failureReason)} 
             	<dt>{l s='Failure Reason' mod='postfinancecheckout'}</dt>
-				<dd>{$failureReason}</dd>
+				<dd>{$failureReason|escape:'html':'UTF-8'}</dd>
 			{/if}
         		<dt>{l s='Authorization Amount' mod='postfinancecheckout'}</dt>
 				<dd>{displayPrice price=$authorizationAmount}</dd>
@@ -45,16 +45,16 @@
 		{if !empty($labelsByGroup)}
 			{foreach from=$labelsByGroup item=group}
 			<div class="postfinancecheckout-transaction-column">
-				<div class="postfinancecheckout-payment-label-container" id="postfinancecheckout-payment-label-container-{$group.id}">
+				<div class="postfinancecheckout-payment-label-container" id="postfinancecheckout-payment-label-container-{$group.id|escape:'html':'UTF-8'}">
 					<p class="postfinancecheckout-payment-label-group">
 						<strong>
-						{$group.translatedTitle}
+						{$group.translatedTitle|escape:'html':'UTF-8'}
 						</strong>
 					</p>
 					<dl class="well list-detail">
 						{foreach from=$group.labels item=label}
-	                		<dt>{$label.translatedName}</dt>
-							<dd>{$label.value}</dd>
+	                		<dt>{$label.translatedName|escape:'html':'UTF-8'}</dt>
+							<dd>{$label.value|escape:'html':'UTF-8'}</dd>
 						{/foreach}
 					</dl>
 				</div>
@@ -92,17 +92,17 @@
 					<tbody>
 					{foreach from=$completions item=completion}
 						<tr>
-							<td>{$completion->getId()}</td>
+							<td>{$completion->getId()|escape:'html':'UTF-8'}</td>
 							<td>{if ($completion->getCompletionId() != 0)}
-									{$completion->getCompletionId()}
+									{$completion->getCompletionId()|escape:'html':'UTF-8'}
 								{else}
 									{l s='Not available' mod='postfinancecheckout'}
 								{/if}	
 							</td>
-							<td>{$completion->getState()}</td>
+							<td>{$completion->getState()|escape:'html':'UTF-8'}</td>
 							<td>{if !empty($completion->getFailureReason())}
 									{assign var='failureReason' value="{postfinancecheckout_translate text=$completion->getFailureReason()}"}
-									{$failureReason}
+									{$failureReason|escape:'html':'UTF-8'}
 								{else}
 									{l s='(None)' mod='postfinancecheckout'}
 								{/if}
@@ -154,17 +154,17 @@
 					<tbody>
 					{foreach from=$voids item=voidItem}
 						<tr>
-							<td>{$voidItem->getId()}</td>
+							<td>{$voidItem->getId()|escape:'html':'UTF-8'}</td>
 							<td>{if ($voidItem->getVoidId() != 0)}
-									{$voidItem->getVoidId()}
+									{$voidItem->getVoidId()|escape:'html':'UTF-8'}
 								{else}
 									{l s='Not available' mod='postfinancecheckout'}
 								{/if}		
 							</td>
-							<td>{$voidItem->getState()}</td>
+							<td>{$voidItem->getState()|escape:'html':'UTF-8'}</td>
 							<td>{if !empty($voidItem->getFailureReason())}
 									{assign var='failureReason' value="{postfinancecheckout_translate text=$voidItem->getFailureReason()}"}
-									{$failureReason}
+									{$failureReason|escape:'html':'UTF-8'}
 								{else}
 									{l s='(None)' mod='postfinancecheckout'}
 								{/if}
@@ -226,11 +226,11 @@
 					<tbody>
 					{foreach from=$refunds item=refund}
 						<tr>
-							<td>{$refund->getId()}</td>
-							<td>{$refund->getExternalId()}</td>
+							<td>{$refund->getId()|escape:'html':'UTF-8'}</td>
+							<td>{$refund->getExternalId()|escape:'html':'UTF-8'}</td>
 							<td>
 								{if ($refund->getRefundId() != 0)}
-									{$refund->getRefundId()}
+									{$refund->getRefundId()|escape:'html':'UTF-8'}
 								{else}
 									{l s='Not available' mod='postfinancecheckout'}
 								{/if}	
@@ -241,12 +241,12 @@
 							</td>
 							<td>
 								{assign var='refundType' value="{postfinancecheckout_refund_type refund=$refund}"}
-								{$refundType}
+								{$refundType|escape:'html':'UTF-8'}
 							</td>
-							<td>{$refund->getState()}</td>
+							<td>{$refund->getState()|escape:'html':'UTF-8'}</td>
 							<td>{if !empty($refund->getFailureReason())}
 									{assign var='failureReason' value="{postfinancecheckout_translate text=$refund->getFailureReason()}"}
-									{$failureReason}
+									{$failureReason|escape:'html':'UTF-8'}
 								{else}
 									{l s='(None)' mod='postfinancecheckout'}
 								{/if}

@@ -2,7 +2,7 @@
 /**
  * PostFinance Checkout Prestashop
  *
- * This Prestashop module enables to process payments with PostFinance Checkout (https://www.postfinance.ch).
+ * This Prestashop module enables to process payments with PostFinance Checkout (https://www.postfinance.ch/checkout).
  *
  * @author customweb GmbH (http://www.customweb.com/)
  * @copyright 2017 - 2019 customweb GmbH
@@ -12,12 +12,11 @@
 /**
  * Webhook processor to handle token state transitions.
  */
-class PostFinanceCheckout_Webhook_Token extends PostFinanceCheckout_Webhook_Abstract
+class PostFinanceCheckoutWebhookToken extends PostFinanceCheckoutWebhookAbstract
 {
-
-    public function process(PostFinanceCheckout_Webhook_Request $request)
+    public function process(PostFinanceCheckoutWebhookRequest $request)
     {
-        $tokenService = PostFinanceCheckout_Service_Token::instance();
+        $tokenService = PostFinanceCheckoutServiceToken::instance();
         $tokenService->updateToken($request->getSpaceId(), $request->getEntityId());
     }
 }

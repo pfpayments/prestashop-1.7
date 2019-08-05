@@ -2,7 +2,7 @@
 /**
  * PostFinance Checkout Prestashop
  *
- * This Prestashop module enables to process payments with PostFinance Checkout (https://www.postfinance.ch).
+ * This Prestashop module enables to process payments with PostFinance Checkout (https://www.postfinance.ch/checkout).
  *
  * @author customweb GmbH (http://www.customweb.com/)
  * @copyright 2017 - 2019 customweb GmbH
@@ -12,16 +12,16 @@
 /**
  * This service provides functions to deal with PostFinance Checkout tokens.
  */
-class PostFinanceCheckout_Service_Token extends PostFinanceCheckout_Service_Abstract
+class PostFinanceCheckoutServiceToken extends PostFinanceCheckoutServiceAbstract
 {
-    
+
     /**
      * The token API service.
      *
      * @var \PostFinanceCheckout\Sdk\Service\TokenService
      */
     private $tokenService;
-    
+
     /**
      * The token version API service.
      *
@@ -42,17 +42,17 @@ class PostFinanceCheckout_Service_Token extends PostFinanceCheckout_Service_Abst
         $filter->setType(\PostFinanceCheckout\Sdk\Model\EntityQueryFilterType::_AND);
         $filter->setChildren(
             array(
-                    $this->createEntityFilter('token.id', $tokenId),
-                    $this->createEntityFilter('state', \PostFinanceCheckout\Sdk\Model\CreationEntityState::ACTIVE)
-                )
+                $this->createEntityFilter('token.id', $tokenId),
+                $this->createEntityFilter('state', \PostFinanceCheckout\Sdk\Model\CreationEntityState::ACTIVE)
+            )
         );
         $query->setFilter($filter);
         $query->setNumberOfEntities(1);
         $tokenVersions = $this->getTokenVersionService()->search($spaceId, $query);
-        if (!empty($tokenVersions)) {
+        if (! empty($tokenVersions)) {
             $this->updateInfo($spaceId, current($tokenVersions));
         } else {
-            $info = PostFinanceCheckout_Model_TokenInfo::loadByToken($spaceId, $tokenId);
+            $info = PostFinanceCheckoutModelTokeninfo::loadByToken($spaceId, $tokenId);
             if ($info->getId()) {
                 $info->delete();
             }
@@ -61,30 +61,37 @@ class PostFinanceCheckout_Service_Token extends PostFinanceCheckout_Service_Abst
 
     protected function updateInfo($spaceId, \PostFinanceCheckout\Sdk\Model\TokenVersion $tokenVersion)
     {
-        
-        $info = PostFinanceCheckout_Model_TokenInfo::loadByToken($spaceId, $tokenVersion->getToken()->getId());
-        if (!in_array(
+        $info = PostFinanceCheckoutModelTokeninfo::loadByToken($spaceId, $tokenVersion->getToken()->getId());
+        if (! in_array(
             $tokenVersion->getToken()->getState(),
             array(
-                    \PostFinanceCheckout\Sdk\Model\CreationEntityState::ACTIVE,
-                    \PostFinanceCheckout\Sdk\Model\CreationEntityState::INACTIVE
-                )
+                \PostFinanceCheckout\Sdk\Model\CreationEntityState::ACTIVE,
+                \PostFinanceCheckout\Sdk\Model\CreationEntityState::INACTIVE
+            )
         )) {
             if ($info->getId()) {
                 $info->delete();
             }
             return;
         }
-        
-        $info->setCustomerId($tokenVersion->getToken()->getCustomerId());
+
+        $info->setCustomerId($tokenVersion->getToken()
+            ->getCustomerId());
         $info->setName($tokenVersion->getName());
-        
-        $info->setPaymentMethodId($tokenVersion->getPaymentConnectorConfiguration()->getPaymentMethodConfiguration()->getId());
-        $info->setConnectorId($tokenVersion->getPaymentConnectorConfiguration()->getConnector());
-        
+
+        $info->setPaymentMethodId(
+            $tokenVersion->getPaymentConnectorConfiguration()
+                ->getPaymentMethodConfiguration()
+                ->getId()
+        );
+        $info->setConnectorId($tokenVersion->getPaymentConnectorConfiguration()
+            ->getConnector());
+
         $info->setSpaceId($spaceId);
-        $info->setState($tokenVersion->getToken()->getState());
-        $info->setTokenId($tokenVersion->getToken()->getId());
+        $info->setState($tokenVersion->getToken()
+            ->getState());
+        $info->setTokenId($tokenVersion->getToken()
+            ->getId());
         $info->save();
     }
 
@@ -101,9 +108,11 @@ class PostFinanceCheckout_Service_Token extends PostFinanceCheckout_Service_Abst
     protected function getTokenService()
     {
         if ($this->tokenService == null) {
-            $this->tokenService = new \PostFinanceCheckout\Sdk\Service\TokenService(PostFinanceCheckout_Helper::getApiClient());
+            $this->tokenService = new \PostFinanceCheckout\Sdk\Service\TokenService(
+                PostFinanceCheckoutHelper::getApiClient()
+            );
         }
-        
+
         return $this->tokenService;
     }
 
@@ -115,9 +124,11 @@ class PostFinanceCheckout_Service_Token extends PostFinanceCheckout_Service_Abst
     protected function getTokenVersionService()
     {
         if ($this->tokenVersionService == null) {
-            $this->tokenVersionService = new \PostFinanceCheckout\Sdk\Service\TokenVersionService(PostFinanceCheckout_Helper::getApiClient());
+            $this->tokenVersionService = new \PostFinanceCheckout\Sdk\Service\TokenVersionService(
+                PostFinanceCheckoutHelper::getApiClient()
+            );
         }
-        
+
         return $this->tokenVersionService;
     }
 }
