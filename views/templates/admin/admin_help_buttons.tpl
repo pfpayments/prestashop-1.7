@@ -10,5 +10,5 @@
 <div class="alert alert-info">
 <img src="../modules/postfinancecheckout/logo.png" style="float:left; margin-right:15px;" height="50">
 <p><strong>{l s='This module requires an %s account.' sprintf='PostFinance Checkout' mod='postfinancecheckout'}</strong></p>
-<p><a class="btn btn-default" href="https://www.postfinance-checkout.ch/user/signup" target="_blank">{l s='Sign Up' mod='postfinancecheckout'}</a> <a class="btn btn-default" href="https://plugin-documentation.postfinance-checkout.ch/pfpayments/prestashop-1.7/1.1.7/docs/en/documentation.html" target="_blank">{l s='Documentation' mod='postfinancecheckout'}</a></p>
+<p><a class="btn btn-default" href="https://www.postfinance-checkout.ch/user/signup" target="_blank">{l s='Sign Up' mod='postfinancecheckout'}</a> <a class="btn btn-default" href="https://plugin-documentation.postfinance-checkout.ch/pfpayments/prestashop-1.7/1.1.8/docs/en/documentation.html" target="_blank">{l s='Documentation' mod='postfinancecheckout'}</a></p>
 </div>

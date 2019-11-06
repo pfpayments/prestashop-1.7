@@ -1271,6 +1271,7 @@ class PostFinanceCheckoutBasemodule
     ) {
         if ($module->active) {
             PostFinanceCheckoutHelper::startDBTransaction();
+            $methodConfiguration = null;
             try {
                 $originalCart = new Cart($id_cart);
 
@@ -1333,7 +1334,7 @@ class PostFinanceCheckoutBasemodule
                     $duplicateMessage->save();
                 }
 
-                $methodConfiguration = null;
+                
                 if (strpos($payment_method, "postfinancecheckout_") === 0) {
                     $id = Tools::substr($payment_method, strpos($payment_method, "_") + 1);
                     $methodConfiguration = new PostFinanceCheckoutModelMethodconfiguration($id);
@@ -1406,7 +1407,8 @@ class PostFinanceCheckoutBasemodule
             try {
                 $transaction = PostFinanceCheckoutServiceTransaction::instance()->confirmTransaction(
                     $dataOrder,
-                    $orders
+                    $orders,
+                    $methodConfiguration->getConfigurationId()
                 );
                 PostFinanceCheckoutServiceTransaction::instance()->updateTransactionInfo($transaction, $dataOrder);
                 $GLOBALS['postfinancecheckoutTransactionIds'] = array(

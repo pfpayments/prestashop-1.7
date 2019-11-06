@@ -365,9 +365,10 @@ class PostFinanceCheckoutServiceTransaction extends PostFinanceCheckoutServiceAb
      *
      * @param Order $dataSource
      * @param Order[] $orders
+     * @param int $methodConfigurationId
      * @return \PostFinanceCheckout\Sdk\Model\Transaction
      */
-    public function confirmTransaction(Order $dataSource, array $orders)
+    public function confirmTransaction(Order $dataSource, array $orders, $methodConfigurationId)
     {
         $last = new Exception('Unexpected Error');
         for ($i = 0; $i < 5; $i ++) {
@@ -388,6 +389,7 @@ class PostFinanceCheckoutServiceTransaction extends PostFinanceCheckoutServiceAb
                 $pendingTransaction->setId($transaction->getId());
                 $pendingTransaction->setVersion($transaction->getVersion());
                 $this->assembleOrderTransactionData($dataSource, $orders, $pendingTransaction);
+                $pendingTransaction->setAllowedPaymentMethodConfigurations(array($methodConfigurationId));
                 $result = $this->getTransactionService()->confirm($spaceId, $pendingTransaction);
                 PostFinanceCheckoutHelper::updateOrderMeta(
                     $dataSource,

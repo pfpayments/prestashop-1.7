@@ -176,7 +176,7 @@ jQuery(function ($) {
                             self.payment_methods[method_id].handler.submit();
                             return;
                     } else if (response.result =='redirect') {
-                        location.replace(response.redirect+"&paymentMethodConfigurationId="+self.payment_methods[method_id].configuration_id);
+                        location.replace(response.redirect);
                         return;
                     } else if ( response.result == 'failure' ) {
                         if (response.reload == 'true' ) {

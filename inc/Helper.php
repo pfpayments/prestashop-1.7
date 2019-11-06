@@ -57,8 +57,10 @@ class PostFinanceCheckoutHelper
     {
         $dbLink = Db::getInstance()->getLink();
         if ($dbLink instanceof mysqli) {
+            $dbLink->query("SET TRANSACTION ISOLATION LEVEL READ COMMITTED");
             $dbLink->begin_transaction();
         } elseif ($dbLink instanceof PDO) {
+            $dbLink->exec("SET TRANSACTION ISOLATION LEVEL READ COMMITTED");
             $dbLink->beginTransaction();
         } else {
             throw new Exception('This module needs a PDO or MYSQLI link to use DB transactions');
@@ -91,7 +93,7 @@ class PostFinanceCheckoutHelper
     public static function lockByTransactionId($spaceId, $transactionId)
     {
         Db::getInstance()->getLink()->query(
-            'SELECT locked_at FROM ' . _DB_PREFIX_ . 'pfc_transaction_info WHERE transaction_id = "' .
+            'SELECT * FROM ' . _DB_PREFIX_ . 'pfc_transaction_info WHERE transaction_id = "' .
             (int) $transactionId . '" AND space_id = "' . (int) $spaceId . '" FOR UPDATE;'
         );
 
