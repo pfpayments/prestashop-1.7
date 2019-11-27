@@ -35,6 +35,20 @@ class PostFinanceCheckoutServiceTransaction extends PostFinanceCheckoutServiceAb
      * @var \PostFinanceCheckout\Sdk\Service\TransactionService
      */
     private $transactionService;
+    
+    /**
+     * The transaction iframe API service to retrieve js url.
+     *
+     * @var \PostFinanceCheckout\Sdk\Service\TransactionIframeService
+     */
+    private $transactionIframeService;
+    
+    /**
+     * The transaction payment page API service to retrieve redirection url.
+     *
+     * @var \PostFinanceCheckout\Sdk\Service\TransactionPaymentPageService
+     */
+    private $transactionPaymentPageService;
 
     /**
      * The charge attempt API service.
@@ -56,6 +70,36 @@ class PostFinanceCheckoutServiceTransaction extends PostFinanceCheckoutServiceAb
             );
         }
         return $this->transactionService;
+    }
+    
+    /**
+     * Returns the transaction iframe API service.
+     *
+     * @return \PostFinanceCheckout\Sdk\Service\TransactionIframeService
+     */
+    protected function getTransactionIframeService()
+    {
+        if ($this->transactionIframeService === null) {
+            $this->transactionIframeService = new \PostFinanceCheckout\Sdk\Service\TransactionIframeService(
+                PostFinanceCheckoutHelper::getApiClient()
+            );
+        }
+        return $this->transactionIframeService;
+    }
+    
+    /**
+     * Returns the transaction API payment page service.
+     *
+     * @return \PostFinanceCheckout\Sdk\Service\TransactionPaymentPageService
+     */
+    protected function getTransactionPaymentPageService()
+    {
+        if ($this->transactionPaymentPageService === null) {
+            $this->transactionPaymentPageService = new \PostFinanceCheckout\Sdk\Service\TransactionPaymentPageService(
+                PostFinanceCheckoutHelper::getApiClient()
+            );
+        }
+        return $this->transactionPaymentPageService;
     }
 
     /**
@@ -106,7 +150,7 @@ class PostFinanceCheckoutServiceTransaction extends PostFinanceCheckoutServiceAb
     public function getJavascriptUrl(Cart $cart)
     {
         $transaction = $this->getTransactionFromCart($cart);
-        return $this->getTransactionService()->buildJavaScriptUrl(
+        return $this->getTransactionIframeService()->javascriptUrl(
             $transaction->getLinkedSpaceId(),
             $transaction->getId()
         );
@@ -120,7 +164,7 @@ class PostFinanceCheckoutServiceTransaction extends PostFinanceCheckoutServiceAb
      */
     public function getPaymentPageUrl($spaceId, $transactionId)
     {
-        return $this->getTransactionService()->buildPaymentPageUrl($spaceId, $transactionId);
+        return $this->getTransactionPaymentPageService()->paymentPageUrl($spaceId, $transactionId);
     }
 
     /**
