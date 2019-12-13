@@ -104,7 +104,7 @@ class PostFinanceCheckoutServiceLineitem extends PostFinanceCheckoutServiceAbstr
             $item->setAmountIncludingTax($this->roundAmount($shippingCosts, $currencyCode));
             $item->setQuantity(1);
             $item->setShippingRequired(false);
-            $item->setSku(WalleeHelper::getModuleInstance()->l('Shipping', 'lineitem'));
+            $item->setSku(PostFinanceCheckoutHelper::getModuleInstance()->l('Shipping', 'lineitem'));
             $name = "";
             $taxCalculatorFound = false;
             if (isset($summary['carrier']) && $summary['carrier'] instanceof Carrier) {
@@ -384,7 +384,7 @@ class PostFinanceCheckoutServiceLineitem extends PostFinanceCheckoutServiceAbstr
                 $name = '';
                 $item->setQuantity(1);
                 $item->setShippingRequired(false);
-                $item->setSku(WalleeHelper::getModuleInstance()->l('Shipping', 'lineitem'));
+                $item->setSku(PostFinanceCheckoutHelper::getModuleInstance()->l('Shipping', 'lineitem'));
                 $item->setAmountIncludingTax($this->roundAmount($shippingCosts, $currencyCode));
 
                 $carrier = new Carrier($order->id_carrier);
