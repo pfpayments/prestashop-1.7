@@ -5,7 +5,7 @@
  * This Prestashop module enables to process payments with PostFinance Checkout (https://www.postfinance.ch/checkout).
  *
  * @author customweb GmbH (http://www.customweb.com/)
- * @copyright 2017 - 2019 customweb GmbH
+ * @copyright 2017 - 2020 customweb GmbH
  * @license http://www.apache.org/licenses/LICENSE-2.0 Apache Software License (ASL 2.0)
  */
 
@@ -27,6 +27,9 @@ class PostFinanceCheckoutServiceLineitem extends PostFinanceCheckoutServiceAbstr
         $items = array();
         $summary = $cart->getSummaryDetails(null, true);
         $taxAddress = new Address((int) $cart->{Configuration::get('PS_TAX_ADDRESS_TYPE')});
+        
+        $configuration = PostFinanceCheckoutVersionadapter::getConfigurationInterface();
+        $compute_precision = $configuration->get('_PS_PRICE_COMPUTE_PRECISION_');
 
         // Needed for discounts;
         $usedTaxes = array();
@@ -205,11 +208,14 @@ class PostFinanceCheckoutServiceLineitem extends PostFinanceCheckoutServiceAbstr
                     'Discount',
                     'lineitem'
                 ) : $discount['description'];
+                
+                $discountIncludingTax = Tools::ps_round($discount['value_real'], $compute_precision);
+                
                 $discountItems = $this->getDiscountItems(
                     $nameBase,
                     'discount-' . $discount['id_cart_rule'],
                     'cart-' . $cart->id . '-discount-' . $discount['id_cart_rule'],
-                    (float) $discount['value_real'],
+                    (float) $discountIncludingTax,
                     (float) $discount['value_tax_exc'],
                     new CartRule($discount['id_cart_rule']),
                     $usedTaxes,
