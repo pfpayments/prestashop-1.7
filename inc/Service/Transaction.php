@@ -150,10 +150,12 @@ class PostFinanceCheckoutServiceTransaction extends PostFinanceCheckoutServiceAb
     public function getJavascriptUrl(Cart $cart)
     {
         $transaction = $this->getTransactionFromCart($cart);
-        return $this->getTransactionIframeService()->javascriptUrl(
+        $js = $this->getTransactionIframeService()->javascriptUrl(
             $transaction->getLinkedSpaceId(),
             $transaction->getId()
         );
+        
+        return $js . "&className=postfinancecheckoutIFrameCheckoutHandler";
     }
 
     /**

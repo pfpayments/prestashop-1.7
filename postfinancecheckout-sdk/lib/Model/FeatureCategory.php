@@ -24,7 +24,7 @@ use \ArrayAccess;
 use \PostFinanceCheckout\Sdk\ObjectSerializer;
 
 /**
- * PaymentTerminalDevice model
+ * FeatureCategory model
  *
  * @category    Class
  * @description 
@@ -32,7 +32,7 @@ use \PostFinanceCheckout\Sdk\ObjectSerializer;
  * @author      customweb GmbH
  * @license     http://www.apache.org/licenses/LICENSE-2.0 Apache License v2
  */
-class PaymentTerminalDevice implements ModelInterface, ArrayAccess
+class FeatureCategory implements ModelInterface, ArrayAccess
 {
     const DISCRIMINATOR = null;
 
@@ -41,7 +41,7 @@ class PaymentTerminalDevice implements ModelInterface, ArrayAccess
       *
       * @var string
       */
-    protected static $swaggerModelName = 'PaymentTerminalDevice';
+    protected static $swaggerModelName = 'FeatureCategory';
 
     /**
       * Array of property to type mappings. Used for (de)serialization
@@ -49,15 +49,10 @@ class PaymentTerminalDevice implements ModelInterface, ArrayAccess
       * @var string[]
       */
     protected static $swaggerTypes = [
-        'account' => '\PostFinanceCheckout\Sdk\Model\Account',
-        'created_on' => '\DateTime',
+        'description' => 'map[string,string]',
         'id' => 'int',
-        'model' => '\PostFinanceCheckout\Sdk\Model\PaymentTerminalDeviceModel',
-        'name' => 'string',
-        'serial_number' => 'string',
-        'state' => '\PostFinanceCheckout\Sdk\Model\PaymentTerminalDeviceState',
-        'terminal' => '\PostFinanceCheckout\Sdk\Model\PaymentTerminalReference',
-        'version' => 'int'
+        'name' => 'map[string,string]',
+        'order_weight' => 'int'
     ];
 
     /**
@@ -66,15 +61,10 @@ class PaymentTerminalDevice implements ModelInterface, ArrayAccess
       * @var string[]
       */
     protected static $swaggerFormats = [
-        'account' => null,
-        'created_on' => 'date-time',
+        'description' => null,
         'id' => 'int64',
-        'model' => null,
         'name' => null,
-        'serial_number' => null,
-        'state' => null,
-        'terminal' => null,
-        'version' => 'int32'
+        'order_weight' => 'int32'
     ];
 
     /**
@@ -84,15 +74,10 @@ class PaymentTerminalDevice implements ModelInterface, ArrayAccess
      * @var string[]
      */
     protected static $attributeMap = [
-        'account' => 'account',
-        'created_on' => 'createdOn',
+        'description' => 'description',
         'id' => 'id',
-        'model' => 'model',
         'name' => 'name',
-        'serial_number' => 'serialNumber',
-        'state' => 'state',
-        'terminal' => 'terminal',
-        'version' => 'version'
+        'order_weight' => 'orderWeight'
     ];
 
     /**
@@ -101,15 +86,10 @@ class PaymentTerminalDevice implements ModelInterface, ArrayAccess
      * @var string[]
      */
     protected static $setters = [
-        'account' => 'setAccount',
-        'created_on' => 'setCreatedOn',
+        'description' => 'setDescription',
         'id' => 'setId',
-        'model' => 'setModel',
         'name' => 'setName',
-        'serial_number' => 'setSerialNumber',
-        'state' => 'setState',
-        'terminal' => 'setTerminal',
-        'version' => 'setVersion'
+        'order_weight' => 'setOrderWeight'
     ];
 
     /**
@@ -118,15 +98,10 @@ class PaymentTerminalDevice implements ModelInterface, ArrayAccess
      * @var string[]
      */
     protected static $getters = [
-        'account' => 'getAccount',
-        'created_on' => 'getCreatedOn',
+        'description' => 'getDescription',
         'id' => 'getId',
-        'model' => 'getModel',
         'name' => 'getName',
-        'serial_number' => 'getSerialNumber',
-        'state' => 'getState',
-        'terminal' => 'getTerminal',
-        'version' => 'getVersion'
+        'order_weight' => 'getOrderWeight'
     ];
 
     
@@ -147,23 +122,13 @@ class PaymentTerminalDevice implements ModelInterface, ArrayAccess
     public function __construct(array $data = null)
     {
         
-        $this->container['account'] = isset($data['account']) ? $data['account'] : null;
-        
-        $this->container['created_on'] = isset($data['created_on']) ? $data['created_on'] : null;
+        $this->container['description'] = isset($data['description']) ? $data['description'] : null;
         
         $this->container['id'] = isset($data['id']) ? $data['id'] : null;
         
-        $this->container['model'] = isset($data['model']) ? $data['model'] : null;
-        
         $this->container['name'] = isset($data['name']) ? $data['name'] : null;
         
-        $this->container['serial_number'] = isset($data['serial_number']) ? $data['serial_number'] : null;
-        
-        $this->container['state'] = isset($data['state']) ? $data['state'] : null;
-        
-        $this->container['terminal'] = isset($data['terminal']) ? $data['terminal'] : null;
-        
-        $this->container['version'] = isset($data['version']) ? $data['version'] : null;
+        $this->container['order_weight'] = isset($data['order_weight']) ? $data['order_weight'] : null;
         
     }
 
@@ -257,50 +222,25 @@ class PaymentTerminalDevice implements ModelInterface, ArrayAccess
     
 
     /**
-     * Gets account
+     * Gets description
      *
-     * @return \PostFinanceCheckout\Sdk\Model\Account
+     * @return map[string,string]
      */
-    public function getAccount()
+    public function getDescription()
     {
-        return $this->container['account'];
+        return $this->container['description'];
     }
 
     /**
-     * Sets account
+     * Sets description
      *
-     * @param \PostFinanceCheckout\Sdk\Model\Account $account 
+     * @param map[string,string] $description 
      *
      * @return $this
      */
-    public function setAccount($account)
+    public function setDescription($description)
     {
-        $this->container['account'] = $account;
-
-        return $this;
-    }
-    
-
-    /**
-     * Gets created_on
-     *
-     * @return \DateTime
-     */
-    public function getCreatedOn()
-    {
-        return $this->container['created_on'];
-    }
-
-    /**
-     * Sets created_on
-     *
-     * @param \DateTime $created_on The created on date indicates the date on which the entity was stored into the database.
-     *
-     * @return $this
-     */
-    public function setCreatedOn($created_on)
-    {
-        $this->container['created_on'] = $created_on;
+        $this->container['description'] = $description;
 
         return $this;
     }
@@ -332,34 +272,9 @@ class PaymentTerminalDevice implements ModelInterface, ArrayAccess
     
 
     /**
-     * Gets model
-     *
-     * @return \PostFinanceCheckout\Sdk\Model\PaymentTerminalDeviceModel
-     */
-    public function getModel()
-    {
-        return $this->container['model'];
-    }
-
-    /**
-     * Sets model
-     *
-     * @param \PostFinanceCheckout\Sdk\Model\PaymentTerminalDeviceModel $model 
-     *
-     * @return $this
-     */
-    public function setModel($model)
-    {
-        $this->container['model'] = $model;
-
-        return $this;
-    }
-    
-
-    /**
      * Gets name
      *
-     * @return string
+     * @return map[string,string]
      */
     public function getName()
     {
@@ -369,7 +284,7 @@ class PaymentTerminalDevice implements ModelInterface, ArrayAccess
     /**
      * Sets name
      *
-     * @param string $name 
+     * @param map[string,string] $name 
      *
      * @return $this
      */
@@ -382,100 +297,25 @@ class PaymentTerminalDevice implements ModelInterface, ArrayAccess
     
 
     /**
-     * Gets serial_number
-     *
-     * @return string
-     */
-    public function getSerialNumber()
-    {
-        return $this->container['serial_number'];
-    }
-
-    /**
-     * Sets serial_number
-     *
-     * @param string $serial_number 
-     *
-     * @return $this
-     */
-    public function setSerialNumber($serial_number)
-    {
-        $this->container['serial_number'] = $serial_number;
-
-        return $this;
-    }
-    
-
-    /**
-     * Gets state
-     *
-     * @return \PostFinanceCheckout\Sdk\Model\PaymentTerminalDeviceState
-     */
-    public function getState()
-    {
-        return $this->container['state'];
-    }
-
-    /**
-     * Sets state
-     *
-     * @param \PostFinanceCheckout\Sdk\Model\PaymentTerminalDeviceState $state 
-     *
-     * @return $this
-     */
-    public function setState($state)
-    {
-        $this->container['state'] = $state;
-
-        return $this;
-    }
-    
-
-    /**
-     * Gets terminal
-     *
-     * @return \PostFinanceCheckout\Sdk\Model\PaymentTerminalReference
-     */
-    public function getTerminal()
-    {
-        return $this->container['terminal'];
-    }
-
-    /**
-     * Sets terminal
-     *
-     * @param \PostFinanceCheckout\Sdk\Model\PaymentTerminalReference $terminal 
-     *
-     * @return $this
-     */
-    public function setTerminal($terminal)
-    {
-        $this->container['terminal'] = $terminal;
-
-        return $this;
-    }
-    
-
-    /**
-     * Gets version
+     * Gets order_weight
      *
      * @return int
      */
-    public function getVersion()
+    public function getOrderWeight()
     {
-        return $this->container['version'];
+        return $this->container['order_weight'];
     }
 
     /**
-     * Sets version
+     * Sets order_weight
      *
-     * @param int $version The version number indicates the version of the entity. The version is incremented whenever the entity is changed.
+     * @param int $order_weight 
      *
      * @return $this
      */
-    public function setVersion($version)
+    public function setOrderWeight($order_weight)
     {
-        $this->container['version'] = $version;
+        $this->container['order_weight'] = $order_weight;
 
         return $this;
     }

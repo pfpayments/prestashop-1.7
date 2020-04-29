@@ -108,7 +108,7 @@ jQuery(function ($) {
         
         register_method : function (method_id, configuration_id, container_id) {
 
-            if (typeof window.IframeCheckoutHandler == 'undefined') {
+            if (typeof window.postfinancecheckoutIFrameCheckoutHandler == 'undefined') {
                 $('#postfinancecheckout-loader-'+method_id).remove();
                 this.payment_methods[method_id] = {
                     configuration_id : configuration_id,
@@ -126,7 +126,7 @@ jQuery(function ($) {
             this.payment_methods[method_id] = {
                 configuration_id : configuration_id,
                 container_id : container_id,
-                handler : window.IframeCheckoutHandler(configuration_id)
+                handler : window.postfinancecheckoutIFrameCheckoutHandler(configuration_id)
             };
             this.payment_methods[method_id].handler
                 .setValidationCallback(function (validation_result) {

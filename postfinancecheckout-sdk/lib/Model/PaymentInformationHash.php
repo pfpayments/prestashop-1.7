@@ -24,15 +24,15 @@ use \ArrayAccess;
 use \PostFinanceCheckout\Sdk\ObjectSerializer;
 
 /**
- * PaymentTerminalDeviceManufacturer model
+ * PaymentInformationHash model
  *
  * @category    Class
- * @description 
+ * @description A payment information hash is calculated based on the information entered by the user. The same input leads to the same hash. The hash is collision free.
  * @package     PostFinanceCheckout\Sdk
  * @author      customweb GmbH
  * @license     http://www.apache.org/licenses/LICENSE-2.0 Apache License v2
  */
-class PaymentTerminalDeviceManufacturer implements ModelInterface, ArrayAccess
+class PaymentInformationHash implements ModelInterface, ArrayAccess
 {
     const DISCRIMINATOR = null;
 
@@ -41,7 +41,7 @@ class PaymentTerminalDeviceManufacturer implements ModelInterface, ArrayAccess
       *
       * @var string
       */
-    protected static $swaggerModelName = 'PaymentTerminalDeviceManufacturer';
+    protected static $swaggerModelName = 'PaymentInformationHash';
 
     /**
       * Array of property to type mappings. Used for (de)serialization
@@ -50,12 +50,8 @@ class PaymentTerminalDeviceManufacturer implements ModelInterface, ArrayAccess
       */
     protected static $swaggerTypes = [
         'id' => 'int',
-        'name' => 'string',
-        'planned_purge_date' => '\DateTime',
-        'scope' => '\PostFinanceCheckout\Sdk\Model\Scope',
-        'state' => '\PostFinanceCheckout\Sdk\Model\CreationEntityState',
-        'title' => '\PostFinanceCheckout\Sdk\Model\DatabaseTranslatedString',
-        'version' => 'int'
+        'type' => '\PostFinanceCheckout\Sdk\Model\PaymentInformationHashType',
+        'value' => 'string'
     ];
 
     /**
@@ -65,12 +61,8 @@ class PaymentTerminalDeviceManufacturer implements ModelInterface, ArrayAccess
       */
     protected static $swaggerFormats = [
         'id' => 'int64',
-        'name' => null,
-        'planned_purge_date' => 'date-time',
-        'scope' => null,
-        'state' => null,
-        'title' => null,
-        'version' => 'int32'
+        'type' => null,
+        'value' => null
     ];
 
     /**
@@ -81,12 +73,8 @@ class PaymentTerminalDeviceManufacturer implements ModelInterface, ArrayAccess
      */
     protected static $attributeMap = [
         'id' => 'id',
-        'name' => 'name',
-        'planned_purge_date' => 'plannedPurgeDate',
-        'scope' => 'scope',
-        'state' => 'state',
-        'title' => 'title',
-        'version' => 'version'
+        'type' => 'type',
+        'value' => 'value'
     ];
 
     /**
@@ -96,12 +84,8 @@ class PaymentTerminalDeviceManufacturer implements ModelInterface, ArrayAccess
      */
     protected static $setters = [
         'id' => 'setId',
-        'name' => 'setName',
-        'planned_purge_date' => 'setPlannedPurgeDate',
-        'scope' => 'setScope',
-        'state' => 'setState',
-        'title' => 'setTitle',
-        'version' => 'setVersion'
+        'type' => 'setType',
+        'value' => 'setValue'
     ];
 
     /**
@@ -111,12 +95,8 @@ class PaymentTerminalDeviceManufacturer implements ModelInterface, ArrayAccess
      */
     protected static $getters = [
         'id' => 'getId',
-        'name' => 'getName',
-        'planned_purge_date' => 'getPlannedPurgeDate',
-        'scope' => 'getScope',
-        'state' => 'getState',
-        'title' => 'getTitle',
-        'version' => 'getVersion'
+        'type' => 'getType',
+        'value' => 'getValue'
     ];
 
     
@@ -139,17 +119,9 @@ class PaymentTerminalDeviceManufacturer implements ModelInterface, ArrayAccess
         
         $this->container['id'] = isset($data['id']) ? $data['id'] : null;
         
-        $this->container['name'] = isset($data['name']) ? $data['name'] : null;
+        $this->container['type'] = isset($data['type']) ? $data['type'] : null;
         
-        $this->container['planned_purge_date'] = isset($data['planned_purge_date']) ? $data['planned_purge_date'] : null;
-        
-        $this->container['scope'] = isset($data['scope']) ? $data['scope'] : null;
-        
-        $this->container['state'] = isset($data['state']) ? $data['state'] : null;
-        
-        $this->container['title'] = isset($data['title']) ? $data['title'] : null;
-        
-        $this->container['version'] = isset($data['version']) ? $data['version'] : null;
+        $this->container['value'] = isset($data['value']) ? $data['value'] : null;
         
     }
 
@@ -268,150 +240,50 @@ class PaymentTerminalDeviceManufacturer implements ModelInterface, ArrayAccess
     
 
     /**
-     * Gets name
+     * Gets type
+     *
+     * @return \PostFinanceCheckout\Sdk\Model\PaymentInformationHashType
+     */
+    public function getType()
+    {
+        return $this->container['type'];
+    }
+
+    /**
+     * Sets type
+     *
+     * @param \PostFinanceCheckout\Sdk\Model\PaymentInformationHashType $type 
+     *
+     * @return $this
+     */
+    public function setType($type)
+    {
+        $this->container['type'] = $type;
+
+        return $this;
+    }
+    
+
+    /**
+     * Gets value
      *
      * @return string
      */
-    public function getName()
+    public function getValue()
     {
-        return $this->container['name'];
+        return $this->container['value'];
     }
 
     /**
-     * Sets name
+     * Sets value
      *
-     * @param string $name 
+     * @param string $value 
      *
      * @return $this
      */
-    public function setName($name)
+    public function setValue($value)
     {
-        $this->container['name'] = $name;
-
-        return $this;
-    }
-    
-
-    /**
-     * Gets planned_purge_date
-     *
-     * @return \DateTime
-     */
-    public function getPlannedPurgeDate()
-    {
-        return $this->container['planned_purge_date'];
-    }
-
-    /**
-     * Sets planned_purge_date
-     *
-     * @param \DateTime $planned_purge_date The planned purge date indicates when the entity is permanently removed. When the date is null the entity is not planned to be removed.
-     *
-     * @return $this
-     */
-    public function setPlannedPurgeDate($planned_purge_date)
-    {
-        $this->container['planned_purge_date'] = $planned_purge_date;
-
-        return $this;
-    }
-    
-
-    /**
-     * Gets scope
-     *
-     * @return \PostFinanceCheckout\Sdk\Model\Scope
-     */
-    public function getScope()
-    {
-        return $this->container['scope'];
-    }
-
-    /**
-     * Sets scope
-     *
-     * @param \PostFinanceCheckout\Sdk\Model\Scope $scope 
-     *
-     * @return $this
-     */
-    public function setScope($scope)
-    {
-        $this->container['scope'] = $scope;
-
-        return $this;
-    }
-    
-
-    /**
-     * Gets state
-     *
-     * @return \PostFinanceCheckout\Sdk\Model\CreationEntityState
-     */
-    public function getState()
-    {
-        return $this->container['state'];
-    }
-
-    /**
-     * Sets state
-     *
-     * @param \PostFinanceCheckout\Sdk\Model\CreationEntityState $state 
-     *
-     * @return $this
-     */
-    public function setState($state)
-    {
-        $this->container['state'] = $state;
-
-        return $this;
-    }
-    
-
-    /**
-     * Gets title
-     *
-     * @return \PostFinanceCheckout\Sdk\Model\DatabaseTranslatedString
-     */
-    public function getTitle()
-    {
-        return $this->container['title'];
-    }
-
-    /**
-     * Sets title
-     *
-     * @param \PostFinanceCheckout\Sdk\Model\DatabaseTranslatedString $title 
-     *
-     * @return $this
-     */
-    public function setTitle($title)
-    {
-        $this->container['title'] = $title;
-
-        return $this;
-    }
-    
-
-    /**
-     * Gets version
-     *
-     * @return int
-     */
-    public function getVersion()
-    {
-        return $this->container['version'];
-    }
-
-    /**
-     * Sets version
-     *
-     * @param int $version The version number indicates the version of the entity. The version is incremented whenever the entity is changed.
-     *
-     * @return $this
-     */
-    public function setVersion($version)
-    {
-        $this->container['version'] = $version;
+        $this->container['value'] = $value;
 
         return $this;
     }

@@ -24,7 +24,7 @@ use \ArrayAccess;
 use \PostFinanceCheckout\Sdk\ObjectSerializer;
 
 /**
- * PaymentTerminalReference model
+ * PaymentInformationHashType model
  *
  * @category    Class
  * @description 
@@ -32,7 +32,7 @@ use \PostFinanceCheckout\Sdk\ObjectSerializer;
  * @author      customweb GmbH
  * @license     http://www.apache.org/licenses/LICENSE-2.0 Apache License v2
  */
-class PaymentTerminalReference implements ModelInterface, ArrayAccess
+class PaymentInformationHashType implements ModelInterface, ArrayAccess
 {
     const DISCRIMINATOR = null;
 
@@ -41,7 +41,7 @@ class PaymentTerminalReference implements ModelInterface, ArrayAccess
       *
       * @var string
       */
-    protected static $swaggerModelName = 'PaymentTerminalReference';
+    protected static $swaggerModelName = 'PaymentInformationHashType';
 
     /**
       * Array of property to type mappings. Used for (de)serialization
@@ -49,14 +49,8 @@ class PaymentTerminalReference implements ModelInterface, ArrayAccess
       * @var string[]
       */
     protected static $swaggerTypes = [
-        'created_on' => '\DateTime',
         'id' => 'int',
-        'linked_space_id' => 'int',
-        'planned_purge_date' => '\DateTime',
-        'space' => '\PostFinanceCheckout\Sdk\Model\Space',
-        'state' => '\PostFinanceCheckout\Sdk\Model\PaymentTerminalState',
-        'terminal_id' => 'int',
-        'version' => 'int'
+        'name' => 'map[string,string]'
     ];
 
     /**
@@ -65,14 +59,8 @@ class PaymentTerminalReference implements ModelInterface, ArrayAccess
       * @var string[]
       */
     protected static $swaggerFormats = [
-        'created_on' => 'date-time',
         'id' => 'int64',
-        'linked_space_id' => 'int64',
-        'planned_purge_date' => 'date-time',
-        'space' => null,
-        'state' => null,
-        'terminal_id' => 'int64',
-        'version' => 'int32'
+        'name' => null
     ];
 
     /**
@@ -82,14 +70,8 @@ class PaymentTerminalReference implements ModelInterface, ArrayAccess
      * @var string[]
      */
     protected static $attributeMap = [
-        'created_on' => 'createdOn',
         'id' => 'id',
-        'linked_space_id' => 'linkedSpaceId',
-        'planned_purge_date' => 'plannedPurgeDate',
-        'space' => 'space',
-        'state' => 'state',
-        'terminal_id' => 'terminalId',
-        'version' => 'version'
+        'name' => 'name'
     ];
 
     /**
@@ -98,14 +80,8 @@ class PaymentTerminalReference implements ModelInterface, ArrayAccess
      * @var string[]
      */
     protected static $setters = [
-        'created_on' => 'setCreatedOn',
         'id' => 'setId',
-        'linked_space_id' => 'setLinkedSpaceId',
-        'planned_purge_date' => 'setPlannedPurgeDate',
-        'space' => 'setSpace',
-        'state' => 'setState',
-        'terminal_id' => 'setTerminalId',
-        'version' => 'setVersion'
+        'name' => 'setName'
     ];
 
     /**
@@ -114,14 +90,8 @@ class PaymentTerminalReference implements ModelInterface, ArrayAccess
      * @var string[]
      */
     protected static $getters = [
-        'created_on' => 'getCreatedOn',
         'id' => 'getId',
-        'linked_space_id' => 'getLinkedSpaceId',
-        'planned_purge_date' => 'getPlannedPurgeDate',
-        'space' => 'getSpace',
-        'state' => 'getState',
-        'terminal_id' => 'getTerminalId',
-        'version' => 'getVersion'
+        'name' => 'getName'
     ];
 
     
@@ -142,21 +112,9 @@ class PaymentTerminalReference implements ModelInterface, ArrayAccess
     public function __construct(array $data = null)
     {
         
-        $this->container['created_on'] = isset($data['created_on']) ? $data['created_on'] : null;
-        
         $this->container['id'] = isset($data['id']) ? $data['id'] : null;
         
-        $this->container['linked_space_id'] = isset($data['linked_space_id']) ? $data['linked_space_id'] : null;
-        
-        $this->container['planned_purge_date'] = isset($data['planned_purge_date']) ? $data['planned_purge_date'] : null;
-        
-        $this->container['space'] = isset($data['space']) ? $data['space'] : null;
-        
-        $this->container['state'] = isset($data['state']) ? $data['state'] : null;
-        
-        $this->container['terminal_id'] = isset($data['terminal_id']) ? $data['terminal_id'] : null;
-        
-        $this->container['version'] = isset($data['version']) ? $data['version'] : null;
+        $this->container['name'] = isset($data['name']) ? $data['name'] : null;
         
     }
 
@@ -250,31 +208,6 @@ class PaymentTerminalReference implements ModelInterface, ArrayAccess
     
 
     /**
-     * Gets created_on
-     *
-     * @return \DateTime
-     */
-    public function getCreatedOn()
-    {
-        return $this->container['created_on'];
-    }
-
-    /**
-     * Sets created_on
-     *
-     * @param \DateTime $created_on The created on date indicates the date on which the entity was stored into the database.
-     *
-     * @return $this
-     */
-    public function setCreatedOn($created_on)
-    {
-        $this->container['created_on'] = $created_on;
-
-        return $this;
-    }
-    
-
-    /**
      * Gets id
      *
      * @return int
@@ -300,150 +233,25 @@ class PaymentTerminalReference implements ModelInterface, ArrayAccess
     
 
     /**
-     * Gets linked_space_id
+     * Gets name
      *
-     * @return int
+     * @return map[string,string]
      */
-    public function getLinkedSpaceId()
+    public function getName()
     {
-        return $this->container['linked_space_id'];
+        return $this->container['name'];
     }
 
     /**
-     * Sets linked_space_id
+     * Sets name
      *
-     * @param int $linked_space_id The linked space id holds the ID of the space to which the entity belongs to.
+     * @param map[string,string] $name 
      *
      * @return $this
      */
-    public function setLinkedSpaceId($linked_space_id)
+    public function setName($name)
     {
-        $this->container['linked_space_id'] = $linked_space_id;
-
-        return $this;
-    }
-    
-
-    /**
-     * Gets planned_purge_date
-     *
-     * @return \DateTime
-     */
-    public function getPlannedPurgeDate()
-    {
-        return $this->container['planned_purge_date'];
-    }
-
-    /**
-     * Sets planned_purge_date
-     *
-     * @param \DateTime $planned_purge_date The planned purge date indicates when the entity is permanently removed. When the date is null the entity is not planned to be removed.
-     *
-     * @return $this
-     */
-    public function setPlannedPurgeDate($planned_purge_date)
-    {
-        $this->container['planned_purge_date'] = $planned_purge_date;
-
-        return $this;
-    }
-    
-
-    /**
-     * Gets space
-     *
-     * @return \PostFinanceCheckout\Sdk\Model\Space
-     */
-    public function getSpace()
-    {
-        return $this->container['space'];
-    }
-
-    /**
-     * Sets space
-     *
-     * @param \PostFinanceCheckout\Sdk\Model\Space $space 
-     *
-     * @return $this
-     */
-    public function setSpace($space)
-    {
-        $this->container['space'] = $space;
-
-        return $this;
-    }
-    
-
-    /**
-     * Gets state
-     *
-     * @return \PostFinanceCheckout\Sdk\Model\PaymentTerminalState
-     */
-    public function getState()
-    {
-        return $this->container['state'];
-    }
-
-    /**
-     * Sets state
-     *
-     * @param \PostFinanceCheckout\Sdk\Model\PaymentTerminalState $state 
-     *
-     * @return $this
-     */
-    public function setState($state)
-    {
-        $this->container['state'] = $state;
-
-        return $this;
-    }
-    
-
-    /**
-     * Gets terminal_id
-     *
-     * @return int
-     */
-    public function getTerminalId()
-    {
-        return $this->container['terminal_id'];
-    }
-
-    /**
-     * Sets terminal_id
-     *
-     * @param int $terminal_id 
-     *
-     * @return $this
-     */
-    public function setTerminalId($terminal_id)
-    {
-        $this->container['terminal_id'] = $terminal_id;
-
-        return $this;
-    }
-    
-
-    /**
-     * Gets version
-     *
-     * @return int
-     */
-    public function getVersion()
-    {
-        return $this->container['version'];
-    }
-
-    /**
-     * Sets version
-     *
-     * @param int $version The version number indicates the version of the entity. The version is incremented whenever the entity is changed.
-     *
-     * @return $this
-     */
-    public function setVersion($version)
-    {
-        $this->container['version'] = $version;
+        $this->container['name'] = $name;
 
         return $this;
     }
