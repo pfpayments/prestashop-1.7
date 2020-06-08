@@ -578,11 +578,18 @@ class PostFinanceCheckoutServiceLineitem extends PostFinanceCheckoutServiceAbstr
         if ($roundingError > 0.01 && $roundingError <= 0.05 && defined('PS_ROUND_CHF_5CTS') && $round_mode == PS_ROUND_CHF_5CTS) {
             return $differnceToTotalAmount;
         }
-        else if ($roundingError <= 0.01) {
-            return $differnceToTotalAmount;
-        }
         else {
-            return $discountAmount;
+            $configuration = PostFinanceCheckoutVersionadapter::getConfigurationInterface();
+            $compute_precision = $configuration->get('_PS_PRICE_COMPUTE_PRECISION_');
+            
+            $allowedRoundingDifference = 1 / pow(10, $compute_precision);
+            
+            if ($roundingError <= $allowedRoundingDifference) {
+                return $differnceToTotalAmount;
+            }
+            else {
+                return $discountAmount;
+            }
         }
     }
     
