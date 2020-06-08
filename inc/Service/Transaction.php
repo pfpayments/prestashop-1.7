@@ -374,7 +374,7 @@ class PostFinanceCheckoutServiceTransaction extends PostFinanceCheckoutServiceAb
                     $transaction->getLinkedSpaceId(),
                     $transaction->getId()
                 );
-            } catch (\WhitelabelMachineName\Sdk\ApiException $e) {
+            } catch (\PostFinanceCheckout\Sdk\ApiException $e) {
                 self::$possiblePaymentMethodCache[$currentCartId] = array();
                 throw $e;
             } catch (PostFinanceCheckoutExceptionInvalidtransactionamount $e) {

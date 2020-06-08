@@ -93,7 +93,7 @@ $_MODULE['<{postfinancecheckout}prestashop>basemodule_ec211f7c20af43e742bf2570c3
 $_MODULE['<{postfinancecheckout}prestashop>basemodule_9bf57f63143292c3673d2a6aac2a00f6'] = 'Inbegriffen';
 $_MODULE['<{postfinancecheckout}prestashop>basemodule_b91257785f578b71cf345a47669b3f80'] = 'Zuschlagsbetrag';
 $_MODULE['<{postfinancecheckout}prestashop>basemodule_01bf30c65f767823bdd222d09a3fa090'] = 'Der Betrag muss in der Standartwährung des Shops konfiguriert werden. Aktuelle Standartwährung: %s';
-$_MODULE['<{postfinancecheckout}prestashop>basemodule_573c199722ea88645382819b6f42f8d5'] = 'Minermengenzuschlag Bestelltotal';
+$_MODULE['<{postfinancecheckout}prestashop>basemodule_573c199722ea88645382819b6f42f8d5'] = 'Mindermengenzuschlag Bestelltotal';
 $_MODULE['<{postfinancecheckout}prestashop>basemodule_666d24928ae8099705d5c640b5147950'] = 'Falls das Bestelltotal unter diesem Betrag ist, wird der Zuschlag erhoben. Das Total muss in der Standartwährung des Shops konfiguriert werden. Aktuelle Standartwährung: %s';
 $_MODULE['<{postfinancecheckout}prestashop>basemodule_ca346b0f2fec3164f86a0acf78680efa'] = 'Das Bestelltotal entspricht folgendem Wert.';
 $_MODULE['<{postfinancecheckout}prestashop>basemodule_efeb1ce3a819cd3b310cd205a1ef3d43'] = 'Total (inkl. Steuer)';

@@ -27,6 +27,7 @@ class PostFinanceCheckoutServiceLineitem extends PostFinanceCheckoutServiceAbstr
         $items = array();
         $summary = $cart->getSummaryDetails(null, true);
         $taxAddress = new Address((int) $cart->{Configuration::get('PS_TAX_ADDRESS_TYPE')});
+        $orderTotal = $cart->getOrderTotal(true, Cart::BOTH);
         
         $configuration = PostFinanceCheckoutVersionadapter::getConfigurationInterface();
         $compute_precision = $configuration->get('_PS_PRICE_COMPUTE_PRECISION_');
@@ -224,7 +225,8 @@ class PostFinanceCheckoutServiceLineitem extends PostFinanceCheckoutServiceAbstr
                     $cart->id,
                     $currencyCode,
                     'cart-' . $cart->id . '-item-',
-                    $items
+                    $items,
+                    $orderTotal
                 );
                 $items = array_merge($items, $discountItems);
             }
@@ -252,7 +254,7 @@ class PostFinanceCheckoutServiceLineitem extends PostFinanceCheckoutServiceAbstr
 
         $cleaned = PostFinanceCheckoutHelper::cleanupLineItems(
             $items,
-            $cart->getOrderTotal(true, Cart::BOTH),
+            $orderTotal,
             $currencyCode
         );
         return $cleaned;
@@ -285,11 +287,13 @@ class PostFinanceCheckoutServiceLineitem extends PostFinanceCheckoutServiceAbstr
      */
     public function getItemsFromOrders(array $orders)
     {
-        $items = $this->getItemsFromOrdersInner($orders);
         $orderTotal = 0;
         foreach ($orders as $order) {
             $orderTotal += (float) $order->total_paid;
         }
+        
+        $items = $this->getItemsFromOrdersInner($orders, $orderTotal);
+        
         $cleaned = PostFinanceCheckoutHelper::cleanupLineItems(
             $items,
             $orderTotal,
@@ -298,7 +302,7 @@ class PostFinanceCheckoutServiceLineitem extends PostFinanceCheckoutServiceAbstr
         return $cleaned;
     }
 
-    protected function getItemsFromOrdersInner(array $orders)
+    protected function getItemsFromOrdersInner(array $orders, $orderTotal)
     {
         $items = array();
 
@@ -494,7 +498,8 @@ class PostFinanceCheckoutServiceLineitem extends PostFinanceCheckoutServiceAbstr
                     $order->id_cart,
                     $currencyCode,
                     'order-' . $order->id . '-item-',
-                    $items
+                    $items,
+                    $orderTotal
                 );
                 $items = array_merge($items, $discountItems);
             }
@@ -541,6 +546,46 @@ class PostFinanceCheckoutServiceLineitem extends PostFinanceCheckoutServiceAbstr
         }
         return $shippingOnly;
     }
+    
+    /**
+     * This method adjusts the rounding according to the difference of the total amount.
+     * 
+     * PrestaShop is calculating the total amount with the wrong rounding. This comes in effect primarily
+     * when the discount is at the half. For example with 1.425 of discount the discounted amount will be rounded
+     * up to 1.43. But the total amount will be calculated with the inverse and it will be rounded up. So 
+     * this will lead to a rounding issue. 
+     * 
+     * This method tries to accommodate for the above issue and corrects this.
+     * 
+     * @param unknown $discountAmount
+     * @param unknown $differnceToTotalAmount
+     * @return unknown
+     */
+    private function roundDiscount($discountAmount, $differnceToTotalAmount) {
+        $roundingError = round(abs($differnceToTotalAmount - $discountAmount), 2);
+        
+        if ($roundingError == 0) {
+            return $discountAmount;
+        }
+        
+        if (Tools::$round_mode == null) {
+            $round_mode = (int)Configuration::get('PS_PRICE_ROUND_MODE');
+        }
+        else {
+            $round_mode = Tools::$round_mode;
+        }
+        
+        if ($roundingError > 0.01 && $roundingError <= 0.05 && defined('PS_ROUND_CHF_5CTS') && $round_mode == PS_ROUND_CHF_5CTS) {
+            return $differnceToTotalAmount;
+        }
+        else if ($roundingError <= 0.01) {
+            return $differnceToTotalAmount;
+        }
+        else {
+            return $discountAmount;
+        }
+    }
+    
 
     private function getDiscountItems(
         $nameBase,
@@ -555,7 +600,8 @@ class PostFinanceCheckoutServiceLineitem extends PostFinanceCheckoutServiceAbstr
         $cartIdUsed,
         $currencyCode,
         $itemUniqueIdBase,
-        $existingLineItems
+        $existingLineItems,
+        $orderTotal
     ) {
         $reductionPercent = $cartRule->reduction_percent;
         $reductionAmount = $cartRule->reduction_amount;
@@ -585,7 +631,12 @@ class PostFinanceCheckoutServiceLineitem extends PostFinanceCheckoutServiceAbstr
             }
         }
 
-        $discountTotal = $discountWithTax * - 1;
+        $lineItemTotal = 0;
+        foreach ($existingLineItems as $exisitingLineItem) {
+            $lineItemTotal += $exisitingLineItem->getAmountIncludingTax();
+        }
+        
+        $discountTotal = $this->roundDiscount($discountWithTax, $lineItemTotal - $orderTotal) * - 1;
         $remainingDiscount = $this->roundAmount($discountTotal - $freeGiftDiscount, $currencyCode);
 
         // Discount Rate
