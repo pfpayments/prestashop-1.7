@@ -545,7 +545,8 @@ class PostFinanceCheckoutServiceTransaction extends PostFinanceCheckoutServiceAb
      *
      * @param Cart $cart
      * @return \PostFinanceCheckout\Sdk\Model\TransactionCreate
-     */
+	 * @throws \PostFinanceCheckoutExceptionInvalidtransactionamount
+	 */
     protected function createTransactionFromCart(Cart $cart)
     {
         $spaceId = Configuration::get(PostFinanceCheckoutBasemodule::CK_SPACE_ID, null, $cart->id_shop_group, $cart->id_shop);
@@ -586,8 +587,9 @@ class PostFinanceCheckoutServiceTransaction extends PostFinanceCheckoutServiceAb
             try {
                 $ids = PostFinanceCheckoutHelper::getCartMeta($cart, 'mappingIds');
                 $transaction = $this->getTransaction($ids['spaceId'], $ids['transactionId']);
+                $customerId = $transaction->getCustomerId();
                 if ($transaction->getState() != \PostFinanceCheckout\Sdk\Model\TransactionState::PENDING ||
-                    (! empty($transaction->getCustomerId()) && $transaction->getCustomerId() != $cart->id_customer)) {
+                    (! empty($customerId) && $customerId != $cart->id_customer)) {
                     return $this->createTransactionFromCart($cart);
                 }
                 $pendingTransaction = new \PostFinanceCheckout\Sdk\Model\TransactionPending();
@@ -605,9 +607,12 @@ class PostFinanceCheckoutServiceTransaction extends PostFinanceCheckoutServiceAb
     /**
      * Assemble the transaction data for the given quote.
      *
-     * @param Cart $cart
-     * @param \PostFinanceCheckout\Sdk\Model\TransactionPending $transaction
-     */
+	 * @param \Cart                                                       $cart
+	 * @param \PostFinanceCheckout\Sdk\Model\AbstractTransactionPending $transaction
+	 *
+	 * @return \PostFinanceCheckout\Sdk\Model\AbstractTransactionPending
+	 * @throws \PostFinanceCheckoutExceptionInvalidtransactionamount
+	 */
     protected function assembleCartTransactionData(
         Cart $cart,
         \PostFinanceCheckout\Sdk\Model\AbstractTransactionPending $transaction
@@ -627,6 +632,7 @@ class PostFinanceCheckoutServiceTransaction extends PostFinanceCheckoutServiceAb
         $transaction->setLineItems(PostFinanceCheckoutServiceLineitem::instance()->getItemsFromCart($cart));
 
         $transaction->setAllowedPaymentMethodConfigurations(array());
+        return $transaction;
     }
 
     /**

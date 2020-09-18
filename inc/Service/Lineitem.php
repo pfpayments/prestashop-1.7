@@ -18,9 +18,11 @@ class PostFinanceCheckoutServiceLineitem extends PostFinanceCheckoutServiceAbstr
     /**
      * Returns the line items from the given cart
      *
-     * @param Cart $cart
-     * @return \PostFinanceCheckout\Sdk\Model\LineItemCreate[]
-     */
+	 * @param \Cart $cart
+	 *
+	 * @return \PostFinanceCheckout\Sdk\Model\LineItemCreate[]
+	 * @throws \PostFinanceCheckoutExceptionInvalidtransactionamount
+	 */
     public function getItemsFromCart(Cart $cart)
     {
         $currencyCode = PostFinanceCheckoutHelper::convertCurrencyIdToCode($cart->id_currency);
@@ -161,7 +163,6 @@ class PostFinanceCheckoutServiceLineitem extends PostFinanceCheckoutServiceAbstr
             $item->setSku('wrapping');
             if (Configuration::get('PS_ATCP_SHIPWRAP')) {
                 if ($wrappingCostExcl > 0) {
-                    $taxRate = 0;
                     $taxName = PostFinanceCheckoutHelper::getModuleInstance()->l('Tax', 'lineitem');
                     $taxRate = ($wrappingCosts - $wrappingCostExcl) / $wrappingCostExcl * 100;
                 }
@@ -282,9 +283,11 @@ class PostFinanceCheckoutServiceLineitem extends PostFinanceCheckoutServiceAbstr
     /**
      * Returns the line items from the given cart
      *
-     * @param Order[] $orders
-     * @return \PostFinanceCheckout\Sdk\Model\LineItemCreate[]
-     */
+	 * @param array $orders
+	 *
+	 * @return \PostFinanceCheckout\Sdk\Model\LineItemCreate[]
+	 * @throws \PostFinanceCheckoutExceptionInvalidtransactionamount
+	 */
     public function getItemsFromOrders(array $orders)
     {
         $orderTotal = 0;
@@ -302,6 +305,12 @@ class PostFinanceCheckoutServiceLineitem extends PostFinanceCheckoutServiceAbstr
         return $cleaned;
     }
 
+	/**
+	 * @param array $orders
+	 * @param       $orderTotal
+	 *
+	 * @return array
+	 */
     protected function getItemsFromOrdersInner(array $orders, $orderTotal)
     {
         $items = array();
