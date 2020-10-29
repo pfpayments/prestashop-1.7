@@ -22,7 +22,7 @@
 		</a>
 	</li>
 	<li>
-		<a href="https://github.com/pfpayments/prestashop-1.7/releases/tag/1.1.19/">
+		<a href="https://github.com/pfpayments/prestashop-1.7/releases/tag/1.1.20/">
 			Source
 		</a>
 	</li>
@@ -51,7 +51,7 @@
 					<div class="olist arabic">
 <ol class="arabic">
 <li>
-<p><a href="https://github.com/pfpayments/prestashop-1.7/releases/tag/1.1.19/">Download</a> the module.</p>
+<p><a href="https://github.com/pfpayments/prestashop-1.7/releases/tag/1.1.20/">Download</a> the module.</p>
 </li>
 <li>
 <p>Login to the backend of your PrestsShop store.</p>
@@ -394,6 +394,24 @@ The module will log various unexpected errors or information which can help iden
 <p>If this does not solve the problem, it could be that you use a special fee or coupon module that we do not support. Try to disable this plugin and see if it helps.
 The payment methods are only displayed if the plugin&#8217;s total calculation matches the actual order total.</p>
 </div>					</div>
+</div>					<div class="section" id="_what_happens_in_a_prestashop_transaction">
+	<div class="section-title">
+		<h2>
+			<span class="title-number">9.2</span>What happens in a PrestaShop transaction.					</h2>
+	</div>
+	<div class="section-body">
+					<div class="paragraph">
+<p>In the Prestashop standard environment an order is created by default, after a transaction has been successfully completed. In order to pass the order ID from Prestashop through to wallee, the order with a wallee payment-method is created before the transaction has been completed successfully. This order ID will then appear on the buyer&#8217;s bank statement - Furthermore it will also appear in the merchant&#8217;s payout report.</p>
+</div><div class="paragraph">
+<p>As a consequence all order attempts will be noted in the order list of Prestashop.
+<strong>Traceability:</strong> By having the failed order in the PrestaShop database, allows the merchant to directly see when a buyer tried multiple times in the backend of PrestaShop.</p>
+</div><div class="paragraph">
+<p>In the Prestashop standard environment an order is only created if the payment has been completed successfully - therefore, an email is sent to the customer, once an order is created.
+For this to work correctly with our PostFinance Checkout module, the mailhook plugin has to be installed - it will prevent the sending of an email once an order is created.</p>
+</div><div class="paragraph">
+<p>Order Confirmation Email:
+The email notification to the customer will only be sent, when an order/transaction actually succeeded. See: link:https://github.com/wallee-payment/prestashop-mailhook</p>
+</div>					</div>
 </div>			</div>
 </div>	<div class="chapter" id="_support">
 	<div class="chapter-title">
@@ -512,6 +530,11 @@ The payment methods are only displayed if the plugin&#8217;s total calculation m
 	<a href="#_how_can_i_make_the_payment_methods_appear_in_the_checkout">
 		<span class="item-number">9.1</span>
 		<span class="item-title">How can I make the payment methods appear in the checkout?</span>
+			</a>
+    </li>    		    			<li class="nav-level-2">
+	<a href="#_what_happens_in_a_prestashop_transaction">
+		<span class="item-number">9.2</span>
+		<span class="item-title">What happens in a PrestaShop transaction.</span>
 			</a>
     </li>    		    	</ul>
     </li>					<li class="nav-level-1">

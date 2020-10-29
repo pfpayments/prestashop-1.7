@@ -183,13 +183,14 @@ class PostFinanceCheckoutHelper
         	if((int) Configuration::getGlobalValue(PostFinanceCheckoutBasemodule::CK_LINE_ITEM_CONSISTENCY)){
 				throw new PostFinanceCheckoutExceptionInvalidtransactionamount($effectiveSum, $roundedExpected);
 			}else{
+				$diffAmount = self::roundAmount($diff, $currencyCode);
 				$lineItem = (new \PostFinanceCheckout\Sdk\Model\LineItemCreate())
 					->setName(self::getModuleInstance()->l('Adjustment LineItem', 'helper'))
 					->setUniqueId('Adjustment-Line-Item')
 					->setSku('Adjustment-Line-Item')
 					->setQuantity(1);
 				/** @noinspection PhpParamsInspection */
-				$lineItem->setAmountIncludingTax($diff)->setType(($diff > 0) ? \PostFinanceCheckout\Sdk\Model\LineItemType::FEE : \PostFinanceCheckout\Sdk\Model\LineItemType::DISCOUNT);
+				$lineItem->setAmountIncludingTax($diffAmount)->setType(($diff > 0) ? \PostFinanceCheckout\Sdk\Model\LineItemType::FEE : \PostFinanceCheckout\Sdk\Model\LineItemType::DISCOUNT);
 
 				if (!$lineItem->valid()) {
 					throw new \Exception('Adjustment LineItem payload invalid:' . json_encode($lineItem->listInvalidProperties()));
