@@ -370,9 +370,10 @@ class PostFinanceCheckoutServiceTransaction extends PostFinanceCheckoutServiceAb
             self::$possiblePaymentMethodCache[$currentCartId] == null) {
             $transaction = $this->getTransactionFromCart($cart);
             try {
-                $paymentMethods = $this->getTransactionService()->fetchPossiblePaymentMethods(
+                $paymentMethods = $this->getTransactionService()->fetchPaymentMethods(
                     $transaction->getLinkedSpaceId(),
-                    $transaction->getId()
+                    $transaction->getId(),
+                    'iframe'
                 );
             } catch (\PostFinanceCheckout\Sdk\ApiException $e) {
                 self::$possiblePaymentMethodCache[$currentCartId] = array();
