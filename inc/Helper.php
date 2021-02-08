@@ -5,7 +5,7 @@
  * This Prestashop module enables to process payments with PostFinance Checkout (https://www.postfinance.ch/checkout).
  *
  * @author customweb GmbH (http://www.customweb.com/)
- * @copyright 2017 - 2020 customweb GmbH
+ * @copyright 2017 - 2021 customweb GmbH
  * @license http://www.apache.org/licenses/LICENSE-2.0 Apache Software License (ASL 2.0)
  */
 
@@ -648,5 +648,17 @@ class PostFinanceCheckoutHelper
         $data[8] = chr(ord($data[8]) & 0x3f | 0x80); // set bits 6-7 to 10
 
         return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
+    }
+    
+    public static function getMaxExecutionTime() {
+        $maxExecutionTime = ini_get('max_execution_time');
+        
+        // Returns the default value, in case the ini_get fails.
+        if ($maxExecutionTime === null || empty($maxExecutionTime) || $maxExecutionTime < 0) {
+            return 30;
+        }
+        else {
+            return intval($maxExecutionTime);
+        }
     }
 }
