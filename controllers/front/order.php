@@ -143,7 +143,7 @@ class PostFinanceCheckoutOrderModuleFrontController extends ModuleFrontControlle
 
         if (! $this->module instanceof PostFinanceCheckout) {
             $this->context->cookie->pfc_error = $this->module->l(
-                'There was a techincal issue, please try again.',
+                'There was a technical issue, please try again.',
                 'order'
             );
             return $this->context->link->getPageLink('order', true, null);

@@ -7,11 +7,12 @@
  * @copyright 2017 - 2021 customweb GmbH
  * @license http://www.apache.org/licenses/LICENSE-2.0 Apache Software License (ASL 2.0)
 *}
-<div id="postFinanceCheckoutTransactionInfo" class="panel">
-	<div class="panel-heading">
+<div id="postFinanceCheckoutTransactionInfo" class="card">
+	<div class="card-header">
 		<i class="icon-rocket"></i>
 		PostFinance Checkout {l s='Transaction Information' mod='postfinancecheckout'}
 	</div>
+	<div class="card-body">
 	<div class="postfinancecheckout-transaction-data-column-container">
 		<div class="postfinancecheckout-transaction-column">
 			<p>
@@ -268,6 +269,6 @@
 			</div>
 		</div>
 	{/if}
-		
+	</div>	
 
 </div>

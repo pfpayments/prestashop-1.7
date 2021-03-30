@@ -50,6 +50,8 @@ interface PostFinanceCheckoutBackendIstrategy
      */
     public function validateAndParseData(Order $order, array $postData);
 
+    public function simplifiedRefund(array $postData);
+
     public function getRefundTotal(array $parsedData);
 
     public function getPostFinanceCheckoutRefundType(array $parsedData);

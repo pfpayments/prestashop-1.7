@@ -31,6 +31,55 @@ class PostFinanceCheckoutBackendDefaultstrategy implements PostFinanceCheckoutBa
         );
     }
 
+    public function simplifiedRefund(array $postData) {
+        $cancelledItems = array();
+        // count of items
+        $quantity = 0;
+        // cost of items
+        $amount = 0;
+        foreach ($postData["cancel_product"] as $key=>$value) {
+            if (strpos($key, 'quantity') !== false) {
+                $quantity += $value;
+            }
+            if (strpos($key, 'amount') !== false) {
+                $amount += $value;
+            }
+        }
+
+        if ($amount >= 0) {
+            return array(
+                'refundType' => self::REFUND_TYPE_PARTIAL_REFUND,
+                'orderDetailList' => [],
+                'fullDetailList' => [],
+                'shippingCostAmount' => $postData["cancel_product"]["shipping_amount"],
+                'voucher' => isset($postData["cancel_product"]["voucher"]),
+                'choosen' => false,
+                'taxMethod' => false,
+                'amount' => $amount,
+                'languageId' => Context::getContext()->language->id,
+                'reinjectQuantities' => isset($postData['reinjectQuantities']),
+                'generateDiscountRefund' => isset($postData['generateDiscountRefund']),
+                'postFinanceCheckoutOffline' => isset($postData['postfinancecheckout_offline'])
+            );
+        } else {
+            if (! empty($quantity)) {
+                throw new Exception(
+                    PostFinanceCheckoutHelper::getModuleInstance()->l(
+                        'Please enter a quantity to proceed with your refund.',
+                        'defaultstrategy'
+                    )
+                );
+            } else {
+                throw new Exception(
+                    PostFinanceCheckoutHelper::getModuleInstance()->l(
+                        'Please enter an amount to proceed with your refund.',
+                        'defaultstrategy'
+                    )
+                );
+            }
+        }
+    }
+
     private function validateDataPartialRefundType(Order $order, array $postData)
     {
         if (isset($postData['partialRefundProduct']) && ($refunds = $postData['partialRefundProduct']) &&
