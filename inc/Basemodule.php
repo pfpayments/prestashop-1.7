@@ -1788,7 +1788,89 @@ class PostFinanceCheckoutBasemodule
      */
     public static function hookDisplayAdminOrderMain(PostFinanceCheckout $module, $params)
     {
-        self::hookDisplayAdminOrderLeft($module, $params);
+        $orderId = $params['id_order'];
+        $order = new Order($orderId);
+        if ($order->module != $module->name) {
+            return;
+        }
+        $transactionInfo = PostFinanceCheckoutHelper::getTransactionInfoForOrder($order);
+        if ($transactionInfo == null) {
+            return '';
+        }
+        $spaceId = $transactionInfo->getSpaceId();
+        $transactionId = $transactionInfo->getTransactionId();
+        $methodId = PostFinanceCheckoutHelper::getOrderMeta($order, 'postFinanceCheckoutMethodId');
+        $method = new PostFinanceCheckoutModelMethodconfiguration($methodId);
+        $tplVars = array(
+            'currency' => new Currency($order->id_currency),
+            'configurationName' => $method->getConfigurationName(),
+            'methodImage' => PostFinanceCheckoutHelper::getResourceUrl(
+                $transactionInfo->getImageBase(),
+                $transactionInfo->getImage(),
+                PostFinanceCheckoutHelper::convertLanguageIdToIETF($order->id_lang),
+                $spaceId,
+                $transactionInfo->getSpaceViewId()
+            ),
+            'transactionState' => PostFinanceCheckoutHelper::getTransactionState($transactionInfo),
+            'failureReason' => PostFinanceCheckoutHelper::translate($transactionInfo->getFailureReason()),
+            'authorizationAmount' => $transactionInfo->getAuthorizationAmount(),
+            'transactionUrl' => PostFinanceCheckoutHelper::getTransactionUrl($transactionInfo),
+            'labelsByGroup' => PostFinanceCheckoutHelper::getGroupedChargeAttemptLabels($transactionInfo),
+            'voids' => PostFinanceCheckoutModelVoidjob::loadByTransactionId($spaceId, $transactionId),
+            'completions' => PostFinanceCheckoutModelCompletionjob::loadByTransactionId($spaceId, $transactionId),
+            'refunds' => PostFinanceCheckoutModelRefundjob::loadByTransactionId($spaceId, $transactionId)
+        );
+        $module->getContext()->smarty->registerPlugin(
+            'function',
+            'postfinancecheckout_translate',
+            array(
+                'PostFinanceCheckoutSmartyfunctions',
+                'translate'
+            )
+        );
+        $module->getContext()->smarty->registerPlugin(
+            'function',
+            'postfinancecheckout_refund_url',
+            array(
+                'PostFinanceCheckoutSmartyfunctions',
+                'getRefundUrl'
+            )
+        );
+        $module->getContext()->smarty->registerPlugin(
+            'function',
+            'postfinancecheckout_refund_amount',
+            array(
+                'PostFinanceCheckoutSmartyfunctions',
+                'getRefundAmount'
+            )
+        );
+        $module->getContext()->smarty->registerPlugin(
+            'function',
+            'postfinancecheckout_refund_type',
+            array(
+                'PostFinanceCheckoutSmartyfunctions',
+                'getRefundType'
+            )
+        );
+        $module->getContext()->smarty->registerPlugin(
+            'function',
+            'postfinancecheckout_completion_url',
+            array(
+                'PostFinanceCheckoutSmartyfunctions',
+                'getCompletionUrl'
+            )
+        );
+        $module->getContext()->smarty->registerPlugin(
+            'function',
+            'postfinancecheckout_void_url',
+            array(
+                'PostFinanceCheckoutSmartyfunctions',
+                'getVoidUrl'
+            )
+        );
+
+        $module->getContext()->smarty->assign($tplVars);
+        return $module->display(dirname(dirname(__FILE__)), 'views/templates/admin/hook/admin_order_left.tpl');
     }
 
     /**
@@ -2044,7 +2126,11 @@ class PostFinanceCheckoutBasemodule
             $templateVars['refundPending'] = true;
         }
         $module->getContext()->smarty->assign($templateVars);
-        return $module->display(dirname(dirname(__FILE__)), 'views/templates/admin/hook/admin_order.tpl');
+        if (version_compare(_PS_VERSION_, '1.7.7', '>=')) {
+            return $module->display(dirname(dirname(__FILE__)), 'views/templates/admin/hook/admin_order177.tpl');
+        } else {
+            return $module->display(dirname(dirname(__FILE__)), 'views/templates/admin/hook/admin_order.tpl');
+        }
     }
 
     public static function hookActionAdminOrdersControllerBefore(PostFinanceCheckout $module, $params)

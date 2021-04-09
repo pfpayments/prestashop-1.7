@@ -19,11 +19,19 @@ jQuery(function ($) {
     {
         $("a.postfinancecheckout-management-btn").each(function (key, element) {
             $(element).detach();
-            $("div.panel").find("div.well.hidden-print").find("i.icon-print").closest("div.well").append(element);
+            if (isVersionGTE177 === true) {
+                $("div.order-actions").find(".order-navigation").before(element);
+            } else {
+                $("div.panel").find("div.well.hidden-print").find("i.icon-print").closest("div.well").append(element);
+            }
         });
         $("span.postfinancecheckout-management-info").each(function (key, element) {
             $(element).detach();
-            $("div.panel").find("div.well.hidden-print").find("i.icon-print").closest("div.well").append(element);
+            if (isVersionGTE177 === true) {
+                $("div.order-actions").find(".order-navigation").before(element);
+            } else {
+                $("div.panel").find("div.well.hidden-print").find("i.icon-print").closest("div.well").append(element);
+            }
         });
     //to get the styling of prestashop we have to add this
         $("a.postfinancecheckout-management-btn").after("&nbsp;\n");

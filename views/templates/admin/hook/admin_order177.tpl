@@ -7,21 +7,33 @@
  * @copyright 2017 - 2021 customweb GmbH
  * @license http://www.apache.org/licenses/LICENSE-2.0 Apache Software License (ASL 2.0)
 *}
-{if (isset($showAuthorizedActions) && $showAuthorizedActions)}
+
 	<div style="display:none;" class="hidden-print">
-		<a class="btn btn-default postfinancecheckout-management-btn"  id="postfinancecheckout_void">
+		<a class="btn btn-action postfinancecheckout-management-btn"  id="postfinancecheckout_void">
 			<i class="icon-remove"></i>
 			{l s='Void' mod='postfinancecheckout'}
 		</a>
-		<a class="btn btn-default postfinancecheckout-management-btn"  id="postfinancecheckout_completion">
+		<a class="btn btn-action postfinancecheckout-management-btn"  id="postfinancecheckout_completion">
 			<i class="icon-check"></i>
 			{l s='Completion' mod='postfinancecheckout'}
 		</a>	
 	</div>
+
+	<script type="text/javascript">
+		var postfinancecheckout_void_title = "{l s='Are you sure?' mod='postfinancecheckout' js=1}";
+		var postfinancecheckout_void_btn_confirm_txt = "{l s='Void Order' mod='postfinancecheckout' js=1}";
+		var postfinancecheckout_void_btn_deny_txt = "{l s='No' mod='postfinancecheckout' js=1}";
+
+		var postfinancecheckout_completion_title = "{l s='Are you sure?' mod='postfinancecheckout' js=1}";
+		var postfinancecheckout_completion_btn_confirm_txt = "{l s='Complete Order'  mod='postfinancecheckout' js=1}";
+		var postfinancecheckout_completion_btn_deny_txt = "{l s='No' mod='postfinancecheckout' js=1}";
+
+		var postfinancecheckout_msg_general_error = "{l s='The server experienced an unexpected error, please try again.'  mod='postfinancecheckout' js=1}";
+		var postfinancecheckout_msg_general_title_succes = "{l s='Success'  mod='postfinancecheckout' js=1}";
+		var postfinancecheckout_msg_general_title_error = "{l s='Error'  mod='postfinancecheckout' js=1}";
+		var postfinancecheckout_btn_info_confirm_txt = "{l s='OK'  mod='postfinancecheckout' js=1}";
+	</script>
 	
-	{addJsDefL name=postfinancecheckout_void_title}{l s='Are you sure?' mod='postfinancecheckout' js=1}{/addJsDefL}
-	{addJsDefL name=postfinancecheckout_void_btn_confirm_txt}{l s='Void Order'  mod='postfinancecheckout' js=1}{/addJsDefL}
-	{addJsDefL name=postfinancecheckout_void_btn_deny_txt}{l s='No' mod='postfinancecheckout' js=1}{/addJsDefL}
 	<div id="postfinancecheckout_void_msg" class="hidden-print" style="display:none">
 		{if !empty($affectedOrders)}
 			{l s='This will also void the following orders:' mod='postfinancecheckout' js=1}
@@ -40,9 +52,6 @@
 		{/if}
 	</div>
 	
-	{addJsDefL name=postfinancecheckout_completion_title}{l s='Are you sure?' mod='postfinancecheckout' js=1}{/addJsDefL}
-	{addJsDefL name=postfinancecheckout_completion_btn_confirm_txt}{l s='Complete Order'  mod='postfinancecheckout' js=1}{/addJsDefL}
-	{addJsDefL name=postfinancecheckout_completion_btn_deny_txt}{l s='No' mod='postfinancecheckout' js=1}{/addJsDefL}
 	<div id="postfinancecheckout_completion_msg" class="hidden-print" style="display:none">
 		{if !empty($affectedOrders)}
 			{l s='This will also complete the following orders:' mod='postfinancecheckout'}
@@ -59,7 +68,7 @@
 			{l s='This finalizes the order, it no longer can be changed.' mod='postfinancecheckout'}			
 		{/if}		
 	</div>
-{/if}
+
   
 {if (isset($showUpdateActions) && $showUpdateActions)}
 <div style="display:none;" class="hidden-print">
@@ -70,11 +79,6 @@
 </div>
 {/if}
 
-
-{addJsDefL name=postfinancecheckout_msg_general_error}{l s='The server experienced an unexpected error, please try again.'  mod='postfinancecheckout' js=1}{/addJsDefL}
-{addJsDefL name=postfinancecheckout_msg_general_title_succes}{l s='Success'  mod='postfinancecheckout' js=1}{/addJsDefL}
-{addJsDefL name=postfinancecheckout_msg_general_title_error}{l s='Error'  mod='postfinancecheckout' js=1}{/addJsDefL}
-{addJsDefL name=postfinancecheckout_btn_info_confirm_txt}{l s='OK'  mod='postfinancecheckout' js=1}{/addJsDefL}
 
 {if isset($isPostFinanceCheckoutTransaction)}
 <div style="display:none;" class="hidden-print" id="postfinancecheckout_is_transaction"></div>
@@ -142,7 +146,7 @@
 
 
 <script type="text/javascript">
-var isVersionGTE177 = false;
+	var isVersionGTE177 = true;
 {if isset($voidUrl)}
 	var postFinanceCheckoutVoidUrl = "{$voidUrl|escape:'javascript':'UTF-8'}";
 {/if}

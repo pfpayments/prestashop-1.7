@@ -191,7 +191,7 @@ class PostFinanceCheckoutServiceLineitem extends PostFinanceCheckoutServiceAbstr
                     $psTax = new Tax($id);
                     $tax = new \PostFinanceCheckout\Sdk\Model\TaxCreate();
 
-                    $tax->setTitle($psTax->name[$cart->id_lang]);
+                    $tax->setTitle($this->extractTaxName($psTax, $cart));
                     $tax->setRate(round($psTax->rate, 8));
                     $taxes[] = $tax;
                 }
@@ -261,6 +261,23 @@ class PostFinanceCheckoutServiceLineitem extends PostFinanceCheckoutServiceAbstr
         return $cleaned;
     }
 
+    private function extractTaxName($psTax, $cart) {
+    	$translated = $psTax->name[$cart->id_lang];
+    	
+    	if (empty($translated) || strlen($translated) < 2) {
+    		foreach ($psTax->name as $name) {
+    			if (!empty($name) && strlen($name) >= 2) {
+    				return $name;
+    			}
+    		}
+    		return PostFinanceCheckoutHelper::getModuleInstance()->l('Tax', 'lineitem');
+    	}
+    	else {
+    		return $translated;
+    	}
+    	
+    }
+    
     private function isFreeShippingDiscountOnlyCart($discounts)
     {
         $shippingOnly = false;
