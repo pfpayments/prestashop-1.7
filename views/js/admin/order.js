@@ -8,34 +8,52 @@
  * @license http://www.apache.org/licenses/LICENSE-2.0 Apache Software License (ASL 2.0)
  */
 jQuery(function ($) {
+
+    function isVersionGTE177(){
+        if(_PS_VERSION_ === undefined){
+            return false;
+        } else {
+           return _PS_VERSION_.startsWith('1.7.7');
+        }
+    }
     
     function movePostFinanceCheckoutDocuments()
     {
-        var parentElement = $("#postfinancecheckout_documents_tab").parent();
-        $("#postfinancecheckout_documents_tab").detach().appendTo(parentElement);
+        var documentsTab = $('#postfinancecheckout_documents_tab');
+        if (isVersionGTE177()) {
+            documentsTab.children('a').addClass('nav-link');
+        } else {
+            var parentElement = documentsTab.parent();
+            documentsTab.detach().appendTo(parentElement);
+        }
     }
     
     function movePostFinanceCheckoutActionsAndInfo()
     {
-        $("a.postfinancecheckout-management-btn").each(function (key, element) {
+        var managementBtn = $('a.postfinancecheckout-management-btn');
+        var managementInfo = $('span.postfinancecheckout-management-info');
+        var orderActions = $('div.order-actions');
+        var panel = $('div.panel');
+        
+        managementBtn.each(function (key, element) {
             $(element).detach();
-            if (isVersionGTE177 === true) {
-                $("div.order-actions").find(".order-navigation").before(element);
+            if (isVersionGTE177()) {
+                orderActions.find('.order-navigation').before(element);
             } else {
-                $("div.panel").find("div.well.hidden-print").find("i.icon-print").closest("div.well").append(element);
+                panel.find('div.well.hidden-print').find('i.icon-print').closest('div.well').append(element);
             }
         });
-        $("span.postfinancecheckout-management-info").each(function (key, element) {
+        managementInfo.each(function (key, element) {
             $(element).detach();
-            if (isVersionGTE177 === true) {
-                $("div.order-actions").find(".order-navigation").before(element);
+            if (isVersionGTE177()) {
+                orderActions.find('.order-navigation').before(element);
             } else {
-                $("div.panel").find("div.well.hidden-print").find("i.icon-print").closest("div.well").append(element);
+                panel.find('div.well.hidden-print').find('i.icon-print').closest('div.well').append(element);
             }
         });
-    //to get the styling of prestashop we have to add this
-        $("a.postfinancecheckout-management-btn").after("&nbsp;\n");
-        $("span.postfinancecheckout-management-info").after("&nbsp;\n");
+        //to get the styling of prestashop we have to add this
+        managementBtn.after("&nbsp;\n");
+        managementInfo.after("&nbsp;\n");
     }
     
     function registerPostFinanceCheckoutActions()
@@ -76,7 +94,6 @@ jQuery(function ($) {
             'type': 'modal',
             'title': title,
             'content': msg,
-            'closeBtn': false,
             'theme': theme,
             'replaceOtherAlerts': true,
             'closeOnClick': false,
@@ -101,10 +118,10 @@ jQuery(function ($) {
             dataType:   'json',
             url:    postFinanceCheckoutUpdateUrl,
             success:    function (response, textStatus, jqXHR) {
-                if ( response.success == 'true' ) {
+                if ( response.success === 'true' ) {
                     location.reload();
                     return;
-                } else if ( response.success == 'false' ) {
+                } else if ( response.success === 'false' ) {
                     if (response.message) {
                         showPostFinanceCheckoutInformation(response.message, msg_postfinancecheckout_confirm_txt);
                     }
@@ -114,7 +131,7 @@ jQuery(function ($) {
             },
             error:  function (jqXHR, textStatus, errorThrown) {
                 showPostFinanceCheckoutInformation(postfinancecheckout_msg_general_error, msg_postfinancecheckout_confirm_txt);
-            },
+            }
         });
     }
     
@@ -134,7 +151,7 @@ jQuery(function ($) {
             {
                 'text': postfinancecheckout_void_btn_deny_txt,
                 'closeAlert': true,
-                'theme': 'black',
+                'theme': 'black'
             },
             {
                 'text': postfinancecheckout_void_btn_confirm_txt,
@@ -144,7 +161,7 @@ jQuery(function ($) {
 
             }
             ],
-            'theme':'blue',
+            'theme':'blue'
         });
         return false;
     }
@@ -157,10 +174,10 @@ jQuery(function ($) {
             dataType:   'json',
             url:    postFinanceCheckoutVoidUrl,
             success:    function (response, textStatus, jqXHR) {
-                if ( response.success == 'true' ) {
+                if ( response.success === 'true' ) {
                     showPostFinanceCheckoutInformationSuccess(response.message);
                     return;
-                } else if ( response.success == 'false' ) {
+                } else if ( response.success === 'false' ) {
                     if (response.message) {
                         showPostFinanceCheckoutInformationFailures(response.message);
                         return;
@@ -170,7 +187,7 @@ jQuery(function ($) {
             },
             error:  function (jqXHR, textStatus, errorThrown) {
                 showPostFinanceCheckoutInformationFailures(postfinancecheckout_msg_general_error);
-            },
+            }
         });
         return false;
     }
@@ -206,7 +223,7 @@ jQuery(function ($) {
             {
                 'text': postfinancecheckout_completion_btn_deny_txt,
                 'closeAlert': true,
-                'theme': 'black',
+                'theme': 'black'
             },
             {
                 'text': postfinancecheckout_completion_btn_confirm_txt,
@@ -215,7 +232,7 @@ jQuery(function ($) {
                 'onClick': executePostFinanceCheckoutCompletion
             }
             ],
-            'theme':'blue',
+            'theme':'blue'
         });
 
         return false;
@@ -230,10 +247,10 @@ jQuery(function ($) {
             dataType:   'json',
             url:    postFinanceCheckoutCompletionUrl,
             success:    function (response, textStatus, jqXHR) {
-                if ( response.success == 'true' ) {
+                if ( response.success === 'true' ) {
                     showPostFinanceCheckoutInformationSuccess(response.message);
                     return;
-                } else if ( response.success == 'false' ) {
+                } else if ( response.success === 'false' ) {
                     if (response.message) {
                         showPostFinanceCheckoutInformationFailures(response.message);
                         return;
@@ -243,23 +260,23 @@ jQuery(function ($) {
             },
             error:  function (jqXHR, textStatus, errorThrown) {
                 showPostFinanceCheckoutInformationFailures(postfinancecheckout_msg_general_error);
-            },
+            }
         });
         return false;
     }
     
     function postFinanceCheckoutTotalRefundChanges()
     {
-        var generateDiscount =  $('.standard_refund_fields').find('#generateDiscount').attr("checked") == 'checked';
-        var sendOffline = $('#postfinancecheckout_refund_offline_cb_total').attr("checked") == 'checked';
+        var generateDiscount =  $('.standard_refund_fields').find('#generateDiscount').attr("checked") === 'checked';
+        var sendOffline = $('#postfinancecheckout_refund_offline_cb_total').attr("checked") === 'checked';
         postFinanceCheckoutRefundChanges('total', generateDiscount, sendOffline);
     }
     
     function postFinanceCheckoutPartialRefundChanges()
     {
     
-        var generateDiscount = $('.partial_refund_fields').find('#generateDiscountRefund').attr("checked") == 'checked';
-        var sendOffline = $('#postfinancecheckout_refund_offline_cb_partial').attr("checked")  == 'checked';
+        var generateDiscount = $('.partial_refund_fields').find('#generateDiscountRefund').attr("checked") === 'checked';
+        var sendOffline = $('#postfinancecheckout_refund_offline_cb_partial').attr("checked")  === 'checked';
         postFinanceCheckoutRefundChanges('partial', generateDiscount, sendOffline);
     }
     
@@ -286,52 +303,60 @@ jQuery(function ($) {
     
     function handlePostFinanceCheckoutLayoutChanges()
     {
+        var addVoucher = $('#add_voucher');
+        var addProduct = $('#add_product');
+        var editProductChangeLink = $('.edit_product_change_link');
+        var descOrderStandardRefund = $('#desc-order-standard_refund');
+        var standardRefundFields = $('.standard_refund_fields');
+        var partialRefundFields = $('.partial_refund_fields');
+        var descOrderPartialRefund = $('#desc-order-partial_refund');
+
         if ($('#postfinancecheckout_is_transaction').length > 0) {
-            $('#add_voucher').remove();
+            addVoucher.remove();
         }
         if ($('#postfinancecheckout_remove_edit').length > 0) {
-            $('#add_product').remove();
-            $('#add_voucher').remove();
-            $('.edit_product_change_link').closest('div').remove();
+            addProduct.remove();
+            addVoucher.remove();
+            editProductChangeLink.closest('div').remove();
             $('.panel-vouchers').find('i.icon-minus-sign').closest('a').remove();
         }
         if ($('#postfinancecheckout_remove_cancel').length > 0) {
-            $('#desc-order-standard_refund').remove();
+            descOrderStandardRefund.remove();
         }
         if ($('#postfinancecheckout_changes_refund').length > 0) {
             $('#refund_total_3').closest('div').remove();
-            $('.standard_refund_fields').find('div.form-group').after($('#postfinancecheckout_refund_online_text_total'));
-            $('.standard_refund_fields').find('div.form-group').after($('#postfinancecheckout_refund_offline_text_total'));
-            $('.standard_refund_fields').find('div.form-group').after($('#postfinancecheckout_refund_no_text_total'));
-            $('.standard_refund_fields').find('#spanShippingBack').after($('#postfinancecheckout_refund_offline_span_total'));
-            $('.standard_refund_fields').find('#generateDiscount').off('click.postfinancecheckout').on('click.postfinancecheckout', postFinanceCheckoutTotalRefundChanges);
+            standardRefundFields.find('div.form-group').after($('#postfinancecheckout_refund_online_text_total'));
+            standardRefundFields.find('div.form-group').after($('#postfinancecheckout_refund_offline_text_total'));
+            standardRefundFields.find('div.form-group').after($('#postfinancecheckout_refund_no_text_total'));
+            standardRefundFields.find('#spanShippingBack').after($('#postfinancecheckout_refund_offline_span_total'));
+            standardRefundFields.find('#generateDiscount').off('click.postfinancecheckout').on('click.postfinancecheckout', postFinanceCheckoutTotalRefundChanges);
             $('#postfinancecheckout_refund_offline_cb_total').on('click.postfinancecheckout', postFinanceCheckoutTotalRefundChanges);
         
             $('#refund_3').closest('div').remove();
-            $('.partial_refund_fields').find('button').before($('#postfinancecheckout_refund_online_text_partial'));
-            $('.partial_refund_fields').find('button').before($('#postfinancecheckout_refund_offline_text_partial'));
-            $('.partial_refund_fields').find('button').before($('#postfinancecheckout_refund_no_text_partial'));
-            $('.partial_refund_fields').find('#generateDiscountRefund').closest('p').after($('#postfinancecheckout_refund_offline_span_partial'));
-            $('.partial_refund_fields').find('#generateDiscountRefund').off('click.postfinancecheckout').on('click.postfinancecheckout', postFinanceCheckoutPartialRefundChanges);
+            partialRefundFields.find('button').before($('#postfinancecheckout_refund_online_text_partial'));
+            partialRefundFields.find('button').before($('#postfinancecheckout_refund_offline_text_partial'));
+            partialRefundFields.find('button').before($('#postfinancecheckout_refund_no_text_partial'));
+            partialRefundFields.find('#generateDiscountRefund').closest('p').after($('#postfinancecheckout_refund_offline_span_partial'));
+            partialRefundFields.find('#generateDiscountRefund').off('click.postfinancecheckout').on('click.postfinancecheckout', postFinanceCheckoutPartialRefundChanges);
             $('#postfinancecheckout_refund_offline_cb_partial').on('click.postfinancecheckout', postFinanceCheckoutPartialRefundChanges);
         }
         if ($('#postfinancecheckout_completion_pending').length > 0) {
-            $('#add_product').remove();
-            $('#add_voucher').remove();
-            $(".edit_product_change_link").closest('div').remove();
-            $('#desc-order-partial_refund').remove();
-            $('#desc-order-standard_refund').remove();
+            addProduct.remove();
+            addVoucher.remove();
+            editProductChangeLink.closest('div').remove();
+            descOrderPartialRefund.remove();
+            descOrderStandardRefund.remove();
         }
         if ($('#postfinancecheckout_void_pending').length > 0) {
-            $('#add_product').remove();
-            $('#add_voucher').remove();
-            $(".edit_product_change_link").closest('div').remove();
-            $('#desc-order-partial_refund').remove();
-            $('#desc-order-standard_refund').remove();
+            addProduct.remove();
+            addVoucher.remove();
+            editProductChangeLink.closest('div').remove();
+            descOrderPartialRefund.remove();
+            descOrderStandardRefund.remove();
         }
         if ($('#postfinancecheckout_refund_pending').length > 0) {
-            $('#desc-order-standard_refund').remove();
-            $('#desc-order-partial_refund').remove();
+            descOrderStandardRefund.remove();
+            descOrderPartialRefund.remove();
         }
         movePostFinanceCheckoutDocuments();
         movePostFinanceCheckoutActionsAndInfo();
