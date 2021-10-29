@@ -245,9 +245,10 @@ class PostFinanceCheckoutBasemodule
             $refresh = true;
             if ($module->getContext()->shop->isFeatureActive()) {
                 if ($module->getContext()->shop->getContext() == Shop::CONTEXT_ALL) {
-                    Configuration::updateGlobalValue(self::CK_USER_ID, Tools::getValue(self::CK_USER_ID));
-                    Configuration::updateGlobalValue(self::CK_APP_KEY, Tools::getValue(self::CK_APP_KEY));
-                    $output .= $module->displayConfirmation($module->l('Settings updated', 'basemodule'));
+                    $refresh = false;
+                    $output .= $module->displayError(
+                        $module->l('You can not store the configuration for All Shops.', 'basemodule')
+                    );
                 } elseif ($module->getContext()->shop->getContext() == Shop::CONTEXT_SHOP) {
                     foreach ($module->getConfigurationKeys() as $key) {
                         Configuration::updateValue($key, Tools::getValue($key));
@@ -260,8 +261,6 @@ class PostFinanceCheckoutBasemodule
                     );
                 }
             } else {
-                Configuration::updateGlobalValue(self::CK_USER_ID, Tools::getValue(self::CK_USER_ID));
-                Configuration::updateGlobalValue(self::CK_APP_KEY, Tools::getValue(self::CK_APP_KEY));
                 foreach ($module->getConfigurationKeys() as $key) {
                     Configuration::updateValue($key, Tools::getValue($key));
                 }
@@ -280,6 +279,8 @@ class PostFinanceCheckoutBasemodule
     public static function getConfigurationKeys()
     {
         return array(
+            self::CK_USER_ID,
+            self::CK_APP_KEY,
             self::CK_SPACE_ID,
             self::CK_SPACE_VIEW_ID,
             self::CK_MAIL,
@@ -309,10 +310,13 @@ class PostFinanceCheckoutBasemodule
             $refresh = true;
             if ($module->getContext()->shop->isFeatureActive()) {
                 if ($module->getContext()->shop->getContext() == Shop::CONTEXT_ALL) {
-                    Configuration::updateGlobalValue(self::CK_USER_ID, Tools::getValue(self::CK_USER_ID));
-                    Configuration::updateGlobalValue(self::CK_APP_KEY, Tools::getValue(self::CK_APP_KEY));
-                    $output .= $module->displayConfirmation($module->l('Settings updated', 'basemodule'));
+                    $refresh = false;
+                    $output .= $module->displayError(
+                        $module->l('You can not store the configuration for All Shops.', 'basemodule')
+                    );
                 } elseif ($module->getContext()->shop->getContext() == Shop::CONTEXT_SHOP) {
+                    Configuration::updateValue(self::CK_USER_ID, Tools::getValue(self::CK_USER_ID));
+                    Configuration::updateValue(self::CK_APP_KEY, Tools::getValue(self::CK_APP_KEY));
                     Configuration::updateValue(self::CK_SPACE_ID, Tools::getValue(self::CK_SPACE_ID));
                     Configuration::updateValue(self::CK_SPACE_VIEW_ID, Tools::getValue(self::CK_SPACE_VIEW_ID));
                     $output .= $module->displayConfirmation($module->l('Settings updated', 'basemodule'));
@@ -323,8 +327,8 @@ class PostFinanceCheckoutBasemodule
                     );
                 }
             } else {
-                Configuration::updateGlobalValue(self::CK_USER_ID, Tools::getValue(self::CK_USER_ID));
-                Configuration::updateGlobalValue(self::CK_APP_KEY, Tools::getValue(self::CK_APP_KEY));
+                Configuration::updateValue(self::CK_USER_ID, Tools::getValue(self::CK_USER_ID));
+                Configuration::updateValue(self::CK_APP_KEY, Tools::getValue(self::CK_APP_KEY));
                 Configuration::updateValue(self::CK_SPACE_ID, Tools::getValue(self::CK_SPACE_ID));
                 Configuration::updateValue(self::CK_SPACE_VIEW_ID, Tools::getValue(self::CK_SPACE_VIEW_ID));
                 $output .= $module->displayConfirmation($module->l('Settings updated', 'basemodule'));
@@ -483,7 +487,7 @@ class PostFinanceCheckoutBasemodule
             'type' => 'html',
             'name' => 'IGNORE',
             'col' => 3,
-            'html_content' => '<b>' . $module->l('The User Id needs to be configured globally.', 'basemodule') . '</b>'
+            'html_content' => '<b>' . $module->l('The User Id needs to be configured per shop.', 'basemodule') . '</b>'
         );
 
         $userPwInfo = array(
@@ -491,7 +495,7 @@ class PostFinanceCheckoutBasemodule
             'name' => 'IGNORE',
             'col' => 3,
             'html_content' => '<b>' .
-            $module->l('The Authentication Key needs to be configured globally.', 'basemodule') . '</b>'
+            $module->l('The Authentication Key needs to be configured per shop.', 'basemodule') . '</b>'
         );
 
         $spaceIdConfig = array(
@@ -530,14 +534,14 @@ class PostFinanceCheckoutBasemodule
             if ($module->getContext()->shop->getContext() == Shop::CONTEXT_ALL) {
                 $generalInputs = array(
                     $spaceIdInfo,
-                    $userIdConfig,
-                    $userPwConfig
+                    $userIdInfo,
+                    $userPwInfo
                 );
             } elseif ($module->getContext()->shop->getContext() == Shop::CONTEXT_SHOP) {
                 $generalInputs = array(
                     $spaceIdConfig,
-                    $userIdInfo,
-                    $userPwInfo
+                    $userIdConfig,
+                    $userPwConfig
                 );
                 array_unshift(
                     $buttons,
@@ -592,20 +596,10 @@ class PostFinanceCheckoutBasemodule
     public static function getApplicationConfigValues(PostFinanceCheckout $module)
     {
         $values = array();
-        if ($module->getContext()->shop->isFeatureActive()) {
-            if ($module->getContext()->shop->getContext() == Shop::CONTEXT_ALL) {
-                $values[self::CK_USER_ID] = Configuration::getGlobalValue(self::CK_USER_ID);
-                $values[self::CK_APP_KEY] = Configuration::getGlobalValue(self::CK_APP_KEY);
-            } elseif ($module->getContext()->shop->getContext() == Shop::CONTEXT_SHOP) {
-                $values[self::CK_SPACE_ID] = Configuration::get(self::CK_SPACE_ID);
-                $values[self::CK_SPACE_VIEW_ID] = Configuration::get(self::CK_SPACE_VIEW_ID);
-            }
-        } else {
-            $values[self::CK_USER_ID] = Configuration::getGlobalValue(self::CK_USER_ID);
-            $values[self::CK_APP_KEY] = Configuration::getGlobalValue(self::CK_APP_KEY);
-            $values[self::CK_SPACE_ID] = Configuration::get(self::CK_SPACE_ID);
-            $values[self::CK_SPACE_VIEW_ID] = Configuration::get(self::CK_SPACE_VIEW_ID);
-        }
+        $values[self::CK_USER_ID] = Configuration::get(self::CK_USER_ID);
+        $values[self::CK_APP_KEY] = Configuration::get(self::CK_APP_KEY);
+        $values[self::CK_SPACE_ID] = Configuration::get(self::CK_SPACE_ID);
+        $values[self::CK_SPACE_VIEW_ID] = Configuration::get(self::CK_SPACE_VIEW_ID);
         return $values;
     }
 

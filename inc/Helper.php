@@ -36,8 +36,8 @@ class PostFinanceCheckoutHelper
     public static function getApiClient()
     {
         if (self::$apiClient === null) {
-            $userId = Configuration::getGlobalValue(PostFinanceCheckoutBasemodule::CK_USER_ID);
-            $userKey = Configuration::getGlobalValue(PostFinanceCheckoutBasemodule::CK_APP_KEY);
+            $userId = Configuration::get(PostFinanceCheckoutBasemodule::CK_USER_ID);
+            $userKey = Configuration::get(PostFinanceCheckoutBasemodule::CK_APP_KEY);
             if (! empty($userId) && ! empty($userKey)) {
                 self::$apiClient = new \PostFinanceCheckout\Sdk\ApiClient($userId, $userKey);
                 self::$apiClient->setBasePath(self::getBaseGatewayUrl() . '/api');
