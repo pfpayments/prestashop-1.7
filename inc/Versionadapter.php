@@ -32,4 +32,22 @@ class PostFinanceCheckoutVersionadapter
             ));
         }
     }
+
+    public static function getAdminOrderTemplate()
+    {
+        if (version_compare(_PS_VERSION_, '1.7.7', '>=')) {
+            return 'views/templates/admin/hook/admin_order177.tpl';
+        } else {
+            return 'views/templates/admin/hook/admin_order.tpl';
+        }
+    }
+
+    public static function isVoucherOnlyPostFinanceCheckout($papostDatarams)
+    {
+        if (version_compare(_PS_VERSION_, '1.7.7', '>=')) {
+            return isset($postData['voucher']) && $postData['voucher'];
+        } else {
+            return isset($postData['generateDiscount']) && ! isset($postData['postfinancecheckout_offline']);
+        }
+    }
 }

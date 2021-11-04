@@ -138,35 +138,35 @@ class PostFinanceCheckoutBasemodule
     {
         return Configuration::updateGlobalValue(self::CK_MAIL, true) &&
             Configuration::updateGlobalValue(self::CK_INVOICE, true) &&
-			Configuration::updateGlobalValue(self::CK_PACKING_SLIP, true) &&
-			Configuration::updateGlobalValue(self::CK_LINE_ITEM_CONSISTENCY, true);
+            Configuration::updateGlobalValue(self::CK_PACKING_SLIP, true) &&
+            Configuration::updateGlobalValue(self::CK_LINE_ITEM_CONSISTENCY, true);
     }
 
     public static function uninstallConfigurationValues()
     {
         return
-			Configuration::deleteByName(self::CK_USER_ID) &&
-			Configuration::deleteByName(self::CK_APP_KEY) &&
+            Configuration::deleteByName(self::CK_USER_ID) &&
+            Configuration::deleteByName(self::CK_APP_KEY) &&
             Configuration::deleteByName(self::CK_SPACE_ID) &&
-			Configuration::deleteByName(self::CK_SPACE_VIEW_ID) &&
+            Configuration::deleteByName(self::CK_SPACE_VIEW_ID) &&
             Configuration::deleteByName(self::CK_MAIL) &&
-			Configuration::deleteByName(self::CK_INVOICE) &&
+            Configuration::deleteByName(self::CK_INVOICE) &&
             Configuration::deleteByName(self::CK_PACKING_SLIP) &&
-			Configuration::deleteByName(self::CK_LINE_ITEM_CONSISTENCY) &&
-			Configuration::deleteByName(self::CK_FEE_ITEM) &&
+            Configuration::deleteByName(self::CK_LINE_ITEM_CONSISTENCY) &&
+            Configuration::deleteByName(self::CK_FEE_ITEM) &&
             Configuration::deleteByName(self::CK_SURCHARGE_ITEM) &&
-			Configuration::deleteByName(self::CK_SURCHARGE_TAX) &&
+            Configuration::deleteByName(self::CK_SURCHARGE_TAX) &&
             Configuration::deleteByName(self::CK_SURCHARGE_AMOUNT) &&
             Configuration::deleteByName(self::CK_SURCHARGE_TOTAL) &&
-			Configuration::deleteByName(self::CK_SURCHARGE_BASE) &&
+            Configuration::deleteByName(self::CK_SURCHARGE_BASE) &&
             Configuration::deleteByName(PostFinanceCheckoutServiceManualtask::CONFIG_KEY) &&
             Configuration::deleteByName(self::CK_STATUS_FAILED) &&
             Configuration::deleteByName(self::CK_STATUS_AUTHORIZED) &&
             Configuration::deleteByName(self::CK_STATUS_VOIDED) &&
-			Configuration::deleteByName(self::CK_STATUS_COMPLETED) &&
-			Configuration::deleteByName(self::CK_STATUS_MANUAL) &&
+            Configuration::deleteByName(self::CK_STATUS_COMPLETED) &&
+            Configuration::deleteByName(self::CK_STATUS_MANUAL) &&
             Configuration::deleteByName(self::CK_STATUS_DECLINED) &&
-			Configuration::deleteByName(self::CK_STATUS_FULFILL);
+            Configuration::deleteByName(self::CK_STATUS_FULFILL);
     }
 
 
@@ -361,7 +361,7 @@ class PostFinanceCheckoutBasemodule
         if (Tools::isSubmit('submit' . $module->name . '_fee_item')) {
             if (! $module->getContext()->shop->isFeatureActive() || $module->getContext()->shop->getContext() == Shop::CONTEXT_SHOP) {
                 Configuration::updateValue(self::CK_LINE_ITEM_CONSISTENCY, Tools::getValue(self::CK_LINE_ITEM_CONSISTENCY));
-				Configuration::updateValue(self::CK_FEE_ITEM, Tools::getValue(self::CK_FEE_ITEM));
+                Configuration::updateValue(self::CK_FEE_ITEM, Tools::getValue(self::CK_FEE_ITEM));
                 Configuration::updateValue(self::CK_SURCHARGE_ITEM, Tools::getValue(self::CK_SURCHARGE_ITEM));
                 Configuration::updateValue(self::CK_SURCHARGE_TAX, Tools::getValue(self::CK_SURCHARGE_TAX));
                 Configuration::updateValue(self::CK_SURCHARGE_AMOUNT, Tools::getValue(self::CK_SURCHARGE_AMOUNT));
@@ -740,29 +740,29 @@ class PostFinanceCheckoutBasemodule
                 ),
                 'lang' => false
             ),
-			array(
-				'type' => 'switch',
-				'label' => $module->l('Line item consistency', 'basemodule'),
-				'name' => self::CK_LINE_ITEM_CONSISTENCY,
-				'desc' => $module->l(
-					'If this option is enabled line item totals will always match the order total.',
-					'basemodule'
-				),
-				'is_bool' => true,
-				'values' => array(
-					array(
-						'id' => 'active_on',
-						'value' => 1,
-						'label' => $module->l('Allow', 'basemodule')
-					),
-					array(
-						'id' => 'active_off',
-						'value' => 0,
-						'label' => $module->l('Disallow', 'basemodule')
-					)
-				),
-				'lang' => false
-			),
+            array(
+                'type' => 'switch',
+                'label' => $module->l('Line item consistency', 'basemodule'),
+                'name' => self::CK_LINE_ITEM_CONSISTENCY,
+                'desc' => $module->l(
+                    'If this option is enabled line item totals will always match the order total.',
+                    'basemodule'
+                ),
+                'is_bool' => true,
+                'values' => array(
+                    array(
+                        'id' => 'active_on',
+                        'value' => 1,
+                        'label' => $module->l('Allow', 'basemodule')
+                    ),
+                    array(
+                        'id' => 'active_off',
+                        'value' => 0,
+                        'label' => $module->l('Disallow', 'basemodule')
+                    )
+                ),
+                'lang' => false
+            ),
             array(
                 'type' => 'text',
                 'label' => $module->l('Surcharge Amount', 'basemodule'),
@@ -855,7 +855,7 @@ class PostFinanceCheckoutBasemodule
     {
         $values = array();
         if (! $module->getContext()->shop->isFeatureActive() || $module->getContext()->shop->getContext() == Shop::CONTEXT_SHOP) {
-			$values[self::CK_FEE_ITEM] = (int) Configuration::get(self::CK_FEE_ITEM);
+            $values[self::CK_FEE_ITEM] = (int) Configuration::get(self::CK_FEE_ITEM);
             $values[self::CK_LINE_ITEM_CONSISTENCY] = (int) Configuration::get(self::CK_LINE_ITEM_CONSISTENCY);
             $values[self::CK_SURCHARGE_ITEM] = (int) Configuration::get(self::CK_SURCHARGE_ITEM);
             $values[self::CK_SURCHARGE_TAX] = (int) Configuration::get(self::CK_SURCHARGE_TAX);
@@ -1478,51 +1478,6 @@ class PostFinanceCheckoutBasemodule
                     'basemodule'
                 )
             );
-        }
-    }
-
-    public static function hookActionProductCancel(PostFinanceCheckout $module, $params)
-    {
-        // check version too here to only run on > 1.7.7 for now 
-        // as there is some overlap in functionality with some previous versions 1.7+
-        if ($params['action'] === CancellationActionType::PARTIAL_REFUND && version_compare(_PS_VERSION_, '1.7.7', '>=')) {
-
-            $idOrder = Tools::getValue('id_order');
-            $refundParameters = Tools::getAllValues();
-
-            $order = $params['order'];
-
-            if (! Validate::isLoadedObject($order) || $order->module != $module->name) {
-                return;
-            }
-
-            $strategy = PostFinanceCheckoutBackendStrategyprovider::getStrategy();
-            if ($strategy->isVoucherOnlyPostFinanceCheckout($order, $refundParameters)) {
-                return;
-            }
-            
-            // need to manually set this here as it's expected downstream
-            $refundParameters['partialRefund'] = true;
-
-            $backendController = Context::getContext()->controller;
-            $editAccess = 0;
-
-            $access = Profile::getProfileAccess(
-                Context::getContext()->employee->id_profile,
-                (int) Tab::getIdFromClassName('AdminOrders')
-            );
-            $editAccess = isset($access['edit']) && $access['edit'] == 1;
-
-            if ($editAccess) {
-                try {
-                    $parsedData = $strategy->simplifiedRefund($refundParameters);
-                    PostFinanceCheckoutServiceRefund::instance()->executeRefund($order, $parsedData);
-                } catch (Exception $e) {
-                    $backendController->errors[] = PostFinanceCheckoutHelper::cleanExceptionMessage($e->getMessage());
-                }
-            } else {
-                $backendController->errors[] = Tools::displayError('You do not have permission to delete this.');
-            }
         }
     }
 
@@ -2152,6 +2107,7 @@ class PostFinanceCheckoutBasemodule
             $templateVars['refundPending'] = true;
         }
         $module->getContext()->smarty->assign($templateVars);
+        PostFinanceCheckoutVersionadapter::getAdminOrderTemplate();
         if (version_compare(_PS_VERSION_, '1.7.7', '>=')) {
             return $module->display(dirname(dirname(__FILE__)), 'views/templates/admin/hook/admin_order177.tpl');
         } else {

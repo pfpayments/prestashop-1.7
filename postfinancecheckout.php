@@ -1,4 +1,5 @@
 <?php
+
 /**
  * PostFinance Checkout Prestashop
  *
@@ -9,16 +10,18 @@
  * @license http://www.apache.org/licenses/LICENSE-2.0 Apache Software License (ASL 2.0)
  */
 
-if (! defined('_PS_VERSION_')) {
+if (!defined('_PS_VERSION_')) {
     exit();
 }
+
+use PrestaShop\PrestaShop\Core\Domain\Order\CancellationActionType;
 
 require_once(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'postfinancecheckout_autoloader.php');
 require_once(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'postfinancecheckout-sdk' . DIRECTORY_SEPARATOR .
     'autoload.php');
 class PostFinanceCheckout extends PaymentModule
 {
-    
+
     /**
      * Class constructor
      */
@@ -29,7 +32,7 @@ class PostFinanceCheckout extends PaymentModule
         $this->author = 'Customweb GmbH';
         $this->bootstrap = true;
         $this->need_instance = 0;
-        $this->version = '1.2.8';
+        $this->version = '1.2.9';
         $this->displayName = 'PostFinance Checkout';
         $this->description = $this->l('This PrestaShop module enables to process payments with %s.');
         $this->description = sprintf($this->description, 'PostFinance Checkout');
@@ -43,12 +46,12 @@ class PostFinanceCheckout extends PaymentModule
             $this->l('Are you sure you want to uninstall the %s module?', 'abstractmodule'),
             'PostFinance Checkout'
         );
-        
+
         // Remove Fee Item
         if (isset($this->context->cart) && Validate::isLoadedObject($this->context->cart)) {
             PostFinanceCheckoutFeehelper::removeFeeSurchargeProductsFromCart($this->context->cart);
         }
-        if (! empty($this->context->cookie->pfc_error)) {
+        if (!empty($this->context->cookie->pfc_error)) {
             $errors = $this->context->cookie->pfc_error;
             if (is_string($errors)) {
                 $this->context->controller->errors[] = $errors;
@@ -61,38 +64,38 @@ class PostFinanceCheckout extends PaymentModule
             $this->context->cookie->pfc_error = null;
         }
     }
-    
+
     public function addError($error)
     {
         $this->_errors[] = $error;
     }
-    
+
     public function getContext()
     {
         return $this->context;
     }
-    
+
     public function getTable()
     {
         return $this->table;
     }
-    
+
     public function getIdentifier()
     {
         return $this->identifier;
     }
-    
+
     public function install()
     {
-        if (! PostFinanceCheckoutBasemodule::checkRequirements($this)) {
+        if (!PostFinanceCheckoutBasemodule::checkRequirements($this)) {
             return false;
         }
-        if (! parent::install()) {
+        if (!parent::install()) {
             return false;
         }
         return PostFinanceCheckoutBasemodule::install($this);
     }
-    
+
     public function uninstall()
     {
         return parent::uninstall() && PostFinanceCheckoutBasemodule::uninstall($this);
@@ -112,11 +115,11 @@ class PostFinanceCheckout extends PaymentModule
                 'name' => 'PostFinance Checkout ' . $this->l('Payment Methods')
             ),
             'AdminPostFinanceCheckoutDocuments' => array(
-                'parentId' => - 1, // No Tab in navigation
+                'parentId' => -1, // No Tab in navigation
                 'name' => 'PostFinance Checkout ' . $this->l('Documents')
             ),
             'AdminPostFinanceCheckoutOrder' => array(
-                'parentId' => - 1, // No Tab in navigation
+                'parentId' => -1, // No Tab in navigation
                 'name' => 'PostFinance Checkout ' . $this->l('Order Management')
             ),
             'AdminPostFinanceCheckoutCronJobs' => array(
@@ -130,12 +133,12 @@ class PostFinanceCheckout extends PaymentModule
     {
         return PostFinanceCheckoutBasemodule::installConfigurationValues();
     }
-    
+
     public function uninstallConfigurationValues()
     {
         return PostFinanceCheckoutBasemodule::uninstallConfigurationValues();
     }
-    
+
     public function getContent()
     {
         $output = PostFinanceCheckoutBasemodule::getMailHookActiveWarning($this);
@@ -172,7 +175,7 @@ class PostFinanceCheckout extends PaymentModule
             PostFinanceCheckoutBasemodule::getOrderStatusConfigValues($this)
         );
     }
-    
+
     public function getConfigurationKeys()
     {
         return PostFinanceCheckoutBasemodule::getConfigurationKeys();
@@ -180,10 +183,10 @@ class PostFinanceCheckout extends PaymentModule
 
     public function hookPaymentOptions($params)
     {
-        if (! $this->active) {
+        if (!$this->active) {
             return;
         }
-        if (! isset($params['cart']) || ! ($params['cart'] instanceof Cart)) {
+        if (!isset($params['cart']) || !($params['cart'] instanceof Cart)) {
             return;
         }
         $cart = $params['cart'];
@@ -224,13 +227,13 @@ class PostFinanceCheckout extends PaymentModule
                 $possible->getId(),
                 $shopId
             );
-            if (! $methodConfiguration->isActive()) {
+            if (!$methodConfiguration->isActive()) {
                 continue;
             }
             $methods[] = $methodConfiguration;
         }
         $result = array();
-        
+
         $this->context->smarty->registerPlugin(
             'function',
             'postfinancecheckout_clean_html',
@@ -239,7 +242,7 @@ class PostFinanceCheckout extends PaymentModule
                 'cleanHtml'
             )
         );
-        
+
         foreach (PostFinanceCheckoutHelper::sortMethodConfiguration($methods) as $methodConfiguration) {
             $parameters = PostFinanceCheckoutBasemodule::getParametersFromMethodConfiguration($this, $methodConfiguration, $cart, $shopId, $language);
             $parameters['priceDisplayTax'] = Group::getPriceDisplayMethod(Group::getCurrent()->id);
@@ -335,7 +338,7 @@ class PostFinanceCheckout extends PaymentModule
             );
         }
     }
-    
+
     public function hookDisplayTop($params)
     {
         return  PostFinanceCheckoutBasemodule::hookDisplayTop($this, $params);
@@ -356,7 +359,7 @@ class PostFinanceCheckout extends PaymentModule
     {
         return $backendController->access('edit');
     }
-    
+
     public function hookPostFinanceCheckoutCron($params)
     {
         return PostFinanceCheckoutBasemodule::hookPostFinanceCheckoutCron($params);
@@ -373,17 +376,17 @@ class PostFinanceCheckout extends PaymentModule
         $result .= PostFinanceCheckoutBasemodule::getCronJobItem($this);
         return $result;
     }
-    
+
     public function hookPostFinanceCheckoutSettingsChanged($params)
     {
         return PostFinanceCheckoutBasemodule::hookPostFinanceCheckoutSettingsChanged($this, $params);
     }
-    
+
     public function hookActionMailSend($data)
     {
         return PostFinanceCheckoutBasemodule::hookActionMailSend($this, $data);
     }
-    
+
     public function validateOrder(
         $id_cart,
         $id_order_state,
@@ -398,7 +401,7 @@ class PostFinanceCheckout extends PaymentModule
     ) {
         PostFinanceCheckoutBasemodule::validateOrder($this, $id_cart, $id_order_state, $amount_paid, $payment_method, $message, $extra_vars, $currency_special, $dont_touch_amount, $secure_key, $shop);
     }
-    
+
     public function validateOrderParent(
         $id_cart,
         $id_order_state,
@@ -413,12 +416,12 @@ class PostFinanceCheckout extends PaymentModule
     ) {
         parent::validateOrder($id_cart, $id_order_state, $amount_paid, $payment_method, $message, $extra_vars, $currency_special, $dont_touch_amount, $secure_key, $shop);
     }
-    
+
     public function hookDisplayOrderDetail($params)
     {
         return PostFinanceCheckoutBasemodule::hookDisplayOrderDetail($this, $params);
     }
-    
+
     public function hookDisplayBackOfficeHeader($params)
     {
         PostFinanceCheckoutBasemodule::hookDisplayBackOfficeHeader($this, $params);
@@ -433,17 +436,17 @@ class PostFinanceCheckout extends PaymentModule
     {
         return PostFinanceCheckoutBasemodule::hookDisplayAdminOrderTabOrder($this, $params);
     }
-    
+
     public function hookDisplayAdminOrderMain($params)
     {
         return PostFinanceCheckoutBasemodule::hookDisplayAdminOrderMain($this, $params);
     }
-    
+
     public function hookDisplayAdminOrderTabLink($params)
     {
         return PostFinanceCheckoutBasemodule::hookDisplayAdminOrderTabLink($this, $params);
     }
-    
+
     public function hookDisplayAdminOrderContentOrder($params)
     {
         return PostFinanceCheckoutBasemodule::hookDisplayAdminOrderContentOrder($this, $params);
@@ -453,29 +456,68 @@ class PostFinanceCheckout extends PaymentModule
     {
         return PostFinanceCheckoutBasemodule::hookDisplayAdminOrderTabContent($this, $params);
     }
-    
+
     public function hookDisplayAdminOrder($params)
     {
         return PostFinanceCheckoutBasemodule::hookDisplayAdminOrder($this, $params);
     }
-    
+
     public function hookActionAdminOrdersControllerBefore($params)
     {
         return PostFinanceCheckoutBasemodule::hookActionAdminOrdersControllerBefore($this, $params);
     }
-    
+
     public function hookActionObjectOrderPaymentAddBefore($params)
     {
         PostFinanceCheckoutBasemodule::hookActionObjectOrderPaymentAddBefore($this, $params);
     }
-    
+
     public function hookActionOrderEdited($params)
     {
         PostFinanceCheckoutBasemodule::hookActionOrderEdited($this, $params);
     }
-    
+
     public function hookActionProductCancel($params)
     {
-        PostFinanceCheckoutBasemodule::hookActionProductCancel($this, $params);
+        // check version too here to only run on > 1.7.7 for now
+        // as there is some overlap in functionality with some previous versions 1.7+
+        if ($params['action'] === CancellationActionType::PARTIAL_REFUND && version_compare(_PS_VERSION_, '1.7.7', '>=')) {
+            $idOrder = Tools::getValue('id_order');
+            $refundParameters = Tools::getAllValues();
+
+            $order = $params['order'];
+
+            if (!Validate::isLoadedObject($order) || $order->module != $this->name) {
+                return;
+            }
+
+            $strategy = PostFinanceCheckoutBackendStrategyprovider::getStrategy();
+            if ($strategy->isVoucherOnlyPostFinanceCheckout($order, $refundParameters)) {
+                return;
+            }
+
+            // need to manually set this here as it's expected downstream
+            $refundParameters['partialRefund'] = true;
+
+            $backendController = Context::getContext()->controller;
+            $editAccess = 0;
+
+            $access = Profile::getProfileAccess(
+                Context::getContext()->employee->id_profile,
+                (int) Tab::getIdFromClassName('AdminOrders')
+            );
+            $editAccess = isset($access['edit']) && $access['edit'] == 1;
+
+            if ($editAccess) {
+                try {
+                    $parsedData = $strategy->simplifiedRefund($refundParameters);
+                    PostFinanceCheckoutServiceRefund::instance()->executeRefund($order, $parsedData);
+                } catch (Exception $e) {
+                    $backendController->errors[] = PostFinanceCheckoutHelper::cleanExceptionMessage($e->getMessage());
+                }
+            } else {
+                $backendController->errors[] = Tools::displayError('You do not have permission to delete this.');
+            }
+        }
     }
 }

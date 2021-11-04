@@ -31,13 +31,14 @@ class PostFinanceCheckoutBackendDefaultstrategy implements PostFinanceCheckoutBa
         );
     }
 
-    public function simplifiedRefund(array $postData) {
+    public function simplifiedRefund(array $postData)
+    {
         $cancelledItems = array();
         // count of items
         $quantity = 0;
         // cost of items
         $amount = 0;
-        foreach ($postData["cancel_product"] as $key=>$value) {
+        foreach ($postData["cancel_product"] as $key => $value) {
             if (strpos($key, 'quantity') !== false) {
                 $quantity += $value;
             }

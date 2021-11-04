@@ -9,11 +9,12 @@
  */
 jQuery(function ($) {
 
-    function isVersionGTE177(){
-        if(_PS_VERSION_ === undefined){
+    function isVersionGTE177()
+    {
+        if (_PS_VERSION_ === undefined) {
             return false;
         } else {
-           return _PS_VERSION_.startsWith('1.7.7');
+            return _PS_VERSION_.startsWith('1.7.7');
         }
     }
     

@@ -546,8 +546,8 @@ class PostFinanceCheckoutServiceTransaction extends PostFinanceCheckoutServiceAb
      *
      * @param Cart $cart
      * @return \PostFinanceCheckout\Sdk\Model\TransactionCreate
-	 * @throws \PostFinanceCheckoutExceptionInvalidtransactionamount
-	 */
+     * @throws \PostFinanceCheckoutExceptionInvalidtransactionamount
+     */
     protected function createTransactionFromCart(Cart $cart)
     {
         $spaceId = Configuration::get(PostFinanceCheckoutBasemodule::CK_SPACE_ID, null, $cart->id_shop_group, $cart->id_shop);
@@ -608,12 +608,12 @@ class PostFinanceCheckoutServiceTransaction extends PostFinanceCheckoutServiceAb
     /**
      * Assemble the transaction data for the given quote.
      *
-	 * @param \Cart                                                       $cart
-	 * @param \PostFinanceCheckout\Sdk\Model\AbstractTransactionPending $transaction
-	 *
-	 * @return \PostFinanceCheckout\Sdk\Model\AbstractTransactionPending
-	 * @throws \PostFinanceCheckoutExceptionInvalidtransactionamount
-	 */
+     * @param \Cart                                                       $cart
+     * @param \PostFinanceCheckout\Sdk\Model\AbstractTransactionPending $transaction
+     *
+     * @return \PostFinanceCheckout\Sdk\Model\AbstractTransactionPending
+     * @throws \PostFinanceCheckoutExceptionInvalidtransactionamount
+     */
     protected function assembleCartTransactionData(
         Cart $cart,
         \PostFinanceCheckout\Sdk\Model\AbstractTransactionPending $transaction

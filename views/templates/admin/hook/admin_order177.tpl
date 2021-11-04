@@ -150,7 +150,7 @@
 {if isset($voidUrl)}
 	var postFinanceCheckoutVoidUrl = "{$voidUrl|escape:'javascript':'UTF-8'}";
 {/if}
-{if isset($voidUrl)}
+{if isset($completionUrl)}
 	var postFinanceCheckoutCompletionUrl = "{$completionUrl|escape:'javascript':'UTF-8'}";
 {/if}
 {if isset($updateUrl)}

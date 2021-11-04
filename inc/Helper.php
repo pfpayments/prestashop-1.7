@@ -167,36 +167,36 @@ class PostFinanceCheckoutHelper
     /**
      * Cleans the given line items by ensuring uniqueness and introducing adjustment line items if necessary.
      *
-	 * @param \PostFinanceCheckout\Sdk\Model\LineItemCreate[] $lineItems
-	 * @param float $expectedSum
-	 * @param string $currencyCode
-	 *
-	 * @return \PostFinanceCheckout\Sdk\Model\LineItemCreate[]
-	 * @throws \PostFinanceCheckoutExceptionInvalidtransactionamount
-	 */
+     * @param \PostFinanceCheckout\Sdk\Model\LineItemCreate[] $lineItems
+     * @param float $expectedSum
+     * @param string $currencyCode
+     *
+     * @return \PostFinanceCheckout\Sdk\Model\LineItemCreate[]
+     * @throws \PostFinanceCheckoutExceptionInvalidtransactionamount
+     */
     public static function cleanupLineItems(array &$lineItems, $expectedSum, $currencyCode)
     {
         $effectiveSum = self::roundAmount(self::getTotalAmountIncludingTax($lineItems), $currencyCode);
         $roundedExpected = self::roundAmount($expectedSum, $currencyCode);
         $diff = $roundedExpected - $effectiveSum;
         if ($diff != 0) {
-        	if((int) Configuration::getGlobalValue(PostFinanceCheckoutBasemodule::CK_LINE_ITEM_CONSISTENCY)){
-				throw new PostFinanceCheckoutExceptionInvalidtransactionamount($effectiveSum, $roundedExpected);
-			}else{
-				$diffAmount = self::roundAmount($diff, $currencyCode);
-				$lineItem = (new \PostFinanceCheckout\Sdk\Model\LineItemCreate())
-					->setName(self::getModuleInstance()->l('Adjustment LineItem', 'helper'))
-					->setUniqueId('Adjustment-Line-Item')
-					->setSku('Adjustment-Line-Item')
-					->setQuantity(1);
-				/** @noinspection PhpParamsInspection */
-				$lineItem->setAmountIncludingTax($diffAmount)->setType(($diff > 0) ? \PostFinanceCheckout\Sdk\Model\LineItemType::FEE : \PostFinanceCheckout\Sdk\Model\LineItemType::DISCOUNT);
+            if ((int) Configuration::getGlobalValue(PostFinanceCheckoutBasemodule::CK_LINE_ITEM_CONSISTENCY)) {
+                throw new PostFinanceCheckoutExceptionInvalidtransactionamount($effectiveSum, $roundedExpected);
+            } else {
+                $diffAmount = self::roundAmount($diff, $currencyCode);
+                $lineItem = (new \PostFinanceCheckout\Sdk\Model\LineItemCreate())
+                    ->setName(self::getModuleInstance()->l('Adjustment LineItem', 'helper'))
+                    ->setUniqueId('Adjustment-Line-Item')
+                    ->setSku('Adjustment-Line-Item')
+                    ->setQuantity(1);
+                /** @noinspection PhpParamsInspection */
+                $lineItem->setAmountIncludingTax($diffAmount)->setType(($diff > 0) ? \PostFinanceCheckout\Sdk\Model\LineItemType::FEE : \PostFinanceCheckout\Sdk\Model\LineItemType::DISCOUNT);
 
-				if (!$lineItem->valid()) {
-					throw new \Exception('Adjustment LineItem payload invalid:' . json_encode($lineItem->listInvalidProperties()));
-				}
-				$lineItems[] = $lineItem;
-			}
+                if (!$lineItem->valid()) {
+                    throw new \Exception('Adjustment LineItem payload invalid:' . json_encode($lineItem->listInvalidProperties()));
+                }
+                $lineItems[] = $lineItem;
+            }
         }
 
         return self::ensureUniqueIds($lineItems);
@@ -206,10 +206,10 @@ class PostFinanceCheckoutHelper
      * Ensures uniqueness of the line items.
      *
      * @param \PostFinanceCheckout\Sdk\Model\LineItemCreate[] $lineItems
-	 *
+     *
      * @return \PostFinanceCheckout\Sdk\Model\LineItemCreate[]
-	 * @throws \Exception
-	 */
+     * @throws \Exception
+     */
     public static function ensureUniqueIds(array $lineItems)
     {
         $uniqueIds = array();
@@ -470,9 +470,9 @@ class PostFinanceCheckoutHelper
      * Sorts an array of PostFinanceCheckoutModelMethodconfiguration by their sort order
      *
      * @param PostFinanceCheckoutModelMethodconfiguration[] $configurations
-	 *
-	 * @return array
-	 */
+     *
+     * @return array
+     */
     public static function sortMethodConfiguration(array $configurations)
     {
         usort(
@@ -650,14 +650,14 @@ class PostFinanceCheckoutHelper
         return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
     }
     
-    public static function getMaxExecutionTime() {
+    public static function getMaxExecutionTime()
+    {
         $maxExecutionTime = ini_get('max_execution_time');
         
         // Returns the default value, in case the ini_get fails.
         if ($maxExecutionTime === null || empty($maxExecutionTime) || $maxExecutionTime < 0) {
             return 30;
-        }
-        else {
+        } else {
             return intval($maxExecutionTime);
         }
     }
