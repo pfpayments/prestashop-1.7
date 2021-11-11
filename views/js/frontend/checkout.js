@@ -15,6 +15,7 @@ jQuery(function ($) {
         payment_methods : {},
         configuration_id: null,
         cartHash: null,
+        processing: false,
 
 
         init : function () {
@@ -143,23 +144,37 @@ jQuery(function ($) {
         },
 
         process_submit_button : function (method_id) {
-            $('#payment-confirmation button').attr('disabled', true);
-            this.show_loading_spinner();
-            if (this.payment_methods[method_id].handler == null) {
-                this.create_order(method_id);
-                return;
+            if (!this.processing) {
+                this.disable_pay_button();
+                if (this.payment_methods[method_id].handler == null) {
+                    this.create_order(method_id);
+                    return;
+                }
+                this.payment_methods[method_id].handler.validate();
             }
-            this.payment_methods[method_id].handler.validate();
+        },
+
+        disable_pay_button : function () {
+            $('#payment-confirmation button').prop('disabled', true);
+            this.processing = true;
+            this.show_loading_spinner();
+        },
+
+        enable_pay_button : function (errors) {
+            $('#payment-confirmation button').prop('disabled', false);
+            this.processing = false;
+            this.hide_loading_spinner();
+            this.remove_existing_errors();
+            if (errors) {
+                this.show_new_errors(errors);
+            }
         },
 
         process_validation : function (method_id, validation_result) {
             if (validation_result.success) {
                 this.create_order(method_id);
             } else {
-                $('#payment-confirmation button').attr('disabled', false);
-                this.hide_loading_spinner();
-                this.remove_existing_errors();
-                this.show_new_errors(validation_result.errors);
+                this.enable_pay_button(validation_result.errors);
             }
         },
 
@@ -187,16 +202,10 @@ jQuery(function ($) {
                             return;
                         }
                     }
-                    $('#payment-confirmation button').attr('disabled', false);
-                    self.hide_loading_spinner();
-                    self.remove_existing_errors();
-                    self.show_new_errors(postfinancecheckoutMsgJsonError);
+                    self.enable_pay_button(postfinancecheckoutMsgJsonError);
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
-                    $('#payment-confirmation button').attr('disabled', false);
-                    self.hide_loading_spinner();
-                    self.remove_existing_errors();
-                    self.show_new_errors(postfinancecheckoutMsgJsonError);
+                    self.enable_pay_button(postfinancecheckoutMsgJsonError);
                 }
             });
 
