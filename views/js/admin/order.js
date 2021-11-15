@@ -14,8 +14,19 @@ jQuery(function ($) {
         if (_PS_VERSION_ === undefined) {
             return false;
         } else {
-            return _PS_VERSION_.startsWith('1.7.7');
+            return compareVersions(_PS_VERSION_, "1.7.7");
         }
+    }
+
+    function compareVersions (currentVersion, minVersion)
+    {
+        currentVersion = currentVersion.split('.');
+        minVersion = minVersion.split('.');
+        // we only care about the 3rd digit of the version as 1.8 will be a whole different kettle of fish
+        if (typeof currentVersion[2] === 'undefined') {
+            return false;
+        }
+        return (currentVersion[2] >= minVersion[2]) ? true : false;
     }
     
     function movePostFinanceCheckoutDocuments()
