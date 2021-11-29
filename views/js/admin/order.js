@@ -9,6 +9,53 @@
  */
 jQuery(function ($) {
 
+    function getOrderIdFromUrl(string) {
+        let urlSegment = string.split('postfinancecheckout')[1];
+        return urlSegment.split('/')[1]
+    }
+
+    function initialiseDocumentButtons() {
+        if ($('.grid-download-postfinancecheckout-invoice-row-link').length) {
+            $('.grid-download-packing-slip-row-link').click(function(e) {
+                e.preventDefault();
+                let id_order = getOrderIdFromUrl($(this).attr('href'));
+                window.open(postfinancecheckout_admin_token + "&action=postFinanceCheckoutPackingSlip&id_order=" + id_order, "_blank");
+            });
+        
+            $('.grid-download-postfinancecheckout-invoice-row-link').click(function(e) {
+                e.preventDefault();
+                let id_order = getOrderIdFromUrl($(this).attr('href'));
+                window.open(postfinancecheckout_admin_token + "&action=postFinanceCheckoutInvoice&id_order=" + id_order, "_blank");
+            });
+        
+            $('.grid-download-postfinancecheckout-invoice-row-link').each(function() {
+                let $this = $(this);
+                let $row = $this.closest('tr');
+                let isWPayment = "0";
+                let $paymentStatusCol = $row.find('.column-osname');
+                let isWPaymentCol = $row.find('.column-is_w_payment').html();
+                if (isWPaymentCol) {
+                    isWPayment = isWPaymentCol.trim();
+                }
+                let paymentStatusText = $paymentStatusCol.find('.btn').text();
+                if (!paymentStatusText.includes("Payment accepted") || isWPayment.includes("0")) {
+                    $row.find('.grid-download-postfinancecheckout-invoice-row-link').hide();
+                    $row.find('.grid-download-packing-slip-row-link').hide();
+                }
+            });
+        }
+    }
+
+    function hideIsWPaymentColumn() {
+        $('th').each(function() {
+            let $this = $(this);
+            if ($this.html().includes("is_w_payment")) {
+                $('table tr').find('td:eq(' + $this.index() + '),th:eq(' + $this.index() + ')').remove();
+                return false;
+            }
+        });
+    }
+
     function isVersionGTE177()
     {
         if (_PS_VERSION_ === undefined) {
@@ -378,6 +425,8 @@ jQuery(function ($) {
     {
         handlePostFinanceCheckoutLayoutChanges();
         registerPostFinanceCheckoutActions();
+        initialiseDocumentButtons();
+        hideIsWPaymentColumn();
     }
     
     init();

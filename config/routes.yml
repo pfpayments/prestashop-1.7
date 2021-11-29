@@ -1,0 +1,14 @@
+download_packing_slip:
+  path: postFinanceCheckout/{orderId}/packingslip
+  methods: [GET]
+  defaults:
+    _controller: PrestaShop\Module\PostFinanceCheckout\Controller\Admin\processPostFinanceCheckoutPackingSlip::processPostFinanceCheckoutPackingSlip
+  requirements:
+      orderId: \d+
+download_invoice:
+  path: postFinanceCheckout/{orderId}/invoice
+  methods: [GET]
+  defaults:
+    _controller: PrestaShop\Module\PostFinanceCheckout\Controller\Admin\processPostFinanceCheckoutInvoice::processPostFinanceCheckoutInvoice
+  requirements:
+      orderId: \d+

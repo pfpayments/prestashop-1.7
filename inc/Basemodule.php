@@ -10,6 +10,11 @@
  */
 
 use PrestaShop\PrestaShop\Core\Domain\Order\CancellationActionType;
+use PrestaShop\PrestaShop\Core\Grid\Action\Row\Type\LinkRowAction;
+use PrestaShop\PrestaShop\Core\Grid\Action\Type\SimpleGridAction;
+use PrestaShop\PrestaShop\Core\Grid\Definition\GridDefinition;
+use PrestaShop\PrestaShop\Core\Grid\Column\Type\Common\ActionColumn;
+use PrestaShop\PrestaShop\Core\Grid\Column\Type\DataColumn;
 
 /**
  * Base implementation for common features for PS1.6 and 1.7
@@ -123,7 +128,8 @@ class PostFinanceCheckoutBasemodule
 
     public static function installHooks(PostFinanceCheckout $module)
     {
-        return $module->registerHook('actionAdminControllerSetMedia') &&
+        return $module->registerHook('actionAdminControllerSetMedia') && $module->registerHook('actionOrderGridDefinitionModifier') &&
+            $module->registerHook('actionOrderGridQueryBuilderModifier') &&
             $module->registerHook('actionAdminOrdersControllerBefore') && $module->registerHook('actionMailSend') &&
             $module->registerHook('actionOrderEdited') && $module->registerHook('displayAdminAfterHeader') &&
             $module->registerHook('displayAdminOrder') && $module->registerHook('displayAdminOrderContentOrder') &&
@@ -1524,9 +1530,75 @@ class PostFinanceCheckoutBasemodule
         return $module->display(dirname(dirname(__FILE__)), 'hook/order_detail.tpl');
     }
 
+    public function hookActionOrderGridQueryBuilderModifier(PostFinanceCheckout $module, $params) {
+        $searchQueryBuilder = $params['search_query_builder'];
+
+        $searchQueryBuilder->addSelect(
+            'IF(wtransinfo.`order_id` IS NULL,0,1) AS `is_w_payment`'
+        );
+
+        $searchQueryBuilder->leftJoin(
+            'o',
+            '`' . pSQL(_DB_PREFIX_) . 'wle_transaction_info`',
+            'wtransinfo',
+            'wtransinfo.`order_id` = o.`id_order`'
+        );
+    }
+
+    public function hookActionOrderGridDefinitionModifier(PostFinanceCheckout $module, $params) {
+
+        $orderGridDefinition = $params['definition'];
+
+        $columns = $orderGridDefinition->getColumns();
+        // add columns
+        $newColumn = (new DataColumn('is_w_payment'))
+            ->setName('Is W Payment')
+            ->setOptions([
+                'field' => 'is_w_payment',
+            ]);
+        $columns->addAfter('payment', $newColumn);
+
+        /** @var RowActionCollectionInterface $actionsCollection */
+        $actionsCollection = Self::getActionsColumn($orderGridDefinition)->getOption('actions');
+        $actionsCollection->add(
+            (new LinkRowAction('download_packing_slip'))
+                ->setName("Download Packing Slip")
+                ->setIcon('picture_as_pdf')
+                ->setOptions([
+                    'route' => 'download_packing_slip',
+                    'route_param_name' => 'orderId',
+                    'route_param_field' => 'id_order',
+                    'use_inline_display' => true,
+                ])
+        );
+        $actionsCollection->add(
+            (new LinkRowAction('download_invoice'))
+                ->setName("Download PostFinanceCheckout Invoice")
+                ->setIcon('description')
+                ->setOptions([
+                    'route' => 'download_invoice',
+                    'route_param_name' => 'orderId',
+                    'route_param_field' => 'id_order',
+                    'use_inline_display' => true,
+                ])
+        );
+    }
+
+    private function getActionsColumn(GridDefinition $gridDefinition)
+    {
+        try {
+            return $gridDefinition->getColumnById('actions');
+        } catch (ColumnNotFoundException $e) {
+            // It is possible that not every grid will have actions column.
+            // In this case you can create a new column or throw exception depending on your needs
+            throw $e;
+        }
+    }
+
     public static function hookActionAdminControllerSetMedia(PostFinanceCheckout $module, $arr)
     {
         if (Tools::strtolower(Tools::getValue('controller')) == 'adminorders') {
+            Media::addJsDefL('postfinancecheckout_admin_token', $module->getContext()->link->getAdminLink('AdminPostFinanceCheckoutDocuments'));
             $module->getContext()->controller->addJS(
                 __PS_BASE_URI__ . 'modules/' . $module->name . '/views/js/admin/jAlert.min.js'
             );

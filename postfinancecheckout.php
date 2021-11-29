@@ -32,7 +32,7 @@ class PostFinanceCheckout extends PaymentModule
         $this->author = 'Customweb GmbH';
         $this->bootstrap = true;
         $this->need_instance = 0;
-        $this->version = '1.2.11';
+        $this->version = '1.2.12';
         $this->displayName = 'PostFinance Checkout';
         $this->description = $this->l('This PrestaShop module enables to process payments with %s.');
         $this->description = sprintf($this->description, 'PostFinance Checkout');
@@ -475,6 +475,16 @@ class PostFinanceCheckout extends PaymentModule
     public function hookActionOrderEdited($params)
     {
         PostFinanceCheckoutBasemodule::hookActionOrderEdited($this, $params);
+    }
+
+    public function hookActionOrderGridDefinitionModifier($params)
+    {
+        PostFinanceCheckoutBasemodule::hookActionOrderGridDefinitionModifier($this, $params);
+    }
+
+    public function hookActionOrderGridQueryBuilderModifier($params)
+    {
+        PostFinanceCheckoutBasemodule::hookActionOrderGridQueryBuilderModifier($this, $params);
     }
 
     public function hookActionProductCancel($params)
