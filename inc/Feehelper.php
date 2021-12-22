@@ -76,7 +76,7 @@ class PostFinanceCheckoutFeehelper
             $feeValues = self::getFeeValues($cart, $methodConfiguration);
 
             if ($feeValues['fee_total'] > 0) {
-                $cart->updateQty(1, $feeProductId, $defaultAttributeId);
+                $cart->updateQty(1, $feeProductId, $defaultAttributeId, false, 'up', 0, null, true, true);
                 $specificPrice = new SpecificPrice();
                 $specificPrice->id_product = (int) $feeProductId;
                 $specificPrice->id_product_attribute = (int) $defaultAttributeId;
