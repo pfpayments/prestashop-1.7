@@ -45,19 +45,19 @@ class PostFinanceCheckoutVersionadapter
     public static function isVoucherOnlyPostFinanceCheckout($postData)
     {
         if (version_compare(_PS_VERSION_, '1.7.7', '>=')) {
-			return
-				isset($postData['cancel_product']['voucher'])
-				&& isset($postData['cancel_product']['voucher_refund_type'])
-				&& $postData['cancel_product']['voucher'] == 1
-				&& $postData['cancel_product']['voucher_refund_type'] == 1
-				&& ! isset($postData['cancel_product']['postfinancecheckout_offline'])
-				&& ! isset($postData['cancel_product']['credit_slip'])
-				&& ! isset($postData['cancel_product']['restock']);
+	    return
+		isset($postData['cancel_product']['voucher'])
+		&& isset($postData['cancel_product']['voucher_refund_type'])
+		&& $postData['cancel_product']['voucher'] == 1
+		&& $postData['cancel_product']['voucher_refund_type'] == 1
+		&& ! isset($postData['cancel_product']['postfinancecheckout_offline'])
+		&& ! isset($postData['cancel_product']['credit_slip'])
+		&& ! isset($postData['cancel_product']['restock']);
         } else {
             return
-				isset($postData['generateDiscountRefund'])
-				&& ! isset($postData['reinjectQuantities'])
-				&& ! isset($postData['postfinancecheckout_offline']);
+		isset($postData['generateDiscountRefund'])
+		&& ! isset($postData['reinjectQuantities'])
+		&& ! isset($postData['postfinancecheckout_offline']);
         }
     }
 }
