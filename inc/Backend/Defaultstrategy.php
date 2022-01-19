@@ -1019,7 +1019,7 @@ class PostFinanceCheckoutBackendDefaultstrategy implements PostFinanceCheckoutBa
 
     public function isVoucherOnlyPostFinanceCheckout(Order $order, array $postData)
     {
-        return isset($postData['generateDiscount']) && ! isset($postData['postfinancecheckout_offline']);
+        return PostFinanceCheckoutVersionadapter::isVoucherOnlyPostFinanceCheckout($postData);
     }
 
     public function isCancelRequest(Order $order, array $postData)
