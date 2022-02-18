@@ -1559,7 +1559,10 @@ class PostFinanceCheckoutBasemodule
         $columns->addAfter('payment', $newColumn);
 
         /** @var RowActionCollectionInterface $actionsCollection */
-        $actionsCollection = Self::getActionsColumn($orderGridDefinition)->getOption('actions');
+        $actionsCollectionColumn = Self::getActionsColumn($orderGridDefinition);
+        $actionOptions = $actionsCollectionColumn->getOptions();
+        $actionsCollection = $actionOptions['actions'];
+
         $actionsCollection->add(
             (new LinkRowAction('download_packing_slip'))
                 ->setName("Download Packing Slip")
@@ -1584,10 +1587,22 @@ class PostFinanceCheckoutBasemodule
         );
     }
 
+    private function getColumnById( $gridDefinition, string $id)
+    {
+        /** @var ColumnInterface $column */
+        foreach ($gridDefinition->getColumns() as $column) {
+            if ($id === $column->getId()) {
+                return $column;
+            }
+        }
+
+        throw new ColumnNotFoundException(sprintf('Column with id "%s" not found', $id));
+    }
+
     private function getActionsColumn(GridDefinition $gridDefinition)
     {
         try {
-            return $gridDefinition->getColumnById('actions');
+            return self::getColumnById($gridDefinition, 'actions');
         } catch (ColumnNotFoundException $e) {
             // It is possible that not every grid will have actions column.
             // In this case you can create a new column or throw exception depending on your needs

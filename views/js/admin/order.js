@@ -13,22 +13,22 @@ jQuery(function ($) {
         let urlSegment = string.split('postfinancecheckout')[1];
         return urlSegment.split('/')[1]
     }
-
+    
     function initialiseDocumentButtons() {
-        if ($('.grid-download-postfinancecheckout-invoice-row-link').length) {
-            $('.grid-download-packing-slip-row-link').click(function(e) {
+        if ($('[data-original-title="Download PostFinanceCheckout Invoice"]').length) {
+            $('[data-original-title="Download Packing Slip"]').click(function(e) {
                 e.preventDefault();
                 let id_order = getOrderIdFromUrl($(this).attr('href'));
                 window.open(postfinancecheckout_admin_token + "&action=postFinanceCheckoutPackingSlip&id_order=" + id_order, "_blank");
             });
         
-            $('.grid-download-postfinancecheckout-invoice-row-link').click(function(e) {
+            $('[data-original-title="Download PostFinanceCheckout Invoice"]').click(function(e) {
                 e.preventDefault();
                 let id_order = getOrderIdFromUrl($(this).attr('href'));
                 window.open(postfinancecheckout_admin_token + "&action=postFinanceCheckoutInvoice&id_order=" + id_order, "_blank");
             });
         
-            $('.grid-download-postfinancecheckout-invoice-row-link').each(function() {
+            $('#order_grid_table tr').each(function() {
                 let $this = $(this);
                 let $row = $this.closest('tr');
                 let isWPayment = "0";
@@ -39,8 +39,8 @@ jQuery(function ($) {
                 }
                 let paymentStatusText = $paymentStatusCol.find('.btn').text();
                 if (!paymentStatusText.includes("Payment accepted") || isWPayment.includes("0")) {
-                    $row.find('.grid-download-postfinancecheckout-invoice-row-link').hide();
-                    $row.find('.grid-download-packing-slip-row-link').hide();
+                    $row.find('[data-original-title="Download PostFinanceCheckout Invoice"]').hide();
+                    $row.find('[data-original-title="Download Packing Slip"]').hide();
                 }
             });
         }
