@@ -743,7 +743,7 @@ class PostFinanceCheckoutBackendDefaultstrategy implements PostFinanceCheckoutBa
             $cart_rule->partial_use = 1;
             $cart_rule->active = 1;
 
-            $cart_rule->reduction_amount = $parsedData['$amount'];
+            $cart_rule->reduction_amount = $this->getRefundTotal($parsedData);
             $cart_rule->reduction_tax = $order->getTaxCalculationMethod() != PS_TAX_EXC;
             $cart_rule->minimum_amount_currency = $order->id_currency;
             $cart_rule->reduction_currency = $order->id_currency;
