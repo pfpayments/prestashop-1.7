@@ -51,8 +51,7 @@ class PostFinanceCheckoutVersionadapter
 		&& $postData['cancel_product']['voucher'] == 1
 		&& $postData['cancel_product']['voucher_refund_type'] == 1
 		&& ! isset($postData['cancel_product']['postfinancecheckout_offline'])
-		&& ! isset($postData['cancel_product']['credit_slip'])
-		&& ! isset($postData['cancel_product']['restock']);
+		&& ! isset($postData['cancel_product']['credit_slip']);
         } else {
             return
 		isset($postData['generateDiscountRefund'])
