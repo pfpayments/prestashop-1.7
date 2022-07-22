@@ -32,7 +32,7 @@ class PostFinanceCheckout extends PaymentModule
         $this->author = 'Customweb GmbH';
         $this->bootstrap = true;
         $this->need_instance = 0;
-        $this->version = '1.2.26';
+        $this->version = '1.2.27';
         $this->displayName = 'PostFinance Checkout';
         $this->description = $this->l('This PrestaShop module enables to process payments with %s.');
         $this->description = sprintf($this->description, 'PostFinance Checkout');
@@ -145,6 +145,7 @@ class PostFinanceCheckout extends PaymentModule
         $output .= PostFinanceCheckoutBasemodule::handleSaveAll($this);
         $output .= PostFinanceCheckoutBasemodule::handleSaveApplication($this);
         $output .= PostFinanceCheckoutBasemodule::handleSaveEmail($this);
+        $output .= PostFinanceCheckoutBasemodule::handleSaveCartRecreation($this);
         $output .= PostFinanceCheckoutBasemodule::handleSaveFeeItem($this);
         $output .= PostFinanceCheckoutBasemodule::handleSaveDownload($this);
         $output .= PostFinanceCheckoutBasemodule::handleSaveSpaceViewId($this);
@@ -157,6 +158,7 @@ class PostFinanceCheckout extends PaymentModule
     {
         return array(
             PostFinanceCheckoutBasemodule::getEmailForm($this),
+            PostFinanceCheckoutBasemodule::getCartRecreationForm($this),
             PostFinanceCheckoutBasemodule::getFeeForm($this),
             PostFinanceCheckoutBasemodule::getDocumentForm($this),
             PostFinanceCheckoutBasemodule::getSpaceViewIdForm($this),
@@ -169,6 +171,7 @@ class PostFinanceCheckout extends PaymentModule
         return array_merge(
             PostFinanceCheckoutBasemodule::getApplicationConfigValues($this),
             PostFinanceCheckoutBasemodule::getEmailConfigValues($this),
+            PostFinanceCheckoutBasemodule::getCartRecreationConfigValues($this),
             PostFinanceCheckoutBasemodule::getFeeItemConfigValues($this),
             PostFinanceCheckoutBasemodule::getDownloadConfigValues($this),
             PostFinanceCheckoutBasemodule::getSpaceViewIdConfigValues($this),

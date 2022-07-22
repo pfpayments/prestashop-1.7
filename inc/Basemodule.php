@@ -34,6 +34,8 @@ class PostFinanceCheckoutBasemodule
 
     const CK_MAIL = 'PFC_SHOP_EMAIL';
 
+    const CK_CART_RECREATION = 'PFC_CART_RECREATION';
+
     const CK_INVOICE = 'PFC_INVOICE_DOWNLOAD';
 
     const CK_PACKING_SLIP = 'PFC_PACKING_SLIP_DOWNLOAD';
@@ -143,6 +145,7 @@ class PostFinanceCheckoutBasemodule
     public static function installConfigurationValues()
     {
         return Configuration::updateGlobalValue(self::CK_MAIL, true) &&
+            Configuration::updateGlobalValue(self::CK_CART_RECREATION, true) &&
             Configuration::updateGlobalValue(self::CK_INVOICE, true) &&
             Configuration::updateGlobalValue(self::CK_PACKING_SLIP, true) &&
             Configuration::updateGlobalValue(self::CK_LINE_ITEM_CONSISTENCY, true);
@@ -156,6 +159,7 @@ class PostFinanceCheckoutBasemodule
             Configuration::deleteByName(self::CK_SPACE_ID) &&
             Configuration::deleteByName(self::CK_SPACE_VIEW_ID) &&
             Configuration::deleteByName(self::CK_MAIL) &&
+            Configuration::deleteByName(self::CK_CART_RECREATION) &&
             Configuration::deleteByName(self::CK_INVOICE) &&
             Configuration::deleteByName(self::CK_PACKING_SLIP) &&
             Configuration::deleteByName(self::CK_LINE_ITEM_CONSISTENCY) &&
@@ -289,6 +293,7 @@ class PostFinanceCheckoutBasemodule
             self::CK_SPACE_ID,
             self::CK_SPACE_VIEW_ID,
             self::CK_MAIL,
+            self::CK_CART_RECREATION,
             self::CK_INVOICE,
             self::CK_PACKING_SLIP,
             self::CK_LINE_ITEM_CONSISTENCY,
@@ -340,6 +345,22 @@ class PostFinanceCheckoutBasemodule
                 if (! empty($error)) {
                     $output .= $module->displayError($error);
                 }
+            }
+        }
+        return $output;
+    }
+
+    public static function handleSaveCartRecreation(PostFinanceCheckout $module)
+    {
+        $output = "";
+        if (Tools::isSubmit('submit' . $module->name . '_cart_recreation')) {
+            if (! $module->getContext()->shop->isFeatureActive() || $module->getContext()->shop->getContext() == Shop::CONTEXT_SHOP) {
+                Configuration::updateValue(self::CK_CART_RECREATION, Tools::getValue(self::CK_CART_RECREATION));
+                $output .= $module->displayConfirmation($module->l('Settings updated', 'basemodule'));
+            } else {
+                $output .= $module->displayError(
+                    $module->l('You can not store the configuration for all Shops or a Shop Group.', 'basemodule')
+                );
             }
         }
         return $output;
@@ -614,6 +635,57 @@ class PostFinanceCheckoutBasemodule
         }
         return $values;
     }
+    
+    public static function getCartRecreationForm(PostFinanceCheckout $module)
+    {
+        $cartRecreationConfig = array(
+            array(
+                'type' => 'switch',
+                'label' => $module->l('Enable Cart Recreation?', 'basemodule'),
+                'name' => self::CK_CART_RECREATION,
+                'is_bool' => true,
+                'values' => array(
+                    array(
+                        'id' => 'active_on',
+                        'value' => 1,
+                        'label' => $module->l('Enabled', 'basemodule')
+                    ),
+                    array(
+                        'id' => 'active_off',
+                        'value' => 0,
+                        'label' => $module->l('Disabled', 'basemodule')
+                    )
+                ),
+                'desc' => $module->l('By enabling cart recreation the module will recreate the cart before the payment is authorized; 
+                    upon a failed transaction the cart will be restored for end users. 
+                    If this is disabled, the cart will be emptied on a failed transaction.', 'basemodule'),
+                'lang' => false
+            )
+        );
+
+        return array(
+            'legend' => array(
+                'title' => $module->l('Cart Recreation Settings', 'basemodule')
+            ),
+            'input' => $cartRecreationConfig,
+            'buttons' => array(
+                array(
+                    'title' => $module->l('Save All', 'basemodule'),
+                    'class' => 'pull-right',
+                    'type' => 'input',
+                    'icon' => 'process-icon-save',
+                    'name' => 'submit' . $module->name . '_all'
+                ),
+                array(
+                    'title' => $module->l('Save', 'basemodule'),
+                    'class' => 'pull-right',
+                    'type' => 'input',
+                    'icon' => 'process-icon-save',
+                    'name' => 'submit' . $module->name . '_cart_recreation'
+                )
+            )
+        );
+    }
 
     public static function getEmailForm(PostFinanceCheckout $module)
     {
@@ -662,6 +734,15 @@ class PostFinanceCheckoutBasemodule
                 )
             )
         );
+    }
+
+    public static function getCartRecreationConfigValues(PostFinanceCheckout $module)
+    {
+        $values = array();
+        if (! $module->getContext()->shop->isFeatureActive() || $module->getContext()->shop->getContext() == Shop::CONTEXT_SHOP) {
+            $values[self::CK_CART_RECREATION] = (bool) Configuration::get(self::CK_CART_RECREATION);
+        }
+        return $values;
     }
 
     public static function getEmailConfigValues(PostFinanceCheckout $module)
@@ -1318,65 +1399,70 @@ class PostFinanceCheckoutBasemodule
             PostFinanceCheckoutHelper::startDBTransaction();
             $methodConfiguration = null;
             try {
-                $originalCart = new Cart($id_cart);
+                $cart = $originalCart = new Cart($id_cart);
 
-                // If transaction is no longer pending we stop here and the customer has to go through the checkout
-                // again
-                PostFinanceCheckoutServiceTransaction::instance()->checkTransactionPending($originalCart);
-                $rs = $originalCart->duplicate();
-                if (! isset($rs['success']) || ! isset($rs['cart'])) {
-                    $error = 'The cart duplication failed. May be some module prevents it.';
-                    PrestaShopLogger::addLog($error, 3, '0000002', 'PaymentModule', (int) $module->id);
-                    throw new Exception("There was a technical issue, please try again.");
-                }
-                $cart = $rs['cart'];
-                if (! ($cart instanceof Cart)) {
-                    $error = 'The duplicated cart is not of type "Cart".';
-                    PrestaShopLogger::addLog($error, 3, '0000002', 'PaymentModule', (int) $module->id);
-                    throw new Exception("There was a technical issue, please try again.");
-                }
-                foreach ($originalCart->getCartRules() as $rule) {
-                    $ruleObject = $rule['obj'];
-                    // Because free gift cart rules adds a product to the order, the product is already in the
-                    // duplicated order,
-                    // before we can add the cart rule to the new cart we have to remove the existing gift.
-                    if ((int) $ruleObject->gift_product) { // We use the same check as the shop, to get the gift product
-                        $cart->updateQty(
-                            1,
-                            $ruleObject->gift_product,
-                            $ruleObject->gift_product_attribute,
-                            false,
-                            'down',
-                            0,
-                            null,
-                            false
-                        );
+                $isCartRecreation = Configuration::get(self::CK_CART_RECREATION, null, null, $cart->id_shop);
+
+                if ($isCartRecreation) {
+
+                    // If transaction is no longer pending we stop here and the customer has to go through the checkout
+                    // again
+                    PostFinanceCheckoutServiceTransaction::instance()->checkTransactionPending($originalCart);
+                    $rs = $originalCart->duplicate();
+                    if (! isset($rs['success']) || ! isset($rs['cart'])) {
+                        $error = 'The cart duplication failed. May be some module prevents it.';
+                        PrestaShopLogger::addLog($error, 3, '0000002', 'PaymentModule', (int) $module->id);
+                        throw new Exception("There was a technical issue, please try again.");
                     }
-                    $cart->addCartRule($ruleObject->id);
-                }
-                // Update customizations
-                $customizationCollection = new PrestaShopCollection('Customization');
-                $customizationCollection->where('id_cart', '=', (int) $cart->id);
-                foreach ($customizationCollection->getResults() as $customization) {
-                    $customization->id_address_delivery = $cart->id_address_delivery;
-                    $customization->save();
-                }
+                    $cart = $rs['cart'];
+                    if (! ($cart instanceof Cart)) {
+                        $error = 'The duplicated cart is not of type "Cart".';
+                        PrestaShopLogger::addLog($error, 3, '0000002', 'PaymentModule', (int) $module->id);
+                        throw new Exception("There was a technical issue, please try again.");
+                    }
+                    foreach ($originalCart->getCartRules() as $rule) {
+                        $ruleObject = $rule['obj'];
+                        // Because free gift cart rules adds a product to the order, the product is already in the
+                        // duplicated order,
+                        // before we can add the cart rule to the new cart we have to remove the existing gift.
+                        if ((int) $ruleObject->gift_product) { // We use the same check as the shop, to get the gift product
+                            $cart->updateQty(
+                                1,
+                                $ruleObject->gift_product,
+                                $ruleObject->gift_product_attribute,
+                                false,
+                                'down',
+                                0,
+                                null,
+                                false
+                            );
+                        }
+                        $cart->addCartRule($ruleObject->id);
+                    }
+                    // Update customizations
+                    $customizationCollection = new PrestaShopCollection('Customization');
+                    $customizationCollection->where('id_cart', '=', (int) $cart->id);
+                    foreach ($customizationCollection->getResults() as $customization) {
+                        $customization->id_address_delivery = $cart->id_address_delivery;
+                        $customization->save();
+                    }
 
-                // Updated all specific Prices to the duplicated cart
-                $specificPriceCollection = new PrestaShopCollection('SpecificPrice');
-                $specificPriceCollection->where('id_cart', '=', (int) $id_cart);
-                foreach ($specificPriceCollection->getResults() as $specificPrice) {
-                    $specificPrice->id_cart = $cart->id;
-                    $specificPrice->save();
-                }
+                    // Updated all specific Prices to the duplicated cart
+                    $specificPriceCollection = new PrestaShopCollection('SpecificPrice');
+                    $specificPriceCollection->where('id_cart', '=', (int) $id_cart);
+                    foreach ($specificPriceCollection->getResults() as $specificPrice) {
+                        $specificPrice->id_cart = $cart->id;
+                        $specificPrice->save();
+                    }
 
-                // Copy messages to new cart
-                $messageCollection = new PrestaShopCollection('Message');
-                $messageCollection->where('id_cart', '=', (int) $id_cart);
-                foreach ($messageCollection->getResults() as $orderMessage) {
-                    $duplicateMessage = $orderMessage->duplicateObject();
-                    $duplicateMessage->id_cart = $cart->id;
-                    $duplicateMessage->save();
+                    // Copy messages to new cart
+                    $messageCollection = new PrestaShopCollection('Message');
+                    $messageCollection->where('id_cart', '=', (int) $id_cart);
+                    foreach ($messageCollection->getResults() as $orderMessage) {
+                        $duplicateMessage = $orderMessage->duplicateObject();
+                        $duplicateMessage->id_cart = $cart->id;
+                        $duplicateMessage->save();
+                    }
                 }
 
                 
