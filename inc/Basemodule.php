@@ -81,6 +81,8 @@ class PostFinanceCheckoutBasemodule
     const TOTAL_MODE_WITHOUT_SHIPPING_INC = 4;
 
     const TOTAL_MODE_WITHOUT_SHIPPING_EXC = 5;
+
+    const CK_RUN_LIMIT = 'PFC_RUN_LIMIT';
         
     private static $recordMailMessages = false;
 
@@ -176,7 +178,8 @@ class PostFinanceCheckoutBasemodule
             Configuration::deleteByName(self::CK_STATUS_COMPLETED) &&
             Configuration::deleteByName(self::CK_STATUS_MANUAL) &&
             Configuration::deleteByName(self::CK_STATUS_DECLINED) &&
-            Configuration::deleteByName(self::CK_STATUS_FULFILL);
+            Configuration::deleteByName(self::CK_STATUS_FULFILL) &&
+            Configuration::deleteByName(self::CK_RUN_LIMIT);
     }
 
 
@@ -309,7 +312,8 @@ class PostFinanceCheckoutBasemodule
             self::CK_STATUS_COMPLETED,
             self::CK_STATUS_MANUAL,
             self::CK_STATUS_DECLINED,
-            self::CK_STATUS_FULFILL
+            self::CK_STATUS_FULFILL,
+            self::CK_RUN_LIMIT,
         );
     }
 
@@ -449,6 +453,28 @@ class PostFinanceCheckoutBasemodule
                 Configuration::updateValue(self::CK_STATUS_MANUAL, Tools::getValue(self::CK_STATUS_MANUAL));
                 Configuration::updateValue(self::CK_STATUS_DECLINED, Tools::getValue(self::CK_STATUS_DECLINED));
                 Configuration::updateValue(self::CK_STATUS_FULFILL, Tools::getValue(self::CK_STATUS_FULFILL));
+                $output .= $module->displayConfirmation($module->l('Settings updated', 'basemodule'));
+            } else {
+                $output .= $module->displayError(
+                    $module->l('You can not store the configuration for all Shops or a Shop Group.', 'basemodule')
+                );
+            }
+        }
+        return $output;
+    }
+
+    /**
+     * Stores de configuration values set for the cron settings form.
+     *
+     * @param Wallee $module
+     * @return string
+     */
+    public static function handleSaveCronSettings(PostFinanceCheckout $module)
+    {
+        $output = "";
+        if (Tools::isSubmit('submit' . $module->name . '_email')) {
+            if (! $module->getContext()->shop->isFeatureActive() || $module->getContext()->shop->getContext() == Shop::CONTEXT_SHOP) {
+                Configuration::updateValue(self::CK_RUN_LIMIT, Tools::getValue(self::CK_RUN_LIMIT));
                 $output .= $module->displayConfirmation($module->l('Settings updated', 'basemodule'));
             } else {
                 $output .= $module->displayError(
@@ -1225,6 +1251,67 @@ class PostFinanceCheckoutBasemodule
             $values[self::CK_STATUS_MANUAL] = (int) Configuration::get(self::CK_STATUS_MANUAL);
             $values[self::CK_STATUS_DECLINED] = (int) Configuration::get(self::CK_STATUS_DECLINED);
             $values[self::CK_STATUS_FULFILL] = (int) Configuration::get(self::CK_STATUS_FULFILL);
+        }
+        return $values;
+    }
+
+    /**
+     * Gets a form with cron configuration settings.
+     *
+     * @param Wallee $module
+     * @return mixed[]
+     */
+    public static function getCronSettingsForm(PostFinanceCheckout $module) {
+        $cronSettings = array(
+            array(
+                'type' => 'text',
+                'label' => $module->l('Cron time limit', 'basemodule'),
+                'name' => self::CK_RUN_LIMIT,
+                'required' => false,
+                'col' => 3,
+                'lang' => false,
+                'desc' => $module->l(
+                    'Input the limit that the cron task will run, in seconds. Default: unlimited.',
+                    'basemodule'
+                ),
+            ),
+        );
+    
+        return array(
+            'legend' => array(
+                'title' => $module->l('Cron Settings', 'basemodule')
+            ),
+            'input' => $cronSettings,
+            'buttons' => array(
+                array(
+                    'title' => $module->l('Save All', 'basemodule'),
+                    'class' => 'pull-right',
+                    'type' => 'input',
+                    'icon' => 'process-icon-save',
+                    'name' => 'submit' . $module->name . '_all'
+                ),
+                array(
+                    'title' => $module->l('Save', 'basemodule'),
+                    'class' => 'pull-right',
+                    'type' => 'input',
+                    'icon' => 'process-icon-save',
+                    'name' => 'submit' . $module->name . '_email'
+                )
+            )
+        );
+    }
+
+    /**
+     * Returns an array with the configuration values for the cron settings.
+     *
+     * @param Wallee $module
+     * @return mixed[]
+     */
+    public static function getCronSettingsConfigValues(PostFinanceCheckout $module)
+    {
+        $values = array();
+        if (! $module->getContext()->shop->isFeatureActive() || $module->getContext()->shop->getContext() == Shop::CONTEXT_SHOP) {
+            $values[self::CK_RUN_LIMIT] = Configuration::get(self::CK_RUN_LIMIT);
         }
         return $values;
     }

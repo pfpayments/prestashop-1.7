@@ -19,7 +19,7 @@ class PostFinanceCheckoutCronModuleFrontController extends ModuleFrontController
     {
         ob_end_clean();
         // Return request but keep executing
-        set_time_limit(0);
+        set_time_limit(Configuration::get(PostFinanceCheckoutBasemodule::CK_RUN_LIMIT, null, 0, 0, 0));
         ignore_user_abort(true);
         ob_start();
         if (session_id()) {

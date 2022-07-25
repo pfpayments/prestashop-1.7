@@ -32,7 +32,7 @@ class PostFinanceCheckout extends PaymentModule
         $this->author = 'Customweb GmbH';
         $this->bootstrap = true;
         $this->need_instance = 0;
-        $this->version = '1.2.27';
+        $this->version = '1.2.28';
         $this->displayName = 'PostFinance Checkout';
         $this->description = $this->l('This PrestaShop module enables to process payments with %s.');
         $this->description = sprintf($this->description, 'PostFinance Checkout');
@@ -150,6 +150,7 @@ class PostFinanceCheckout extends PaymentModule
         $output .= PostFinanceCheckoutBasemodule::handleSaveDownload($this);
         $output .= PostFinanceCheckoutBasemodule::handleSaveSpaceViewId($this);
         $output .= PostFinanceCheckoutBasemodule::handleSaveOrderStatus($this);
+        $output .= PostFinanceCheckoutBasemodule::handleSaveCronSettings($this);
         $output .= PostFinanceCheckoutBasemodule::displayHelpButtons($this);
         return $output . PostFinanceCheckoutBasemodule::displayForm($this);
     }
@@ -162,7 +163,8 @@ class PostFinanceCheckout extends PaymentModule
             PostFinanceCheckoutBasemodule::getFeeForm($this),
             PostFinanceCheckoutBasemodule::getDocumentForm($this),
             PostFinanceCheckoutBasemodule::getSpaceViewIdForm($this),
-            PostFinanceCheckoutBasemodule::getOrderStatusForm($this)
+            PostFinanceCheckoutBasemodule::getOrderStatusForm($this),
+            PostFinanceCheckoutBasemodule::getCronSettingsForm($this),
         );
     }
 
@@ -175,7 +177,8 @@ class PostFinanceCheckout extends PaymentModule
             PostFinanceCheckoutBasemodule::getFeeItemConfigValues($this),
             PostFinanceCheckoutBasemodule::getDownloadConfigValues($this),
             PostFinanceCheckoutBasemodule::getSpaceViewIdConfigValues($this),
-            PostFinanceCheckoutBasemodule::getOrderStatusConfigValues($this)
+            PostFinanceCheckoutBasemodule::getOrderStatusConfigValues($this),
+            PostFinanceCheckoutBasemodule::getCronSettingsConfigValues($this)
         );
     }
 
