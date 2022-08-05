@@ -141,7 +141,8 @@ class PostFinanceCheckoutBasemodule
             $module->registerHook('displayAdminOrderTabContent') &&
             $module->registerHook('displayAdminOrderMain') && $module->registerHook('displayAdminOrderTabLink') &&
             $module->registerHook('displayBackOfficeHeader') && $module->registerHook('displayOrderDetail') &&
-            $module->registerHook('actionProductCancel') && $module->registerHook('postFinanceCheckoutSettingsChanged');
+            $module->registerHook('actionProductCancel') && $module->registerHook('postFinanceCheckoutSettingsChanged') &&
+            $module->registerHook('actionOrderSlipAdd');
     }
 
     public static function installConfigurationValues()
@@ -1834,10 +1835,9 @@ class PostFinanceCheckoutBasemodule
         }
         self::handleVoucherAddRequest($module);
         self::handleVoucherDeleteRequest($module);
-        self::handleRefundRequest($module);
+        // self::handleRefundRequest($module);
         self::handleCancelProductRequest($module);
     }
-
 
     private static function handleVoucherAddRequest(PostFinanceCheckout $module)
     {
