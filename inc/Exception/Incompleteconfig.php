@@ -14,4 +14,17 @@
  */
 class PostFinanceCheckoutExceptionIncompleteconfig extends Exception
 {
+    /**
+     * Constructs a PostFinanceCheckoutExceptionIncompleteconfig object.
+     *
+     * @param string $message 
+     *   The message that this exception will show.
+     * @param integer $code 
+     *   Exception's code number.
+     * @param Throwable|null $previous
+     *   The previously thrown exception.
+     */
+    public function __construct($message = "The configuration is not complete", int $code = 0, ?Throwable $previous = null) {
+        parent::__construct($message, $code, $previous);
+    }
 }
