@@ -117,6 +117,14 @@ class PostFinanceCheckoutBasemodule
 
     public function checkRequirements(PostFinanceCheckout $module)
     {
+        if (!Module::isInstalled('mailhook')) {
+            $module->addError(
+                Tools::displayError(
+                    'The module mailhook is required.'
+                )
+            );
+            return false;
+        }
         try {
             \PostFinanceCheckout\Sdk\Http\HttpClientFactory::getClient();
         } catch (Exception $e) {
