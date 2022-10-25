@@ -11,6 +11,10 @@
 
 class PostFinanceCheckoutHelper
 {
+	public const SHOP_SYSTEM = 'x-meta-shop-system';
+	public const SHOP_SYSTEM_VERSION = 'x-meta-shop-system-version';
+	public const SHOP_SYSTEM_AND_VERSION = 'x-meta-shop-system-and-version';
+
     private static $apiClient;
 
     /**
@@ -41,6 +45,9 @@ class PostFinanceCheckoutHelper
             if (! empty($userId) && ! empty($userKey)) {
                 self::$apiClient = new \PostFinanceCheckout\Sdk\ApiClient($userId, $userKey);
                 self::$apiClient->setBasePath(self::getBaseGatewayUrl() . '/api');
+                foreach (self::getDefaultHeaderData() as $key => $value) {
+                    self::$apiClient->addDefaultHeader($key, $value);
+                }
             } else {
                 throw new PostFinanceCheckoutExceptionIncompleteconfig();
             }
@@ -661,4 +668,18 @@ class PostFinanceCheckoutHelper
             return intval($maxExecutionTime);
         }
     }
+
+	/**
+	 * @return array
+	 */
+	protected static function getDefaultHeaderData()
+	{
+		$shop_version = _PS_VERSION_;
+		[$major_version, $minor_version, $_] = explode('.', $shop_version, 3);
+		return [
+			self::SHOP_SYSTEM             => 'prestashop',
+			self::SHOP_SYSTEM_VERSION     => $shop_version,
+			self::SHOP_SYSTEM_AND_VERSION => 'prestashop-' . $major_version . '.' . $minor_version,
+		];
+	}
 }
