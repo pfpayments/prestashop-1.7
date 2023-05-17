@@ -32,7 +32,7 @@ class PostFinanceCheckout extends PaymentModule
         $this->author = 'Customweb GmbH';
         $this->bootstrap = true;
         $this->need_instance = 0;
-        $this->version = '1.2.34';
+        $this->version = '1.2.35';
         $this->displayName = 'PostFinance Checkout';
         $this->description = $this->l('This PrestaShop module enables to process payments with %s.');
         $this->description = sprintf($this->description, 'PostFinance Checkout');
@@ -448,23 +448,27 @@ class PostFinanceCheckout extends PaymentModule
         return PostFinanceCheckoutBasemodule::hookDisplayAdminOrderMain($this, $params);
     }
 
-    public function hookActionOrderSlipAdd($params)
+    /**
+     * This hook triggers after submitting the form of Partial Refund.
+     *
+     * @param [type] $params
+     * @return void
+     */
+    public function hookActionAfterUpdateCancelProductFormHandler($params)
     {
-        if (version_compare(_PS_VERSION_, '1.7.7', '>=')) {
+        // We are only interested in processing here a partial refund that involves shipping costs.
+        // Other partial refunds (normal product line items) are processed in hookActionProductCancel.
+        if (!empty($params['route']) && $params['route'] == "admin_orders_partial_refund" &&
+            !empty($params["form_data"]["shipping_amount"]) && $params["form_data"]["shipping_amount"] != "0.00" &&
+            !empty($params['id']) && is_int($params['id']) && $params['id'] > 0) {
+
+            $order_id = $params['id'];
+            $order = new Order((int) $order_id);
             $refundParameters = Tools::getAllValues();
 
-            $order = $params['order'];
-
-            if(!Validate::isLoadedObject($order) || $order->module != $this->name) {
-                $idOrder = Tools::getValue('id_order');
-                if (!$idOrder) {
-                    $order = $params['order'];
-                    $idOrder = (int)$order->id;
-                }
-                $order = new Order((int) $idOrder);
-                if (! Validate::isLoadedObject($order) || $order->module != $module->name) {
-                    return;
-                } 
+            if (!Validate::isLoadedObject($order) || $order->module != $this->name) {
+                // Only process when our plugin is involved.
+                return;
             }
 
             $strategy = PostFinanceCheckoutBackendStrategyprovider::getStrategy();
@@ -477,23 +481,12 @@ class PostFinanceCheckout extends PaymentModule
             $refundParameters['partialRefund'] = true;
 
             $backendController = Context::getContext()->controller;
-            $editAccess = 0;
-
-            $access = Profile::getProfileAccess(
-                Context::getContext()->employee->id_profile,
-                (int) Tab::getIdFromClassName('AdminOrders')
-            );
-            $editAccess = isset($access['edit']) && $access['edit'] == 1;
-
-            if ($editAccess) {
-                try {
-                    $parsedData = $strategy->simplifiedRefund($refundParameters);
-                    PostFinanceCheckoutServiceRefund::instance()->executeRefund($order, $parsedData);
-                } catch (Exception $e) {
-                    $backendController->errors[] = PostFinanceCheckoutHelper::cleanExceptionMessage($e->getMessage());
-                }
-            } else {
-                $backendController->errors[] = Tools::displayError('You do not have permission to delete this.');
+            try {
+                $parsedData = $strategy->simplifiedRefund($refundParameters);
+                PostFinanceCheckoutServiceRefund::instance()->executeRefund($order, $parsedData);
+            }
+            catch (Exception $e) {
+                $backendController->errors[] = PostFinanceCheckoutHelper::cleanExceptionMessage($e->getMessage());
             }
         }
     }

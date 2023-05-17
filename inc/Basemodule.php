@@ -150,7 +150,7 @@ class PostFinanceCheckoutBasemodule
             $module->registerHook('displayAdminOrderMain') && $module->registerHook('displayAdminOrderTabLink') &&
             $module->registerHook('displayBackOfficeHeader') && $module->registerHook('displayOrderDetail') &&
             $module->registerHook('actionProductCancel') && $module->registerHook('postFinanceCheckoutSettingsChanged') &&
-            $module->registerHook('actionOrderSlipAdd');
+            $module->registerHook('actionAfterUpdateCancelProductFormHandler');
     }
 
     public static function installConfigurationValues()

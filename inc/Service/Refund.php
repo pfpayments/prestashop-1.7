@@ -47,6 +47,16 @@ class PostFinanceCheckoutServiceRefund extends PostFinanceCheckoutServiceAbstrac
         }
     }
 
+    /**
+     * Executes the refund, saving it in the database (via database transaction)
+     * and then sending the refund information to the portal.
+     *
+     * @param Order $order
+     * @param array $parsedParameters
+     * @return void
+     * 
+     * @see hookActionProductCancel
+     */
     public function executeRefund(Order $order, array $parsedParameters)
     {
         $currentRefundJob = null;
@@ -177,6 +187,15 @@ class PostFinanceCheckoutServiceRefund extends PostFinanceCheckoutServiceAbstrac
         }
     }
 
+    /**
+     * This functionality is called from a webhook, triggered by the portal.
+     * Updates the status of the order in the shop.
+     *
+     * @param [type] $refundJobId
+     * @return void
+     * 
+     * @see PostFinanceCheckoutWebhookRefund::process
+     */
     public function applyRefundToShop($refundJobId)
     {
         $refundJob = new PostFinanceCheckoutModelRefundjob($refundJobId);
