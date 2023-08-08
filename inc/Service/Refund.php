@@ -54,7 +54,7 @@ class PostFinanceCheckoutServiceRefund extends PostFinanceCheckoutServiceAbstrac
      * @param Order $order
      * @param array $parsedParameters
      * @return void
-     * 
+     *
      * @see hookActionProductCancel
      */
     public function executeRefund(Order $order, array $parsedParameters)
@@ -111,7 +111,7 @@ class PostFinanceCheckoutServiceRefund extends PostFinanceCheckoutServiceAbstrac
             $refundJob->setRefundParameters($parsedParameters);
             $refundJob->save();
             // validate Refund Job
-            $this->createRefundObject($refundJob);
+            // $this->createRefundObject($refundJob);
             $currentRefundJob = $refundJob->getId();
             PostFinanceCheckoutHelper::commitDBTransaction();
         } catch (Exception $e) {
@@ -193,7 +193,7 @@ class PostFinanceCheckoutServiceRefund extends PostFinanceCheckoutServiceAbstrac
      *
      * @param [type] $refundJobId
      * @return void
-     * 
+     *
      * @see PostFinanceCheckoutWebhookRefund::process
      */
     public function applyRefundToShop($refundJobId)
@@ -321,7 +321,7 @@ class PostFinanceCheckoutServiceRefund extends PostFinanceCheckoutServiceAbstrac
         $type = $strategy->getPostFinanceCheckoutRefundType($parsedData);
 
         $reductions = $strategy->createReductions($order, $parsedData);
-        $reductions = $this->fixReductions($amount, $spaceId, $transactionId, $reductions);
+        $reductions = $this->fixReductions($amount, $spaceId, $transactionId, $reductions, $order);
 
         $remoteRefund = new \PostFinanceCheckout\Sdk\Model\RefundCreate();
         $remoteRefund->setExternalId($externalRefundId);
@@ -344,11 +344,94 @@ class PostFinanceCheckoutServiceRefund extends PostFinanceCheckoutServiceAbstrac
      * @param \PostFinanceCheckout\Sdk\Model\LineItemReductionCreate[] $reductions
      * @return \PostFinanceCheckout\Sdk\Model\LineItemReductionCreate[]
      */
-    protected function fixReductions($refundTotal, $spaceId, $transactionId, array $reductions)
+    protected function fixReductions($refundTotal, $spaceId, $transactionId, array $reductions, Order $order)
     {
         $baseLineItems = $this->getBaseLineItems($spaceId, $transactionId);
         $reductionAmount = PostFinanceCheckoutHelper::getReductionAmount($baseLineItems, $reductions);
+        // We try to get the information about which Line Items need to be reduced.
+        // We have this information in the REQUEST object.
+        $line_items = $order->getProducts();
+        $line_items_ids = [];
+        foreach ($line_items as $line_item) {
+            $line_items_ids[$line_item['product_reference']] = [
+                'unit_price' => $line_item['unit_price_tax_incl'],
+                'id' => $line_item['id_order_detail'],
+            ];
+        }
 
+        $fixedReductions = [];
+        $refunded_value = 0;
+        foreach ($baseLineItems as $lineItem) {
+            // The way of identify the lineItem is based on the position in the array.
+            $sku = $lineItem->getSku();
+            if (!(empty($line_items_ids[$sku]['id']))) {
+                $line_item_id = $line_items_ids[$sku]['id'];
+                $unit_price = round((float) $line_items_ids[$sku]['unit_price'], 2);
+                if (!(empty($_REQUEST['cancel_product']['amount_' . $line_item_id]))) {
+                    $refund_value = (float) $_REQUEST['cancel_product']['amount_' . $line_item_id];
+                    if ($refund_value > 0 && $refund_value <= $refundTotal) {
+                        $reduction = new \PostFinanceCheckout\Sdk\Model\LineItemReductionCreate();
+                        $reduction->setLineItemUniqueId($lineItem->getUniqueId());
+
+                        // Prestashop forces to, at least, refund a quantity of 1.
+                        $quantity = 1;
+                        if (!empty($_REQUEST['cancel_product']['quantity_' . $line_item_id])) {
+                            $quantity = (int) $_REQUEST['cancel_product']['quantity_' . $line_item_id];
+                        }
+
+                        // Prestashop allows to refund whole quantites (the whole unit price), or a reduced value between the unit price.
+                        // For example, if unit price was 30, and the customer got 10 of them, Prestashop expects the admin to refund a
+                        // quantity of items and then allow reduce the value to be refunded. So, the admin can:
+                        // - Refund 2 items => 2*30 = 60
+                        // - Refund 2 items and reduce the refund value => A value less than 60
+                        // - But not to refund 2 items and increase the refund value => A value bigger than 60. If the user does this in the form,
+                        //   the system does not complain but the total amount refunded is still 60.
+                        //
+                        // We need to accomodate here also what is expected by the SDK
+                        // In the SDK, we can set how many quantites can be refunded. But we cannot decrease the value to refund after setting the
+                        // quantity. So, following the example:
+                        // - Refund just 2 items => setQuantityReduction(2), setUnitPriceReduction(0)
+                        // - Refund 2 items and reduce the refund value => depending on the value to reduce, if it's bigger than unit price.
+                        // - - If for example the reduce value is 20 (less than 30): setQuantityReduction(0), setUnitPriceReduction(20)
+                        // - - If the reduce value is 40 (more than 30): setQuantityReduction(1), setUnitPriceReduction(10)
+                        // - Refund 2 items and increase the refund value => Replicate how Prestashop works, this is, just refund as many items and
+                        //   ignore the rest: setQuantityReduction(2), setUnitPriceReduction(0)
+                        //
+                        // On top of that, we need to send the data to the SDK using its format. The SDK can contain a unit_price lower than the
+                        // one in the shop. This happens if there has been previous refundings. The same happens with the number of items that
+                        // potentially can yet be refunded. So we need to use the SDK values for the calculations.
+                        // Finally, the setUnitPriceReduction method will reduce the given value equally through all the remaining items in the line.
+                        // This is why we divide, right before setting, the amount to be refunded by all the remaining items in the line. The SDK,
+                        // back in the portal, will undo this operation and refund the money we are expecting to refund.
+
+                        $unit_price_sdk = $lineItem->getUnitPriceIncludingTax();
+                        $line_quantity_sdk = $lineItem->getQuantity();
+
+                        $max_to_refund = $unit_price * $quantity;
+                        if ($max_to_refund <= $refund_value) {
+                            $reduction->setQuantityReduction($quantity);
+                            $reduction->setUnitPriceReduction(($unit_price - $unit_price_sdk)/($line_quantity_sdk - $quantity));
+                        } else {
+                            $items_to_refund = (int) ($refund_value / $unit_price_sdk);
+                            // Multiply by 100 for converting the cents (2 digits) into integer, as % only works with integers.
+                            $rest_from_whole_item = ((int)(100 * $refund_value) % (int)(100 * $unit_price_sdk)) / 100;
+
+                            $reduction->setQuantityReduction($items_to_refund);
+                            $reduction->setUnitPriceReduction($rest_from_whole_item / ($line_quantity_sdk - $items_to_refund));
+                        }
+
+                        $fixedReductions[] = $reduction;
+                        $refunded_value += $refund_value;
+                    }
+                }
+            }
+        }
+
+        if ($refunded_value <= $refundTotal && !empty($fixedReductions)) {
+            return $fixedReductions;
+        }
+
+        $fixedReductions = [];
         $configuration = PostFinanceCheckoutVersionadapter::getConfigurationInterface();
         $computePrecision = $configuration->get('_PS_PRICE_COMPUTE_PRECISION_');
 

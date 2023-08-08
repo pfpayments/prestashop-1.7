@@ -12,11 +12,11 @@
 /**
  * Webhook processor to handle transaction completion state transitions.
  */
-class PostFinanceCheckoutBackendStrategy1774 extends PostFinanceCheckoutBackendDefaultstrategy {
+class PostFinanceCheckoutBackendStrategy1774 extends PostFinanceCheckoutBackendDefaultstrategy
+{
 
     public function isVoucherOnlyPostFinanceCheckout(Order $order, array $postData)
     {
         return isset($postData['cancel_product']['voucher']) && $postData['cancel_product']['voucher'] == 1;
     }
-
 }

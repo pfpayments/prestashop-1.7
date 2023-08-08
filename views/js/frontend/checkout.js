@@ -144,7 +144,7 @@ jQuery(function ($) {
         },
 
         process_submit_button : function (method_id) {
-            if(!this.processing) {
+            if (!this.processing) {
                 this.disable_pay_button();
                 if (this.payment_methods[method_id].handler == null) {
                     this.create_order(method_id);
@@ -165,7 +165,7 @@ jQuery(function ($) {
             this.processing = false;
             this.hide_loading_spinner();
             this.remove_existing_errors();
-            if(errors) {
+            if (errors) {
                 this.show_new_errors(errors);
             }
         },

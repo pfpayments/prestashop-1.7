@@ -27,7 +27,7 @@ class PostFinanceCheckoutBackendStrategyprovider
      */
     public static function getStrategy()
     {
-        if(isset(self::$supported_strategies[_PS_VERSION_])) {
+        if (isset(self::$supported_strategies[_PS_VERSION_])) {
             return new self::$supported_strategies[_PS_VERSION_];
         }
         return new PostFinanceCheckoutBackendDefaultstrategy();

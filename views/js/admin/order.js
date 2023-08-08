@@ -9,26 +9,28 @@
  */
 jQuery(function ($) {
 
-    function getOrderIdFromUrl(string) {
+    function getOrderIdFromUrl(string)
+    {
         let urlSegment = string.split('postfinancecheckout')[1];
         return urlSegment.split('/')[1]
     }
     
-    function initialiseDocumentButtons() {
+    function initialiseDocumentButtons()
+    {
         if ($('[data-original-title="Download PostFinanceCheckout Invoice"]').length) {
-            $('[data-original-title="Download Packing Slip"]').click(function(e) {
+            $('[data-original-title="Download Packing Slip"]').click(function (e) {
                 e.preventDefault();
                 let id_order = getOrderIdFromUrl($(this).attr('href'));
                 window.open(postfinancecheckout_admin_token + "&action=postFinanceCheckoutPackingSlip&id_order=" + id_order, "_blank");
             });
         
-            $('[data-original-title="Download PostFinanceCheckout Invoice"]').click(function(e) {
+            $('[data-original-title="Download PostFinanceCheckout Invoice"]').click(function (e) {
                 e.preventDefault();
                 let id_order = getOrderIdFromUrl($(this).attr('href'));
                 window.open(postfinancecheckout_admin_token + "&action=postFinanceCheckoutInvoice&id_order=" + id_order, "_blank");
             });
         
-            $('#order_grid_table tr').each(function() {
+            $('#order_grid_table tr').each(function () {
                 let $this = $(this);
                 let $row = $this.closest('tr');
                 let isWPayment = "0";
@@ -46,8 +48,9 @@ jQuery(function ($) {
         }
     }
 
-    function hideIsWPaymentColumn() {
-        $('th').each(function() {
+    function hideIsWPaymentColumn()
+    {
+        $('th').each(function () {
             let $this = $(this);
             if ($this.html().includes("is_w_payment")) {
                 $('table tr').find('td:eq(' + $this.index() + '),th:eq(' + $this.index() + ')').remove();
@@ -65,7 +68,7 @@ jQuery(function ($) {
         }
     }
 
-    function compareVersions (currentVersion, minVersion)
+    function compareVersions(currentVersion, minVersion)
     {
         currentVersion = currentVersion.split('.');
         minVersion = minVersion.split('.');
