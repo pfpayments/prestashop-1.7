@@ -1683,7 +1683,7 @@ class PostFinanceCheckoutBasemodule
         return $module->display(dirname(dirname(__FILE__)), 'hook/order_detail.tpl');
     }
 
-    public function hookActionOrderGridQueryBuilderModifier(PostFinanceCheckout $module, $params)
+    public static function hookActionOrderGridQueryBuilderModifier(PostFinanceCheckout $module, $params)
     {
         $searchQueryBuilder = $params['search_query_builder'];
 
@@ -1699,7 +1699,7 @@ class PostFinanceCheckoutBasemodule
         );
     }
 
-    public function hookActionOrderGridDefinitionModifier(PostFinanceCheckout $module, $params)
+    public static function hookActionOrderGridDefinitionModifier(PostFinanceCheckout $module, $params)
     {
 
         $orderGridDefinition = $params['definition'];
@@ -1742,7 +1742,7 @@ class PostFinanceCheckoutBasemodule
         );
     }
 
-    private function getColumnById($gridDefinition, string $id)
+    private static function getColumnById($gridDefinition, string $id)
     {
         /** @var ColumnInterface $column */
         foreach ($gridDefinition->getColumns() as $column) {
@@ -1754,7 +1754,7 @@ class PostFinanceCheckoutBasemodule
         throw new ColumnNotFoundException(sprintf('Column with id "%s" not found', $id));
     }
 
-    private function getActionsColumn(GridDefinition $gridDefinition)
+    private static function getActionsColumn(GridDefinition $gridDefinition)
     {
         try {
             return self::getColumnById($gridDefinition, 'actions');
