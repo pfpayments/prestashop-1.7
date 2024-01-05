@@ -5,7 +5,7 @@
 # PrestaShop 1.7 PostFinance Checkout Integration
 This repository contains the PrestaShop PostFinance Checkout payment module that enables the shop to process payments with [PostFinance Checkout](https://postfinance.ch/en/business/products/e-commerce/postfinance-checkout-all-in-one.html).
 
-## To install module manually by dragging up zip file, please download [.zip archive](https://plugin-documentation.postfinance-checkout.ch/pfpayments/prestashop-1.7/1.2.39/postfinancecheckout.zip) of module with correct structure required by Prestashop installation.
+## To install module manually by dragging up zip file, please download [.zip archive](https://plugin-documentation.postfinance-checkout.ch/pfpayments/prestashop-1.7/1.2.40/postfinancecheckout.zip) of module with correct structure required by Prestashop installation.
 
 ## Important Notice for Existing Merchants
 
@@ -15,7 +15,8 @@ Effective from version 1.2.36 of our plugin, we have made important changes to e
 
 ### 1. Uninstall the Mailhook Plugin
 
-If you are an existing merchant using our Prestashop plugin, it is crucial that you uninstall the [Mailhook](https://github.com/wallee-payment/prestashop-mailhook) plugin from your Prestashop shop modules. This step is necessary because our plugin now includes the Mailhook functionality by default.
+If you are an existing merchant using our Prestashop plugin, it is crucial that you uninstall the [Mailhook](https://github.com/wallee-payment/prestashop-mailhook) plugin from your Prestashop shop modules. This step is necessary because our plugin now includes the Mailhook functionality by default. 
+Also please disable all plugins that overrides default mail behavior. If you can't install/enable or uninstall the plugin, please rename or delete Mail.php from override folder if it exists there.
 
 ### 2. Download the Correct Plugin Archive
 
@@ -33,7 +34,7 @@ Your prompt attention to these instructions is greatly appreciated. If you have 
 
 ## Documentation
 
-* [English](https://plugin-documentation.postfinance-checkout.ch/pfpayments/prestashop-1.7/1.2.39/docs/en/documentation.html)
+* [English](https://plugin-documentation.postfinance-checkout.ch/pfpayments/prestashop-1.7/1.2.40/docs/en/documentation.html)
 
 ## Support
 
@@ -41,7 +42,7 @@ Support queries can be issued on the [PostFinance Checkout support site](https:/
 
 ## License
 
-Please see the [license file](https://github.com/pfpayments/prestashop-1.7/blob/1.2.39/LICENSE) for more information.
+Please see the [license file](https://github.com/pfpayments/prestashop-1.7/blob/1.2.40/LICENSE) for more information.
 
 ## Other PrestaShop Versions
 

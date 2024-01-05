@@ -5,7 +5,7 @@
  * This Prestashop module enables to process payments with PostFinance Checkout (https://postfinance.ch/en/business/products/e-commerce/postfinance-checkout-all-in-one.html).
  *
  * @author customweb GmbH (http://www.customweb.com/)
- * @copyright 2017 - 2023 customweb GmbH
+ * @copyright 2017 - 2024 customweb GmbH
  * @license http://www.apache.org/licenses/LICENSE-2.0 Apache Software License (ASL 2.0)
  */
 
@@ -83,7 +83,7 @@ class PostFinanceCheckoutBasemodule
     const TOTAL_MODE_WITHOUT_SHIPPING_EXC = 5;
 
     const CK_RUN_LIMIT = 'PFC_RUN_LIMIT';
-    
+
     private static $recordMailMessages = false;
 
     private static $recordedMailMessages = array();
@@ -105,6 +105,10 @@ class PostFinanceCheckoutBasemodule
         PostFinanceCheckoutOrderstatus::registerOrderStatus();
         if (! $module->installConfigurationValues()) {
             $module->addError(Tools::displayError('Unable to install configuration.'));
+        }
+
+        if (Module::isInstalled('mailhook') || Module::isEnabled('mailhook')) {
+            $module->addError(Tools::displayError('Module "mailhook" is installed or enabled. It\'s not compatible with our plugin, because include mailhook clasees since v1.2.36. Please remove "mailhook" plugin and try install again.'));
         }
 
         return true;
@@ -641,7 +645,7 @@ class PostFinanceCheckoutBasemodule
         }
         return $values;
     }
-    
+
     public static function getCartRecreationForm(PostFinanceCheckout $module)
     {
         $cartRecreationConfig = array(
@@ -1257,7 +1261,7 @@ class PostFinanceCheckoutBasemodule
                 ),
             ),
         );
-    
+
         return array(
             'legend' => array(
                 'title' => $module->l('Cron Settings', 'basemodule')
@@ -1532,7 +1536,7 @@ class PostFinanceCheckoutBasemodule
                     }
                 }
 
-                
+
                 if (strpos($payment_method, "postfinancecheckout_") === 0) {
                     $id = Tools::substr($payment_method, strpos($payment_method, "_") + 1);
                     $methodConfiguration = new PostFinanceCheckoutModelMethodconfiguration($id);
@@ -2464,18 +2468,18 @@ class PostFinanceCheckoutBasemodule
             PostFinanceCheckoutHelper::commitDBTransaction();
         }
     }
-    
-    
+
+
     public static function hookDisplayTop(PostFinanceCheckout $module, $params)
     {
         return self::getCronJobItem($module);
     }
-    
+
     public static function getCronJobItem(PostFinanceCheckout $module)
     {
         PostFinanceCheckoutCron::cleanUpHangingCrons();
         PostFinanceCheckoutCron::insertNewPendingCron();
-        
+
         $currentToken = PostFinanceCheckoutCron::getCurrentSecurityTokenForPendingCron();
         if ($currentToken) {
             $url = $module->getContext()->link->getModuleLink(
@@ -2489,8 +2493,8 @@ class PostFinanceCheckoutBasemodule
             return '<img src="' . $url . '" style="display:none" />';
         }
     }
-    
-    
+
+
     public static function hookPostFinanceCheckoutCron($params)
     {
         $tasks = array();
