@@ -97,11 +97,6 @@ class PostFinanceCheckoutReturnModuleFrontController extends ModuleFrontControll
         if (! empty($userFailureMessage)) {
             $this->context->cookie->pfc_error = $userFailureMessage;
         }
-        
-        $order->setCurrentState(Configuration::get(PostFinanceCheckoutBasemodule::CK_STATUS_FAILED));
-        //the new state should be saved here to override the stock issues of incrementing or decrementing items when going through the webhooks
-        //by calling the setCurrentState function more than once without saving. 
-        $order->save();
 
         // Set cart to cookie
         $originalCartId = PostFinanceCheckoutHelper::getOrderMeta($order, 'originalCart');
