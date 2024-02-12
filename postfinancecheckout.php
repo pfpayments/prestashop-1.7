@@ -402,9 +402,10 @@ class PostFinanceCheckout extends PaymentModule
         $currency_special = null,
         $dont_touch_amount = false,
         $secure_key = false,
-        Shop $shop = null
+        Shop $shop = null,
+        ?string $order_reference = NULL
     ) {
-        PostFinanceCheckoutBasemodule::validateOrder($this, $id_cart, $id_order_state, $amount_paid, $payment_method, $message, $extra_vars, $currency_special, $dont_touch_amount, $secure_key, $shop);
+        PostFinanceCheckoutBasemodule::validateOrder($this, $id_cart, $id_order_state, $amount_paid, $payment_method, $message, $extra_vars, $currency_special, $dont_touch_amount, $secure_key, $shop, $order_reference);
     }
 
     public function validateOrderParent(
@@ -417,9 +418,10 @@ class PostFinanceCheckout extends PaymentModule
         $currency_special = null,
         $dont_touch_amount = false,
         $secure_key = false,
-        Shop $shop = null
+        Shop $shop = null,
+        ?string $order_reference = NULL
     ) {
-        parent::validateOrder($id_cart, $id_order_state, $amount_paid, $payment_method, $message, $extra_vars, $currency_special, $dont_touch_amount, $secure_key, $shop);
+        parent::validateOrder($id_cart, $id_order_state, $amount_paid, $payment_method, $message, $extra_vars, $currency_special, $dont_touch_amount, $secure_key, $shop, $order_reference);
     }
 
     public function hookDisplayOrderDetail($params)
