@@ -358,6 +358,8 @@ class PostFinanceCheckoutHelper
         } else {
             $url = $base;
         }
+        $url = rtrim($url, "/");
+
         if (! empty($language)) {
             $url .= '/' . str_replace('_', '-', $language);
         }
@@ -656,11 +658,11 @@ class PostFinanceCheckoutHelper
 
         return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
     }
-    
+
     public static function getMaxExecutionTime()
     {
         $maxExecutionTime = ini_get('max_execution_time');
-        
+
         // Returns the default value, in case the ini_get fails.
         if ($maxExecutionTime === null || empty($maxExecutionTime) || $maxExecutionTime < 0) {
             return 30;
