@@ -410,7 +410,13 @@ class PostFinanceCheckoutServiceRefund extends PostFinanceCheckoutServiceAbstrac
                         $max_to_refund = $unit_price * $quantity;
                         if ($max_to_refund <= $refund_value) {
                             $reduction->setQuantityReduction($quantity);
-                            $reduction->setUnitPriceReduction(($unit_price - $unit_price_sdk)/($line_quantity_sdk - $quantity));
+                            $div = $line_quantity_sdk - $quantity;
+                            if ($div > 0) {
+                                $unitPriceReductionAmount = ($unit_price - $unit_price_sdk)/($div);
+                            } else {
+                                $unitPriceReductionAmount = ($unit_price - $unit_price_sdk);
+                            }
+                            $reduction->setUnitPriceReduction($unitPriceReductionAmount);
                         } else {
                             $items_to_refund = (int) ($refund_value / $unit_price_sdk);
                             // Multiply by 100 for converting the cents (2 digits) into integer, as % only works with integers.
