@@ -27,7 +27,7 @@ use \PostFinanceCheckout\Sdk\ObjectSerializer;
  * @category    Class
  * @description 
  * @package     PostFinanceCheckout\Sdk
- * @author      customweb GmbH
+ * @author      wallee AG
  * @license     http://www.apache.org/licenses/LICENSE-2.0 Apache License v2
  */
 class TransactionLineItemVersion extends TransactionAwareEntity 
@@ -633,7 +633,7 @@ class TransactionLineItemVersion extends TransactionAwareEntity
     /**
      * Sets space_view_id
      *
-     * @param int $space_view_id 
+     * @param int $space_view_id The ID of the space view this object is linked to.
      *
      * @return $this
      */

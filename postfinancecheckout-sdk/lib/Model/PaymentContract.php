@@ -29,7 +29,7 @@ use \PostFinanceCheckout\Sdk\ObjectSerializer;
  * @category    Class
  * @description 
  * @package     PostFinanceCheckout\Sdk
- * @author      customweb GmbH
+ * @author      wallee AG
  * @license     http://www.apache.org/licenses/LICENSE-2.0 Apache License v2
  */
 class PaymentContract implements ModelInterface, ArrayAccess
@@ -57,6 +57,7 @@ class PaymentContract implements ModelInterface, ArrayAccess
         'created_on' => '\DateTime',
         'external_id' => 'string',
         'id' => 'int',
+        'last_modified_date' => '\DateTime',
         'rejected_on' => '\DateTime',
         'rejection_reason' => '\PostFinanceCheckout\Sdk\Model\FailureReason',
         'start_terminating_on' => '\DateTime',
@@ -80,6 +81,7 @@ class PaymentContract implements ModelInterface, ArrayAccess
         'created_on' => 'date-time',
         'external_id' => null,
         'id' => 'int64',
+        'last_modified_date' => 'date-time',
         'rejected_on' => 'date-time',
         'rejection_reason' => null,
         'start_terminating_on' => 'date-time',
@@ -104,6 +106,7 @@ class PaymentContract implements ModelInterface, ArrayAccess
         'created_on' => 'createdOn',
         'external_id' => 'externalId',
         'id' => 'id',
+        'last_modified_date' => 'lastModifiedDate',
         'rejected_on' => 'rejectedOn',
         'rejection_reason' => 'rejectionReason',
         'start_terminating_on' => 'startTerminatingOn',
@@ -127,6 +130,7 @@ class PaymentContract implements ModelInterface, ArrayAccess
         'created_on' => 'setCreatedOn',
         'external_id' => 'setExternalId',
         'id' => 'setId',
+        'last_modified_date' => 'setLastModifiedDate',
         'rejected_on' => 'setRejectedOn',
         'rejection_reason' => 'setRejectionReason',
         'start_terminating_on' => 'setStartTerminatingOn',
@@ -150,6 +154,7 @@ class PaymentContract implements ModelInterface, ArrayAccess
         'created_on' => 'getCreatedOn',
         'external_id' => 'getExternalId',
         'id' => 'getId',
+        'last_modified_date' => 'getLastModifiedDate',
         'rejected_on' => 'getRejectedOn',
         'rejection_reason' => 'getRejectionReason',
         'start_terminating_on' => 'getStartTerminatingOn',
@@ -192,6 +197,8 @@ class PaymentContract implements ModelInterface, ArrayAccess
         $this->container['external_id'] = isset($data['external_id']) ? $data['external_id'] : null;
         
         $this->container['id'] = isset($data['id']) ? $data['id'] : null;
+        
+        $this->container['last_modified_date'] = isset($data['last_modified_date']) ? $data['last_modified_date'] : null;
         
         $this->container['rejected_on'] = isset($data['rejected_on']) ? $data['rejected_on'] : null;
         
@@ -311,7 +318,7 @@ class PaymentContract implements ModelInterface, ArrayAccess
     /**
      * Sets account
      *
-     * @param \PostFinanceCheckout\Sdk\Model\Account $account 
+     * @param \PostFinanceCheckout\Sdk\Model\Account $account This account that the contract belongs to.
      *
      * @return $this
      */
@@ -336,7 +343,7 @@ class PaymentContract implements ModelInterface, ArrayAccess
     /**
      * Sets activated_on
      *
-     * @param \DateTime $activated_on 
+     * @param \DateTime $activated_on The date and time when the contract was activated.
      *
      * @return $this
      */
@@ -361,7 +368,7 @@ class PaymentContract implements ModelInterface, ArrayAccess
     /**
      * Sets contract_identifier
      *
-     * @param string $contract_identifier 
+     * @param string $contract_identifier The identifier of the contract.
      *
      * @return $this
      */
@@ -386,7 +393,7 @@ class PaymentContract implements ModelInterface, ArrayAccess
     /**
      * Sets contract_type
      *
-     * @param \PostFinanceCheckout\Sdk\Model\PaymentContractType $contract_type 
+     * @param \PostFinanceCheckout\Sdk\Model\PaymentContractType $contract_type The type of the contract.
      *
      * @return $this
      */
@@ -411,7 +418,7 @@ class PaymentContract implements ModelInterface, ArrayAccess
     /**
      * Sets created_by
      *
-     * @param \PostFinanceCheckout\Sdk\Model\User $created_by 
+     * @param \PostFinanceCheckout\Sdk\Model\User $created_by The ID of the user the contract was created by.
      *
      * @return $this
      */
@@ -499,6 +506,31 @@ class PaymentContract implements ModelInterface, ArrayAccess
     
 
     /**
+     * Gets last_modified_date
+     *
+     * @return \DateTime
+     */
+    public function getLastModifiedDate()
+    {
+        return $this->container['last_modified_date'];
+    }
+
+    /**
+     * Sets last_modified_date
+     *
+     * @param \DateTime $last_modified_date The date and time when the object was last modified.
+     *
+     * @return $this
+     */
+    public function setLastModifiedDate($last_modified_date)
+    {
+        $this->container['last_modified_date'] = $last_modified_date;
+
+        return $this;
+    }
+    
+
+    /**
      * Gets rejected_on
      *
      * @return \DateTime
@@ -511,7 +543,7 @@ class PaymentContract implements ModelInterface, ArrayAccess
     /**
      * Sets rejected_on
      *
-     * @param \DateTime $rejected_on 
+     * @param \DateTime $rejected_on The date and time when the contract was rejected.
      *
      * @return $this
      */
@@ -536,7 +568,7 @@ class PaymentContract implements ModelInterface, ArrayAccess
     /**
      * Sets rejection_reason
      *
-     * @param \PostFinanceCheckout\Sdk\Model\FailureReason $rejection_reason 
+     * @param \PostFinanceCheckout\Sdk\Model\FailureReason $rejection_reason The reason for rejecting the contract.
      *
      * @return $this
      */
@@ -561,7 +593,7 @@ class PaymentContract implements ModelInterface, ArrayAccess
     /**
      * Sets start_terminating_on
      *
-     * @param \DateTime $start_terminating_on 
+     * @param \DateTime $start_terminating_on The date and time when the termination process of the contract was started.
      *
      * @return $this
      */
@@ -611,7 +643,7 @@ class PaymentContract implements ModelInterface, ArrayAccess
     /**
      * Sets terminated_by
      *
-     * @param \PostFinanceCheckout\Sdk\Model\User $terminated_by 
+     * @param \PostFinanceCheckout\Sdk\Model\User $terminated_by The ID of the user the contract was terminated by.
      *
      * @return $this
      */
@@ -636,7 +668,7 @@ class PaymentContract implements ModelInterface, ArrayAccess
     /**
      * Sets terminated_on
      *
-     * @param \DateTime $terminated_on 
+     * @param \DateTime $terminated_on The date and time when the contract was terminated.
      *
      * @return $this
      */

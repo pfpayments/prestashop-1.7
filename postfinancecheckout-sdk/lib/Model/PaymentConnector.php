@@ -29,7 +29,7 @@ use \PostFinanceCheckout\Sdk\ObjectSerializer;
  * @category    Class
  * @description 
  * @package     PostFinanceCheckout\Sdk
- * @author      customweb GmbH
+ * @author      wallee AG
  * @license     http://www.apache.org/licenses/LICENSE-2.0 Apache License v2
  */
 class PaymentConnector implements ModelInterface, ArrayAccess
@@ -53,13 +53,13 @@ class PaymentConnector implements ModelInterface, ArrayAccess
         'deprecated' => 'bool',
         'deprecation_reason' => 'map[string,string]',
         'description' => 'map[string,string]',
-        'feature' => '\PostFinanceCheckout\Sdk\Model\Feature',
         'id' => 'int',
         'name' => 'map[string,string]',
         'payment_method' => 'int',
         'payment_method_brand' => '\PostFinanceCheckout\Sdk\Model\PaymentMethodBrand',
         'primary_risk_taker' => '\PostFinanceCheckout\Sdk\Model\PaymentPrimaryRiskTaker',
         'processor' => 'int',
+        'supported_currencies' => 'string[]',
         'supported_customers_presences' => '\PostFinanceCheckout\Sdk\Model\CustomersPresence[]',
         'supported_features' => 'int[]'
     ];
@@ -74,13 +74,13 @@ class PaymentConnector implements ModelInterface, ArrayAccess
         'deprecated' => null,
         'deprecation_reason' => null,
         'description' => null,
-        'feature' => null,
         'id' => 'int64',
         'name' => null,
         'payment_method' => 'int64',
         'payment_method_brand' => null,
         'primary_risk_taker' => null,
         'processor' => 'int64',
+        'supported_currencies' => null,
         'supported_customers_presences' => null,
         'supported_features' => 'int64'
     ];
@@ -96,13 +96,13 @@ class PaymentConnector implements ModelInterface, ArrayAccess
         'deprecated' => 'deprecated',
         'deprecation_reason' => 'deprecationReason',
         'description' => 'description',
-        'feature' => 'feature',
         'id' => 'id',
         'name' => 'name',
         'payment_method' => 'paymentMethod',
         'payment_method_brand' => 'paymentMethodBrand',
         'primary_risk_taker' => 'primaryRiskTaker',
         'processor' => 'processor',
+        'supported_currencies' => 'supportedCurrencies',
         'supported_customers_presences' => 'supportedCustomersPresences',
         'supported_features' => 'supportedFeatures'
     ];
@@ -117,13 +117,13 @@ class PaymentConnector implements ModelInterface, ArrayAccess
         'deprecated' => 'setDeprecated',
         'deprecation_reason' => 'setDeprecationReason',
         'description' => 'setDescription',
-        'feature' => 'setFeature',
         'id' => 'setId',
         'name' => 'setName',
         'payment_method' => 'setPaymentMethod',
         'payment_method_brand' => 'setPaymentMethodBrand',
         'primary_risk_taker' => 'setPrimaryRiskTaker',
         'processor' => 'setProcessor',
+        'supported_currencies' => 'setSupportedCurrencies',
         'supported_customers_presences' => 'setSupportedCustomersPresences',
         'supported_features' => 'setSupportedFeatures'
     ];
@@ -138,13 +138,13 @@ class PaymentConnector implements ModelInterface, ArrayAccess
         'deprecated' => 'getDeprecated',
         'deprecation_reason' => 'getDeprecationReason',
         'description' => 'getDescription',
-        'feature' => 'getFeature',
         'id' => 'getId',
         'name' => 'getName',
         'payment_method' => 'getPaymentMethod',
         'payment_method_brand' => 'getPaymentMethodBrand',
         'primary_risk_taker' => 'getPrimaryRiskTaker',
         'processor' => 'getProcessor',
+        'supported_currencies' => 'getSupportedCurrencies',
         'supported_customers_presences' => 'getSupportedCustomersPresences',
         'supported_features' => 'getSupportedFeatures'
     ];
@@ -175,8 +175,6 @@ class PaymentConnector implements ModelInterface, ArrayAccess
         
         $this->container['description'] = isset($data['description']) ? $data['description'] : null;
         
-        $this->container['feature'] = isset($data['feature']) ? $data['feature'] : null;
-        
         $this->container['id'] = isset($data['id']) ? $data['id'] : null;
         
         $this->container['name'] = isset($data['name']) ? $data['name'] : null;
@@ -188,6 +186,8 @@ class PaymentConnector implements ModelInterface, ArrayAccess
         $this->container['primary_risk_taker'] = isset($data['primary_risk_taker']) ? $data['primary_risk_taker'] : null;
         
         $this->container['processor'] = isset($data['processor']) ? $data['processor'] : null;
+        
+        $this->container['supported_currencies'] = isset($data['supported_currencies']) ? $data['supported_currencies'] : null;
         
         $this->container['supported_customers_presences'] = isset($data['supported_customers_presences']) ? $data['supported_customers_presences'] : null;
         
@@ -297,7 +297,7 @@ class PaymentConnector implements ModelInterface, ArrayAccess
     /**
      * Sets data_collection_type
      *
-     * @param \PostFinanceCheckout\Sdk\Model\DataCollectionType $data_collection_type 
+     * @param \PostFinanceCheckout\Sdk\Model\DataCollectionType $data_collection_type The data collection type specifies how the payment information is collected.
      *
      * @return $this
      */
@@ -322,7 +322,7 @@ class PaymentConnector implements ModelInterface, ArrayAccess
     /**
      * Sets deprecated
      *
-     * @param bool $deprecated 
+     * @param bool $deprecated Whether the object was deprecated.
      *
      * @return $this
      */
@@ -347,7 +347,7 @@ class PaymentConnector implements ModelInterface, ArrayAccess
     /**
      * Sets deprecation_reason
      *
-     * @param map[string,string] $deprecation_reason 
+     * @param map[string,string] $deprecation_reason The deprecation reason describes why the object was deprecated.
      *
      * @return $this
      */
@@ -372,38 +372,13 @@ class PaymentConnector implements ModelInterface, ArrayAccess
     /**
      * Sets description
      *
-     * @param map[string,string] $description The description of the object translated into different languages.
+     * @param map[string,string] $description The localized description of the object.
      *
      * @return $this
      */
     public function setDescription($description)
     {
         $this->container['description'] = $description;
-
-        return $this;
-    }
-    
-
-    /**
-     * Gets feature
-     *
-     * @return \PostFinanceCheckout\Sdk\Model\Feature
-     */
-    public function getFeature()
-    {
-        return $this->container['feature'];
-    }
-
-    /**
-     * Sets feature
-     *
-     * @param \PostFinanceCheckout\Sdk\Model\Feature $feature 
-     *
-     * @return $this
-     */
-    public function setFeature($feature)
-    {
-        $this->container['feature'] = $feature;
 
         return $this;
     }
@@ -447,7 +422,7 @@ class PaymentConnector implements ModelInterface, ArrayAccess
     /**
      * Sets name
      *
-     * @param map[string,string] $name The name of the object translated into different languages.
+     * @param map[string,string] $name The localized name of the object.
      *
      * @return $this
      */
@@ -472,7 +447,7 @@ class PaymentConnector implements ModelInterface, ArrayAccess
     /**
      * Sets payment_method
      *
-     * @param int $payment_method 
+     * @param int $payment_method The payment method that the connector supports.
      *
      * @return $this
      */
@@ -497,7 +472,7 @@ class PaymentConnector implements ModelInterface, ArrayAccess
     /**
      * Sets payment_method_brand
      *
-     * @param \PostFinanceCheckout\Sdk\Model\PaymentMethodBrand $payment_method_brand 
+     * @param \PostFinanceCheckout\Sdk\Model\PaymentMethodBrand $payment_method_brand The specific brand that this payment connector supports.
      *
      * @return $this
      */
@@ -522,7 +497,7 @@ class PaymentConnector implements ModelInterface, ArrayAccess
     /**
      * Sets primary_risk_taker
      *
-     * @param \PostFinanceCheckout\Sdk\Model\PaymentPrimaryRiskTaker $primary_risk_taker 
+     * @param \PostFinanceCheckout\Sdk\Model\PaymentPrimaryRiskTaker $primary_risk_taker The entity that bears the main risk in the event that a contracting party fails to meet its obligations.
      *
      * @return $this
      */
@@ -547,13 +522,38 @@ class PaymentConnector implements ModelInterface, ArrayAccess
     /**
      * Sets processor
      *
-     * @param int $processor 
+     * @param int $processor The processor that the connector belongs to.
      *
      * @return $this
      */
     public function setProcessor($processor)
     {
         $this->container['processor'] = $processor;
+
+        return $this;
+    }
+    
+
+    /**
+     * Gets supported_currencies
+     *
+     * @return string[]
+     */
+    public function getSupportedCurrencies()
+    {
+        return $this->container['supported_currencies'];
+    }
+
+    /**
+     * Sets supported_currencies
+     *
+     * @param string[] $supported_currencies The currencies that are supported by the connector.
+     *
+     * @return $this
+     */
+    public function setSupportedCurrencies($supported_currencies)
+    {
+        $this->container['supported_currencies'] = $supported_currencies;
 
         return $this;
     }
@@ -572,7 +572,7 @@ class PaymentConnector implements ModelInterface, ArrayAccess
     /**
      * Sets supported_customers_presences
      *
-     * @param \PostFinanceCheckout\Sdk\Model\CustomersPresence[] $supported_customers_presences 
+     * @param \PostFinanceCheckout\Sdk\Model\CustomersPresence[] $supported_customers_presences The types of customer's presence that are supported by the connector.
      *
      * @return $this
      */
@@ -597,7 +597,7 @@ class PaymentConnector implements ModelInterface, ArrayAccess
     /**
      * Sets supported_features
      *
-     * @param int[] $supported_features 
+     * @param int[] $supported_features The features that are supported by the connector.
      *
      * @return $this
      */

@@ -29,7 +29,7 @@ use \PostFinanceCheckout\Sdk\ObjectSerializer;
  * @category    Class
  * @description 
  * @package     PostFinanceCheckout\Sdk
- * @author      customweb GmbH
+ * @author      wallee AG
  * @license     http://www.apache.org/licenses/LICENSE-2.0 Apache License v2
  */
 class PaymentTerminalLocation implements ModelInterface, ArrayAccess
@@ -334,7 +334,7 @@ class PaymentTerminalLocation implements ModelInterface, ArrayAccess
     /**
      * Sets name
      *
-     * @param string $name The terminal location name is used internally to identify the terminal in administrative interfaces. For example it is used within search fields and hence it should be distinct and descriptive.
+     * @param string $name The name used to identify the payment terminal location.
      *
      * @return $this
      */

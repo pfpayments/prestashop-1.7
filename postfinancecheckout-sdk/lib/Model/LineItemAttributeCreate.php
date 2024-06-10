@@ -29,7 +29,7 @@ use \PostFinanceCheckout\Sdk\ObjectSerializer;
  * @category    Class
  * @description 
  * @package     PostFinanceCheckout\Sdk
- * @author      customweb GmbH
+ * @author      wallee AG
  * @license     http://www.apache.org/licenses/LICENSE-2.0 Apache License v2
  */
 class LineItemAttributeCreate implements ModelInterface, ArrayAccess
@@ -234,7 +234,7 @@ class LineItemAttributeCreate implements ModelInterface, ArrayAccess
     /**
      * Sets label
      *
-     * @param string $label 
+     * @param string $label The label describing the line item attribute.
      *
      * @return $this
      */
@@ -263,7 +263,7 @@ class LineItemAttributeCreate implements ModelInterface, ArrayAccess
     /**
      * Sets value
      *
-     * @param string $value 
+     * @param string $value The value of the line item attribute.
      *
      * @return $this
      */

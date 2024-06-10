@@ -366,7 +366,7 @@ class PostFinanceCheckoutServiceRefund extends PostFinanceCheckoutServiceAbstrac
             $sku = $lineItem->getSku();
             if (!(empty($line_items_ids[$sku]['id']))) {
                 $line_item_id = $line_items_ids[$sku]['id'];
-                $unit_price = round((float) $line_items_ids[$sku]['unit_price'], 2);
+                $unit_price = (float) $line_items_ids[$sku]['unit_price'];
                 if (!(empty($_REQUEST['cancel_product']['amount_' . $line_item_id]))) {
                     $refund_value = (float) $_REQUEST['cancel_product']['amount_' . $line_item_id];
                     if ($refund_value > 0 && $refund_value <= $refundTotal) {
@@ -404,17 +404,18 @@ class PostFinanceCheckoutServiceRefund extends PostFinanceCheckoutServiceAbstrac
                         // This is why we divide, right before setting, the amount to be refunded by all the remaining items in the line. The SDK,
                         // back in the portal, will undo this operation and refund the money we are expecting to refund.
 
-                        $unit_price_sdk = $lineItem->getUnitPriceIncludingTax();
+                        $unit_price_sdk = round($lineItem->getUnitPriceIncludingTax(), 2);
                         $line_quantity_sdk = $lineItem->getQuantity();
 
                         $max_to_refund = $unit_price * $quantity;
+                        $max_to_refund = round($max_to_refund, 2);
                         if ($max_to_refund <= $refund_value) {
                             $reduction->setQuantityReduction($quantity);
                             $div = $line_quantity_sdk - $quantity;
                             if ($div > 0) {
-                                $unitPriceReductionAmount = ($unit_price - $unit_price_sdk)/($div);
+                                $unitPriceReductionAmount = ((float)number_format($unit_price, 2) - number_format($unit_price_sdk, 2))/($div);
                             } else {
-                                $unitPriceReductionAmount = ($unit_price - $unit_price_sdk);
+                                $unitPriceReductionAmount = (float)number_format($unit_price, 2) - $unit_price_sdk;
                             }
                             $reduction->setUnitPriceReduction($unitPriceReductionAmount);
                         } else {

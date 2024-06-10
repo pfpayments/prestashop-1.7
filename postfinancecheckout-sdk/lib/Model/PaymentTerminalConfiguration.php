@@ -29,7 +29,7 @@ use \PostFinanceCheckout\Sdk\ObjectSerializer;
  * @category    Class
  * @description 
  * @package     PostFinanceCheckout\Sdk
- * @author      customweb GmbH
+ * @author      wallee AG
  * @license     http://www.apache.org/licenses/LICENSE-2.0 Apache License v2
  */
 class PaymentTerminalConfiguration implements ModelInterface, ArrayAccess
@@ -309,7 +309,7 @@ class PaymentTerminalConfiguration implements ModelInterface, ArrayAccess
     /**
      * Sets name
      *
-     * @param string $name The terminal configuration name is used internally to identify the terminal in administrative interfaces. For example it is used within search fields and hence it should be distinct and descriptive.
+     * @param string $name The name used to identify the payment terminal configuration.
      *
      * @return $this
      */
@@ -388,7 +388,7 @@ class PaymentTerminalConfiguration implements ModelInterface, ArrayAccess
     /**
      * Sets type
      *
-     * @param \PostFinanceCheckout\Sdk\Model\PaymentTerminalType $type 
+     * @param \PostFinanceCheckout\Sdk\Model\PaymentTerminalType $type The type of payment terminals that this configuration can be assigned to.
      *
      * @return $this
      */

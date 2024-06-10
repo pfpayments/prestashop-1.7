@@ -29,7 +29,7 @@ use \PostFinanceCheckout\Sdk\ObjectSerializer;
  * @category    Class
  * @description 
  * @package     PostFinanceCheckout\Sdk
- * @author      customweb GmbH
+ * @author      wallee AG
  * @license     http://www.apache.org/licenses/LICENSE-2.0 Apache License v2
  */
 class WebhookListener implements ModelInterface, ArrayAccess
@@ -49,6 +49,7 @@ class WebhookListener implements ModelInterface, ArrayAccess
       * @var string[]
       */
     protected static $swaggerTypes = [
+        'enable_payload_signature_and_state' => 'bool',
         'entity' => 'int',
         'entity_states' => 'string[]',
         'id' => 'int',
@@ -68,6 +69,7 @@ class WebhookListener implements ModelInterface, ArrayAccess
       * @var string[]
       */
     protected static $swaggerFormats = [
+        'enable_payload_signature_and_state' => null,
         'entity' => 'int64',
         'entity_states' => null,
         'id' => 'int64',
@@ -88,6 +90,7 @@ class WebhookListener implements ModelInterface, ArrayAccess
      * @var string[]
      */
     protected static $attributeMap = [
+        'enable_payload_signature_and_state' => 'enablePayloadSignatureAndState',
         'entity' => 'entity',
         'entity_states' => 'entityStates',
         'id' => 'id',
@@ -107,6 +110,7 @@ class WebhookListener implements ModelInterface, ArrayAccess
      * @var string[]
      */
     protected static $setters = [
+        'enable_payload_signature_and_state' => 'setEnablePayloadSignatureAndState',
         'entity' => 'setEntity',
         'entity_states' => 'setEntityStates',
         'id' => 'setId',
@@ -126,6 +130,7 @@ class WebhookListener implements ModelInterface, ArrayAccess
      * @var string[]
      */
     protected static $getters = [
+        'enable_payload_signature_and_state' => 'getEnablePayloadSignatureAndState',
         'entity' => 'getEntity',
         'entity_states' => 'getEntityStates',
         'id' => 'getId',
@@ -156,6 +161,8 @@ class WebhookListener implements ModelInterface, ArrayAccess
      */
     public function __construct(array $data = null)
     {
+        
+        $this->container['enable_payload_signature_and_state'] = isset($data['enable_payload_signature_and_state']) ? $data['enable_payload_signature_and_state'] : null;
         
         $this->container['entity'] = isset($data['entity']) ? $data['entity'] : null;
         
@@ -275,6 +282,31 @@ class WebhookListener implements ModelInterface, ArrayAccess
     
 
     /**
+     * Gets enable_payload_signature_and_state
+     *
+     * @return bool
+     */
+    public function getEnablePayloadSignatureAndState()
+    {
+        return $this->container['enable_payload_signature_and_state'];
+    }
+
+    /**
+     * Sets enable_payload_signature_and_state
+     *
+     * @param bool $enable_payload_signature_and_state Whether signature header and state property are enabled in webhook payload.
+     *
+     * @return $this
+     */
+    public function setEnablePayloadSignatureAndState($enable_payload_signature_and_state)
+    {
+        $this->container['enable_payload_signature_and_state'] = $enable_payload_signature_and_state;
+
+        return $this;
+    }
+    
+
+    /**
      * Gets entity
      *
      * @return int
@@ -287,7 +319,7 @@ class WebhookListener implements ModelInterface, ArrayAccess
     /**
      * Sets entity
      *
-     * @param int $entity The listener listens on state changes of the entity linked with the listener.
+     * @param int $entity The entity that is to be monitored.
      *
      * @return $this
      */
@@ -312,7 +344,7 @@ class WebhookListener implements ModelInterface, ArrayAccess
     /**
      * Sets entity_states
      *
-     * @param string[] $entity_states The target state identifies the state into which entities need to move into to trigger the webhook listener.
+     * @param string[] $entity_states The entity's target states that are to be monitored.
      *
      * @return $this
      */
@@ -362,7 +394,7 @@ class WebhookListener implements ModelInterface, ArrayAccess
     /**
      * Sets identity
      *
-     * @param \PostFinanceCheckout\Sdk\Model\WebhookIdentity $identity The identity which will be used to sign messages sent by this listener.
+     * @param \PostFinanceCheckout\Sdk\Model\WebhookIdentity $identity The identity used to sign messages.
      *
      * @return $this
      */
@@ -412,7 +444,7 @@ class WebhookListener implements ModelInterface, ArrayAccess
     /**
      * Sets name
      *
-     * @param string $name The webhook listener name is used internally to identify the webhook listener in administrative interfaces.For example it is used within search fields and hence it should be distinct and descriptive.
+     * @param string $name The name used to identify the webhook listener.
      *
      * @return $this
      */
@@ -441,7 +473,7 @@ class WebhookListener implements ModelInterface, ArrayAccess
     /**
      * Sets notify_every_change
      *
-     * @param bool $notify_every_change Defines whether the webhook listener is to be informed about every change made to the entity in contrast to state transitions only.
+     * @param bool $notify_every_change Whether every update of the entity or only state changes are to be monitored.
      *
      * @return $this
      */
@@ -516,7 +548,7 @@ class WebhookListener implements ModelInterface, ArrayAccess
     /**
      * Sets url
      *
-     * @param \PostFinanceCheckout\Sdk\Model\WebhookUrl $url The URL which is invoked by the listener to notify the application about the event.
+     * @param \PostFinanceCheckout\Sdk\Model\WebhookUrl $url The URL where notifications about entity changes are sent to.
      *
      * @return $this
      */
