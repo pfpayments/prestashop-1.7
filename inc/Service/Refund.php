@@ -9,6 +9,7 @@
  * @license http://www.apache.org/licenses/LICENSE-2.0 Apache Software License (ASL 2.0)
  */
 
+use PostFinanceCheckout\Sdk\Model\LineItemType;
 /**
  * This service provides functions to deal with PostFinance Checkout refunds.
  */
@@ -362,6 +363,17 @@ class PostFinanceCheckoutServiceRefund extends PostFinanceCheckoutServiceAbstrac
         $fixedReductions = [];
         $refunded_value = 0;
         foreach ($baseLineItems as $lineItem) {
+            
+            if ($lineItem->getType() === LineItemType::SHIPPING) {
+                foreach ($reductions as $reduction) {
+                    if (strpos($reduction['line_item_unique_id'], strtolower(LineItemType::SHIPPING)) !== false) {
+                        $fixedReductions[] = $reduction;
+                        break;
+                    }
+                }
+                continue;
+            }
+
             // The way of identify the lineItem is based on the position in the array.
             $sku = $lineItem->getSku();
             if (!(empty($line_items_ids[$sku]['id']))) {

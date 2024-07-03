@@ -8,7 +8,8 @@
  * @copyright 2017 - 2024 customweb GmbH
  * @license http://www.apache.org/licenses/LICENSE-2.0 Apache Software License (ASL 2.0)
  */
-
+ 
+use PostFinanceCheckout\Sdk\Model\LineItemType;
 /**
  * Webhook processor to handle transaction completion state transitions.
  */
@@ -451,9 +452,8 @@ class PostFinanceCheckoutBackendDefaultstrategy implements PostFinanceCheckoutBa
             $reductions[] = $reduction;
         }
         $shippingCostAmount = $parsedData['shippingCostAmount'];
-
         if ($shippingCostAmount > 0) {
-            $uniqueId = 'order-' . $order->id . '-shipping';
+            $uniqueId = 'order-' . $order->id . '-' . strtolower(LineItemType::SHIPPING);
             if (isset($parsedData['TaxMethod']) && ! $parsedData['TaxMethod']) {
                 $tax = new Tax();
                 $tax->rate = $order->carrier_tax_rate;
@@ -509,7 +509,7 @@ class PostFinanceCheckoutBackendDefaultstrategy implements PostFinanceCheckoutBa
         }
 
         if ($parsedData['shippingBack'] && $order->total_shipping > 0) {
-            $uniqueId = 'order-' . $order->id . '-shipping';
+            $uniqueId = 'order-' . $order->id . '-' . strtolower(LineItemType::SHIPPING);
             $totalShippingCost = $order->total_shipping;
             $reduction = new \PostFinanceCheckout\Sdk\Model\LineItemReductionCreate();
             $reduction->setLineItemUniqueId($uniqueId);
