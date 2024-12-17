@@ -416,27 +416,31 @@ class PostFinanceCheckoutServiceRefund extends PostFinanceCheckoutServiceAbstrac
                         // This is why we divide, right before setting, the amount to be refunded by all the remaining items in the line. The SDK,
                         // back in the portal, will undo this operation and refund the money we are expecting to refund.
 
-                        $unit_price_sdk = round($lineItem->getUnitPriceIncludingTax(), 2);
+                        $unit_price_sdk = $lineItem->getUnitPriceIncludingTax();
                         $line_quantity_sdk = $lineItem->getQuantity();
 
                         $max_to_refund = $unit_price * $quantity;
-                        $max_to_refund = round($max_to_refund, 2);
+                        $max_to_refund = floor($max_to_refund * 100) / 100;
                         if ($max_to_refund <= $refund_value) {
                             $reduction->setQuantityReduction($quantity);
                             $div = $line_quantity_sdk - $quantity;
+                            
                             if ($div > 0) {
-                                $unitPriceReductionAmount = ((float)number_format($unit_price, 2) - number_format($unit_price_sdk, 2))/($div);
+                                $unitPriceReductionAmount = floor(abs((float)$unit_price - $unit_price_sdk) * 100) / 100 / $div;
                             } else {
-                                $unitPriceReductionAmount = (float)number_format($unit_price, 2) - $unit_price_sdk;
+                                $unitPriceReductionAmount = floor(abs((float)$unit_price - $unit_price_sdk) * 100) / 100;
                             }
                             $reduction->setUnitPriceReduction($unitPriceReductionAmount);
                         } else {
-                            $items_to_refund = (int) ($refund_value / $unit_price_sdk);
-                            // Multiply by 100 for converting the cents (2 digits) into integer, as % only works with integers.
-                            $rest_from_whole_item = ((int)(100 * $refund_value) % (int)(100 * $unit_price_sdk)) / 100;
-
+                            $items_to_refund = (int) floor(abs($refund_value / $unit_price_sdk));
+                            $rest_from_whole_item = floor(abs((100 * $refund_value) % (100 * $unit_price_sdk))) / 100;
                             $reduction->setQuantityReduction($items_to_refund);
-                            $reduction->setUnitPriceReduction($rest_from_whole_item / ($line_quantity_sdk - $items_to_refund));
+                            $divisor = $line_quantity_sdk - $items_to_refund;
+                            if ($divisor > 0) {
+                                $reduction->setUnitPriceReduction($rest_from_whole_item / $divisor);
+                            } else {
+                                $reduction->setUnitPriceReduction($rest_from_whole_item);
+                            }
                         }
 
                         $fixedReductions[] = $reduction;

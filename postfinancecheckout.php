@@ -32,7 +32,7 @@ class PostFinanceCheckout extends PaymentModule
         $this->author = 'Customweb GmbH';
         $this->bootstrap = true;
         $this->need_instance = 0;
-        $this->version = '1.2.48';
+        $this->version = '1.2.49';
         $this->displayName = 'PostFinance Checkout';
         $this->description = $this->l('This PrestaShop module enables to process payments with %s.');
         $this->description = sprintf($this->description, 'PostFinance Checkout');
@@ -150,6 +150,7 @@ class PostFinanceCheckout extends PaymentModule
         $output .= PostFinanceCheckoutBasemodule::handleSaveSpaceViewId($this);
         $output .= PostFinanceCheckoutBasemodule::handleSaveOrderStatus($this);
         $output .= PostFinanceCheckoutBasemodule::handleSaveCronSettings($this);
+        $output .= PostFinanceCheckoutBasemodule::handleSaveCheckoutTypeSettings($this);
         $output .= PostFinanceCheckoutBasemodule::displayHelpButtons($this);
         return $output . PostFinanceCheckoutBasemodule::displayForm($this);
     }
@@ -161,6 +162,7 @@ class PostFinanceCheckout extends PaymentModule
             PostFinanceCheckoutBasemodule::getCartRecreationForm($this),
             PostFinanceCheckoutBasemodule::getFeeForm($this),
             PostFinanceCheckoutBasemodule::getDocumentForm($this),
+            PostFinanceCheckoutBasemodule::getCheckoutTypeForm($this),
             PostFinanceCheckoutBasemodule::getSpaceViewIdForm($this),
             PostFinanceCheckoutBasemodule::getOrderStatusForm($this),
             PostFinanceCheckoutBasemodule::getCronSettingsForm($this),
@@ -177,7 +179,8 @@ class PostFinanceCheckout extends PaymentModule
             PostFinanceCheckoutBasemodule::getDownloadConfigValues($this),
             PostFinanceCheckoutBasemodule::getSpaceViewIdConfigValues($this),
             PostFinanceCheckoutBasemodule::getOrderStatusConfigValues($this),
-            PostFinanceCheckoutBasemodule::getCronSettingsConfigValues($this)
+            PostFinanceCheckoutBasemodule::getCronSettingsConfigValues($this),
+            PostFinanceCheckoutBasemodule::getCheckoutTypeConfigValues($this)
         );
     }
 
@@ -257,6 +260,7 @@ class PostFinanceCheckout extends PaymentModule
                 array(),
                 true
             );
+            $parameters['isPaymentPageCheckout'] = Configuration::get(PostFinanceCheckoutBasemodule::CK_CHECKOUT_TYPE) === PostFinanceCheckoutBasemodule::CK_CHECKOUT_TYPE_PAYMENT_PAGE;
             $this->context->smarty->assign($parameters);
             $paymentOption = new PrestaShop\PrestaShop\Core\Payment\PaymentOption();
             $paymentOption->setCallToActionText($parameters['name']);
@@ -318,6 +322,11 @@ class PostFinanceCheckout extends PaymentModule
                     'postfinancecheckoutMsgJsonError' => $this->l(
                         'The server experienced an unexpected error, you may try again or try to use a different payment method.'
                     )
+                )
+            );
+            Media::addJsDef(
+                array(
+                'postfinancecheckoutIsPaymentPageCheckout' => Configuration::get(PostFinanceCheckoutBasemodule::CK_CHECKOUT_TYPE) === PostFinanceCheckoutBasemodule::CK_CHECKOUT_TYPE_PAYMENT_PAGE
                 )
             );
             if (isset($this->context->cart) && Validate::isLoadedObject($this->context->cart)) {

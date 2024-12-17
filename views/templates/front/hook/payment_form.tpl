@@ -10,6 +10,8 @@
 <form action="{$orderUrl|escape:'html'}" class="postfinancecheckout-payment-form" data-method-id="{$methodId|escape:'html':'UTF-8'}">
 	<div id="postfinancecheckout-{$methodId|escape:'html':'UTF-8'}">
 		<input type="hidden" id="postfinancecheckout-iframe-possible-{$methodId|escape:'html':'UTF-8'}" name="postfinancecheckout-iframe-possible-{$methodId|escape:'html':'UTF-8'}" value="false" />
-		<div id="postfinancecheckout-loader-{$methodId|escape:'html':'UTF-8'}" class="postfinancecheckout-loader"></div>
+		{if !$isPaymentPageCheckout}
+			<div id="postfinancecheckout-loader-{$methodId|escape:'html':'UTF-8'}" class="postfinancecheckout-loader"></div>
+		{/if}
 	</div>
 </form>

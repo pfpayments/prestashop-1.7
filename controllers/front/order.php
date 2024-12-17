@@ -83,7 +83,8 @@ class PostFinanceCheckoutOrderModuleFrontController extends ModuleFrontControlle
             );
             $noIframeParamater = Tools::getValue('postfinancecheckout-iframe-possible-' . $methodId, null);
             $noIframe = $noIframeParamater == 'false';
-            if ($noIframe) {
+            $checkoutType = Configuration::get(PostFinanceCheckoutBasemodule::CK_CHECKOUT_TYPE);
+            if ($noIframe || $checkoutType === PostFinanceCheckoutBasemodule::CK_CHECKOUT_TYPE_PAYMENT_PAGE) {
                 $url = PostFinanceCheckoutServiceTransaction::instance()->getPaymentPageUrl(
                     $GLOBALS['postfinancecheckoutTransactionIds']['spaceId'],
                     $GLOBALS['postfinancecheckoutTransactionIds']['transactionId']

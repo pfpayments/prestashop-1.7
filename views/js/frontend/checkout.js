@@ -134,6 +134,11 @@ jQuery(function ($) {
                 .setValidationCallback(function (validation_result) {
                     self.process_validation(method_id, validation_result);
                 });
+
+            if (postfinancecheckoutIsPaymentPageCheckout === true) {
+                return;
+            }
+
             this.payment_methods[method_id].handler.setInitializeCallback(function () {
                 $('#postfinancecheckout-loader-'+method_id).remove();
                 $('#postfinancecheckout-iframe-possible-'+method_id).remove();

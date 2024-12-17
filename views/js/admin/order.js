@@ -58,36 +58,11 @@ jQuery(function ($) {
             }
         });
     }
-
-    function isVersionGTE177()
-    {
-        if (_PS_VERSION_ === undefined) {
-            return false;
-        } else {
-            return compareVersions(_PS_VERSION_, "1.7.7");
-        }
-    }
-
-    function compareVersions(currentVersion, minVersion)
-    {
-        currentVersion = currentVersion.split('.');
-        minVersion = minVersion.split('.');
-        // we only care about the 3rd digit of the version as 1.8 will be a whole different kettle of fish
-        if (typeof currentVersion[2] === 'undefined') {
-            return false;
-        }
-        return (currentVersion[2] >= minVersion[2]) ? true : false;
-    }
     
     function movePostFinanceCheckoutDocuments()
     {
         var documentsTab = $('#postfinancecheckout_documents_tab');
-        if (isVersionGTE177()) {
-            documentsTab.children('a').addClass('nav-link');
-        } else {
-            var parentElement = documentsTab.parent();
-            documentsTab.detach().appendTo(parentElement);
-        }
+        documentsTab.children('a').addClass('nav-link');
     }
     
     function movePostFinanceCheckoutActionsAndInfo()
@@ -99,19 +74,11 @@ jQuery(function ($) {
         
         managementBtn.each(function (key, element) {
             $(element).detach();
-            if (isVersionGTE177()) {
-                orderActions.find('.order-navigation').before(element);
-            } else {
-                panel.find('div.well.hidden-print').find('i.icon-print').closest('div.well').append(element);
-            }
+            orderActions.find('.order-navigation').before(element);
         });
         managementInfo.each(function (key, element) {
             $(element).detach();
-            if (isVersionGTE177()) {
-                orderActions.find('.order-navigation').before(element);
-            } else {
-                panel.find('div.well.hidden-print').find('i.icon-print').closest('div.well').append(element);
-            }
+            orderActions.find('.order-navigation').before(element);
         });
         //to get the styling of prestashop we have to add this
         managementBtn.after("&nbsp;\n");
