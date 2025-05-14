@@ -4,7 +4,7 @@
  * This Prestashop module enables to process payments with PostFinance Checkout (https://postfinance.ch/en/business/products/e-commerce/postfinance-checkout-all-in-one.html).
  *
  * @author customweb GmbH (http://www.customweb.com/)
- * @copyright 2017 - 2024 customweb GmbH
+ * @copyright 2017 - 2025 customweb GmbH
  * @license http://www.apache.org/licenses/LICENSE-2.0 Apache Software License (ASL 2.0)
  */
 jQuery(function ($) {
@@ -58,11 +58,36 @@ jQuery(function ($) {
             }
         });
     }
+
+    function isVersionGTE177()
+    {
+        if (_PS_VERSION_ === undefined) {
+            return false;
+        } else {
+            return compareVersions(_PS_VERSION_, "1.7.7");
+        }
+    }
+
+    function compareVersions(currentVersion, minVersion)
+    {
+        currentVersion = currentVersion.split('.');
+        minVersion = minVersion.split('.');
+        // we only care about the 3rd digit of the version as 1.8 will be a whole different kettle of fish
+        if (typeof currentVersion[2] === 'undefined') {
+            return false;
+        }
+        return (currentVersion[2] >= minVersion[2]) ? true : false;
+    }
     
     function movePostFinanceCheckoutDocuments()
     {
         var documentsTab = $('#postfinancecheckout_documents_tab');
-        documentsTab.children('a').addClass('nav-link');
+        if (isVersionGTE177()) {
+            documentsTab.children('a').addClass('nav-link');
+        } else {
+            var parentElement = documentsTab.parent();
+            documentsTab.detach().appendTo(parentElement);
+        }
     }
     
     function movePostFinanceCheckoutActionsAndInfo()
@@ -74,11 +99,19 @@ jQuery(function ($) {
         
         managementBtn.each(function (key, element) {
             $(element).detach();
-            orderActions.find('.order-navigation').before(element);
+            if (isVersionGTE177()) {
+                orderActions.find('.order-navigation').before(element);
+            } else {
+                panel.find('div.well.hidden-print').find('i.icon-print').closest('div.well').append(element);
+            }
         });
         managementInfo.each(function (key, element) {
             $(element).detach();
-            orderActions.find('.order-navigation').before(element);
+            if (isVersionGTE177()) {
+                orderActions.find('.order-navigation').before(element);
+            } else {
+                panel.find('div.well.hidden-print').find('i.icon-print').closest('div.well').append(element);
+            }
         });
         //to get the styling of prestashop we have to add this
         managementBtn.after("&nbsp;\n");

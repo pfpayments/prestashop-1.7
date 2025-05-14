@@ -1,27 +1,27 @@
-<?php 
+<?php
 if (! defined('_PS_VERSION_')){
 	exit();
 }
 /**
  * Represents a mail attachment.
- * 
+ *
  * @author Thomas Hunziker
  *
  */
 class MailMessageAttachment {
-	
+
 	private $content;
-	
+
 	private $name;
-	
+
 	private $mimeType;
-	
+
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * Either the input as defined by Mail::send() for mail attachment
 	 * or a mail attachment. In later case the attachment is copied.
-	 * 
+	 *
 	 * @param array|MailMessageAttachment $input
 	 */
 	public function __construct($input = null) {
@@ -31,6 +31,13 @@ class MailMessageAttachment {
 			$this->mimeType = $input->mimeType;
 		}
 		else if (is_array($input)) {
+			foreach ($input as $sub) {
+				if (is_array($sub) && isset($sub['content'])) {
+					$input = $sub;
+					break;
+				}
+			}
+
 			if (isset($input['content'])) {
 				$this->setContent($input['content']);
 			}
@@ -45,7 +52,7 @@ class MailMessageAttachment {
 
 	/**
 	 * Returns the attachment content.
-	 * 
+	 *
 	 * @return string
 	 */
 	public function getContent(){
@@ -54,7 +61,7 @@ class MailMessageAttachment {
 
 	/**
 	 * Sets the attachment content. This may be binary data.
-	 * 
+	 *
 	 * @param string $content
 	 * @return MailMessageAttachment
 	 */
@@ -65,7 +72,7 @@ class MailMessageAttachment {
 
 	/**
 	 * Returns the name shown to the customer in the mail message.
-	 * 
+	 *
 	 * @return string
 	 */
 	public function getName(){
@@ -74,7 +81,7 @@ class MailMessageAttachment {
 
 	/**
 	 * Sets the name shown to the customer in the mail message.
-	 * 
+	 *
 	 * @param string $name
 	 * @return MailMessageAttachment
 	 */
@@ -85,7 +92,7 @@ class MailMessageAttachment {
 
 	/**
 	 * Returns the mime type of the attachment. E.g. application/pdf, text/html.
-	 * 
+	 *
 	 * @return string
 	 */
 	public function getMimeType(){
@@ -94,7 +101,7 @@ class MailMessageAttachment {
 
 	/**
 	 * Sets the mime type of the mail attachment. E.g. application/pdf, text/html.
-	 * 
+	 *
 	 * @param string $mimeType
 	 * @return MailMessageAttachment
 	 */
@@ -102,11 +109,11 @@ class MailMessageAttachment {
 		$this->mimeType = $mimeType;
 		return $this;
 	}
-	
+
 	/**
-	 * Returns the attachment as an array. This method is 
+	 * Returns the attachment as an array. This method is
 	 * need to provide the correct input for Mail::send().
-	 * 
+	 *
 	 * @return array
 	 */
 	public function toArray() {
@@ -116,7 +123,7 @@ class MailMessageAttachment {
 			'mime' => $this->getMimeType(),
 		);
 	}
-	
-	
-	
+
+
+
 }
