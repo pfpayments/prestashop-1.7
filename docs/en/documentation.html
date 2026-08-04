@@ -23,7 +23,7 @@
 		</a>
 	</li>
 	<li>
-		<a href="https://github.com/pfpayments/prestashop-1.7/releases/tag/1.2.51/">
+		<a href="https://github.com/pfpayments/prestashop-1.7/releases/tag/1.2.52/">
 			Source
 		</a>
 	</li>
@@ -52,7 +52,7 @@
 					<div class="olist arabic">
 <ol class="arabic">
 <li>
-<p><a href="https://github.com/pfpayments/prestashop-1.7/releases/tag/1.2.51/">Download</a> the module.</p>
+<p><a href="https://github.com/pfpayments/prestashop-1.7/releases/tag/1.2.52/">Download</a> the module.</p>
 </li>
 <li>
 <p>Login to the backend of your PrestsShop store.</p>
@@ -375,16 +375,72 @@ Tokenization is not available for guest checkouts.
 <p>The module uses the default PrestaShop logging functions which are automatically active in your PrestaShop store.
 The module will log various unexpected errors or information which can help identify the cause of the error. You can find the logs in your PrestaShop backend in Advanced Paratmeters &gt; Logs.</p>
 </div>					</div>
+</div>	<div class="chapter" id="_gdpr">
+	<div class="chapter-title">
+		<h1>
+			<span class="title-number">9</span>GDPR					</h1>
+	</div>
+	<div class="chapter-body">
+					<div class="paragraph">
+<p>This plugin use cookies for the purposes described below:</p>
+</div><table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 16%;"/>
+<col style="width: 16%;"/>
+<col style="width: 16%;"/>
+<col style="width: 16%;"/>
+<col style="width: 33%;"/>
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Name</th>
+<th class="tableblock halign-left valign-top">Purpose</th>
+<th class="tableblock halign-left valign-top">Duration</th>
+<th class="tableblock halign-left valign-top">Origin</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pfc_device_id</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Necessary</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Persistent</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">PostFinance Checkout</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Device identifier used by the payment gateway for fraud prevention. Generated once if not already present, on render of the order/cart pages. Used to build the URL for the gateway&#8217;s device.js.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pfc_error</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Necessary</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Transient (clears after redirect)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">PostFinance Checkout</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Flash error message carried across a redirect after a failed checkout/payment.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>id_cart</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Necessary</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Inherits the lifetime of PrestaShop&#8217;s cookie</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">PostFinance Checkout</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">After a failed payment, the plugin restores the customer&#8217;s original cart by writing its id back into this native PrestaShop field.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>postfinancecheckoutNewUi</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Functional</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Persistent (10 years)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">PostFinance Checkout</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">UI-version toggle for the PostFinance Checkout merchant portal (old vs. new UI). Set automatically on every login based on the user&#8217;s stored preference, and can be toggled by the user. HttpOnly, Secure on HTTPS.</p></td>
+</tr>
+</tbody>
+</table>					</div>
 </div>	<div class="chapter" id="_faq">
 	<div class="chapter-title">
 		<h1>
-			<span class="title-number">9</span>FAQ					</h1>
+			<span class="title-number">10</span>FAQ					</h1>
 	</div>
 	<div class="chapter-body">
 							<div class="section" id="_how_can_i_make_the_payment_methods_appear_in_the_checkout">
 	<div class="section-title">
 		<h2>
-			<span class="title-number">9.1</span>How can I make the payment methods appear in the checkout?					</h2>
+			<span class="title-number">10.1</span>How can I make the payment methods appear in the checkout?					</h2>
 	</div>
 	<div class="section-body">
 					<div class="paragraph">
@@ -396,7 +452,7 @@ The payment methods are only displayed if the plugin&#8217;s total calculation m
 </div>					<div class="section" id="_what_happens_in_a_prestashop_transaction">
 	<div class="section-title">
 		<h2>
-			<span class="title-number">9.2</span>What happens in a PrestaShop transaction.					</h2>
+			<span class="title-number">10.2</span>What happens in a PrestaShop transaction.					</h2>
 	</div>
 	<div class="section-body">
 					<div class="paragraph">
@@ -415,7 +471,7 @@ The email notification to the customer will only be sent, when an order/transact
 </div>	<div class="chapter" id="_support">
 	<div class="chapter-title">
 		<h1>
-			<span class="title-number">10</span>Support					</h1>
+			<span class="title-number">11</span>Support					</h1>
 	</div>
 	<div class="chapter-body">
 					<div class="paragraph">
@@ -520,25 +576,30 @@ The email notification to the customer will only be sent, when an order/transact
 		<span class="item-title">Error logging</span>
 			</a>
     </li>					<li class="nav-level-1">
-	<a href="#_faq">
+	<a href="#_gdpr">
 		<span class="item-number">9</span>
+		<span class="item-title">GDPR</span>
+			</a>
+    </li>					<li class="nav-level-1">
+	<a href="#_faq">
+		<span class="item-number">10</span>
 		<span class="item-title">FAQ</span>
 			</a>
         	<ul  class="nav">
     		    			<li class="nav-level-2">
 	<a href="#_how_can_i_make_the_payment_methods_appear_in_the_checkout">
-		<span class="item-number">9.1</span>
+		<span class="item-number">10.1</span>
 		<span class="item-title">How can I make the payment methods appear in the checkout?</span>
 			</a>
     </li>    		    			<li class="nav-level-2">
 	<a href="#_what_happens_in_a_prestashop_transaction">
-		<span class="item-number">9.2</span>
+		<span class="item-number">10.2</span>
 		<span class="item-title">What happens in a PrestaShop transaction.</span>
 			</a>
     </li>    		    	</ul>
     </li>					<li class="nav-level-1">
 	<a href="#_support">
-		<span class="item-number">10</span>
+		<span class="item-number">11</span>
 		<span class="item-title">Support</span>
 			</a>
     </li>			</ul>
